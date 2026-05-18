@@ -25,7 +25,7 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
             <FavoritesProvider>
                 <Providers>
                     <div className={clsx(
-                        "min-h-screen bg-background font-sans antialiased",
+                        "min-h-screen bg-background font-sans antialiased overflow-x-clip",
                     )}>
                         <Navbar />
                         <main className={clsx(

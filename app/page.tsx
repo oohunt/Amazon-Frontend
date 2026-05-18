@@ -189,7 +189,7 @@ export default function Home() {
     }, []);
 
     return (
-        <div className="relative min-h-screen w-full" style={{ overflowX: 'clip' }}>
+        <div className="relative min-h-screen w-full overflow-x-clip">
             <div className="flex max-w-[1800px] mx-auto w-full">
                 {/* 左侧导航 */}
                 <div className="hidden lg:block w-[240px] relative" ref={catalogRef}>

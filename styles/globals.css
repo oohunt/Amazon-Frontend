@@ -22,9 +22,7 @@ button:focus,
 body {
   padding-top: var(--navbar-height);
   @apply bg-background text-text antialiased min-h-screen relative;
-  overflow-x: clip;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
+  /* overflow-x handled by wrapper divs, not body — avoids scroll container issues */
 }
 
 /* 移除所有链接的下划线 */
@@ -169,9 +167,8 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
   }
   
   html {
-    overflow-x: clip;
+    /* No overflow-x set on html — setting it shifts the scroll container away from viewport */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
   }
 
   /* 移除全局 h1-h6 默认样式，让 prose 控制 */
