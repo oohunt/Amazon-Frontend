@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isHaram } from "@/lib/haram-filter";
 import { getProductById } from "@/lib/db/products";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,13 @@ export async function GET(
 
         const product = await getProductById(asin);
         if (!product) {
+            return NextResponse.json(
+                { success: false, error: "Product not found" },
+                { status: 404 }
+            );
+        }
+
+        if (isHaram(product.title || "", product.product_group || "")) {
             return NextResponse.json(
                 { success: false, error: "Product not found" },
                 { status: 404 }
