@@ -15,21 +15,23 @@ interface Category {
     slug: string;
 }
 
-// 产品组到分类的映射 - 与CategoryNavigation中的映射保持一致
+// 产品组到分类的映射 - kept in sync with CategoryNavigation
 const productGroupToCategoryMapping: Record<string, { slug: string, name: string }> = {
     'Electronics': { slug: 'Electronics', name: 'Electronics' },
-    'Home': { slug: 'Home', name: 'Home & Kitchen' },
-    'Kitchen': { slug: 'Kitchen', name: 'Kitchen' },
-    'Apparel': { slug: 'Apparel', name: 'Apparel' },
-    'Sports': { slug: 'Sports', name: 'Sports & Outdoors' },
-    'Beauty': { slug: 'Beauty', name: 'Beauty & Care' },
-    'Furniture': { slug: 'Furniture', name: 'Furniture' },
-    'Shoes': { slug: 'Shoes', name: 'Shoes' },
-    'Personal Computer': { slug: 'Personal Computer', name: 'Computers' },
-    'Lawn & Patio': { slug: 'Lawn & Patio', name: 'Garden & Patio' },
-    'Wireless': { slug: 'Wireless', name: 'Wireless Devices' },
-    'Drugstore': { slug: 'Drugstore', name: 'Health & Household' },
-    'Automotive Parts and Accessories': { slug: 'Automotive Parts and Accessories', name: 'Automotive' }
+    'Clothing, Shoes & Jewelry': { slug: 'Clothing, Shoes & Jewelry', name: 'Clothing & Jewelry' },
+    'Home & Kitchen': { slug: 'Home & Kitchen', name: 'Home & Kitchen' },
+    'Sports & Outdoors': { slug: 'Sports & Outdoors', name: 'Sports & Outdoors' },
+    'Beauty & Personal Care': { slug: 'Beauty & Personal Care', name: 'Beauty' },
+    'Toys & Games': { slug: 'Toys & Games', name: 'Toys & Games' },
+    'Books': { slug: 'Books', name: 'Books' },
+    'Automotive': { slug: 'Automotive', name: 'Automotive' },
+    'Health & Household': { slug: 'Health & Household', name: 'Health' },
+    'Tools & Home Improvement': { slug: 'Tools & Home Improvement', name: 'Tools' },
+    'Pet Supplies': { slug: 'Pet Supplies', name: 'Pet Supplies' },
+    'Patio, Lawn & Garden': { slug: 'Patio, Lawn & Garden', name: 'Garden & Patio' },
+    'Baby': { slug: 'Baby', name: 'Baby' },
+    'Baby Products': { slug: 'Baby Products', name: 'Baby' },
+    'Office Products': { slug: 'Office Products', name: 'Office' },
 };
 
 // 添加获取导航栏高度的函数

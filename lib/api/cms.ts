@@ -21,7 +21,7 @@ import type {
 // 服务器端环境下的BASE URL
 const SERVER_API_URL = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api`
-    : 'http://localhost:3000/api';
+    : 'http://localhost:3004/api';
 const isServer = () => typeof window === 'undefined';
 
 // 为服务器端和客户端创建单独的API客户端

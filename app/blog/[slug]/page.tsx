@@ -7,7 +7,7 @@ import { SafeImage } from '@/components/common/SafeImage';
 
 // 获取文章数据
 async function getPageData(slug: string, preview: boolean = false): Promise<PageData | null> {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
     try {
         // 添加preview参数以支持草稿预览
@@ -64,7 +64,7 @@ interface PageData {
 
 // 生成页面元数据
 export async function generateMetadata(
-    { params, searchParams }: { params: { slug: string }, searchParams?: { [key: string]: string | string[] | undefined } },
+    { params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: Promise<{ [key: string]: string | string[] | undefined }> },
     parent: ResolvingMetadata
 ): Promise<Metadata> {
     const resolvedParams = await params;
@@ -106,8 +106,8 @@ function _formatDate(dateString: string): string {
 
 // 页面组件
 export default async function BlogPost({ params, searchParams }: {
-    params: { slug: string },
-    searchParams?: { [key: string]: string | string[] | undefined }
+    params: Promise<{ slug: string }>,
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
     const resolvedParams = await params;
     const resolvedSearchParams = await searchParams;

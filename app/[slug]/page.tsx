@@ -7,7 +7,7 @@ import ContentRenderer from '@/components/cms/ContentRenderer';
 // 例如，从你的 API 路由 /api/cms/content/[slug] 获取
 async function getPageData(slug: string): Promise<PageData | null> {
     // 在实际应用中，你需要替换成真实的 API 调用
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'; // Use environment variable or default
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004'; // Use environment variable or default
 
     try {
         // 使用相对路径或绝对路径调用API
@@ -86,7 +86,7 @@ interface PageData {
 
 // 生成页面元数据 (可选但推荐)
 export async function generateMetadata(
-    { params }: { params: { slug: string } },
+    { params }: { params: Promise<{ slug: string }> },
     parent: ResolvingMetadata
 ): Promise<Metadata> {
     // Await params before accessing slug
@@ -119,7 +119,7 @@ export async function generateMetadata(
 }
 
 // 页面组件
-export default async function ContentPage({ params }: { params: { slug: string } }) {
+export default async function ContentPage({ params }: { params: Promise<{ slug: string }> }) {
     // Await params before accessing slug
     const resolvedParams = await params;
     const pageData: PageData | null = await getPageData(resolvedParams.slug);

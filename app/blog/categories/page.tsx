@@ -7,7 +7,7 @@ import type { ContentCategory } from '@/types/cms';
 
 // Fetch all categories data
 async function getCategories(): Promise<ContentCategory[]> {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
     // Fetch a large number to get all categories, adjust if needed
     const url = `${apiBaseUrl}/api/cms/categories?limit=500`;
 

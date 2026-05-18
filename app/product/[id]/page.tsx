@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { FeaturedDeals } from '@/components/ui/FeaturedDeals';
-import { productsApi } from '@/lib/api';
+import { getProductById } from '@/lib/db/products';
 import { adaptProducts } from '@/lib/utils';
 import type { Product } from '@/types/api';
 
@@ -14,47 +14,14 @@ type ProductPageProps = {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-// Function to fetch product data on the server
+// Function to fetch product data directly from MongoDB
 async function getProduct(id: string): Promise<Product | null> {
-    if (!id) {
-        return null;
-    }
-
+    if (!id) return null;
     try {
-        // Check if ID is in ASIN format (10-13 alphanumeric chars)
-        const upperCaseId = id.toUpperCase();
-        const isAsin = /^[A-Z0-9]{10,13}$/.test(upperCaseId);
-
-        if (isAsin) {
-            // Use query API to get product by ASIN
-            const response = await productsApi.queryProduct({
-                asins: [upperCaseId],
-                include_metadata: false,
-                include_browse_nodes: ["false"]
-            });
-
-            if (response && response.data) {
-                // 处理返回的可能是数组的情况
-                const productData = Array.isArray(response.data)
-                    ? response.data[0]
-                    : response.data;
-
-                return productData as unknown as Product;
-            }
-        } else {
-            // Get product by ID
-            const response = await productsApi.getProductById(id);
-
-            if (response && response.data) {
-                return response.data as unknown as Product;
-            }
-        }
-
-        return null;
+        return await getProductById(id) as Product | null;
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching product:', error);
-
         return null;
     }
 }

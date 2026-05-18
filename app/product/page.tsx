@@ -297,13 +297,9 @@ const ScrollToTopButton = () => {
     );
 };
 
-// 在主页面组件之前添加接口定义
-interface ProductsPageProps {
-    categoryFromSlug?: string;
-}
-
 // 修改主页面组件
-export default function ProductsPage({ categoryFromSlug }: ProductsPageProps = {}) {
+export default function ProductsPage() {
+    const categoryFromSlug = undefined;
     return (
         <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">
             <div className="animate-pulse text-xl font-semibold">Loading products...</div>
@@ -316,6 +312,15 @@ export default function ProductsPage({ categoryFromSlug }: ProductsPageProps = {
 // 使用 Client Component 包装搜索参数逻辑
 function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {}) {
     const searchParamsFromUrl = useSearchParams();
+    // Detect category from URL path (e.g. /product/category/Electronics)
+    const pathname0 = usePathname();
+    const categoryFromPath = useMemo(() => {
+        if (pathname0) {
+            const match = pathname0.match(/\/product\/category\/(.+)/);
+            return match ? decodeURIComponent(match[1]) : undefined;
+        }
+        return undefined;
+    }, [pathname0]);
     const [searchParams, setSearchParams] = useState({
         product_groups: '' as string,
         brands: '' as string,
@@ -441,9 +446,9 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         const product_groups = searchParamsFromUrl.get('product_groups') || '';
         const category = searchParamsFromUrl.get('category') || ''; // 兼容category参数
 
-        // 优先使用从路由路径传入的categoryFromSlug，而不是查询参数
-        // 如果有categoryFromSlug，则忽略查询参数中的category或product_groups
-        const effective_category = categoryFromSlug || product_groups || category;
+        // 优先使用从路由路径传入的categoryFromSlug或URL路径中的分类，而不是查询参数
+        // 如果有categoryFromSlug或categoryFromPath，则忽略查询参数中的category或product_groups
+        const effective_category = categoryFromSlug || categoryFromPath || product_groups || category;
 
         const page = Number(searchParamsFromUrl.get('page')) || 1;
         const min_price = searchParamsFromUrl.get('min_price') ? Number(searchParamsFromUrl.get('min_price')) : undefined;
@@ -485,11 +490,11 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             is_prime_only: is_prime_only
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParamsFromUrl, categoryFromSlug]);
+    }, [searchParamsFromUrl, categoryFromSlug, categoryFromPath]);
 
     // 引入useRouter和usePathname
     const router = useRouter();
-    const pathname = usePathname(); // 使用当前页面实际路径
+    const pathname = pathname0; // 使用当前页面实际路径
 
     // 添加useEffect，当searchParams变化时更新URL
     useEffect(() => {

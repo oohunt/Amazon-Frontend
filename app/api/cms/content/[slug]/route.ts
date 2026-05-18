@@ -40,7 +40,7 @@ interface FormattedPage {
 // 通过slug获取内容页面，支持预览草稿
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
         // Await params before accessing slug, following the error message suggestion

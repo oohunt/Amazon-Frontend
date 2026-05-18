@@ -7,7 +7,7 @@ import type { ContentTag } from '@/types/cms';
 
 // Fetch all tags data
 async function getTags(): Promise<ContentTag[]> {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
     // Fetch a large number to get all tags, adjust if needed
     const url = `${apiBaseUrl}/api/cms/tags?limit=500`;
 

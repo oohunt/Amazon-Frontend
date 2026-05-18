@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 86400; // 每24小时重新验证一次
 
 // 定义API URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.oohunt.com';
 
 // 获取分类数据的函数

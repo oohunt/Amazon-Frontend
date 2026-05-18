@@ -12,8 +12,10 @@ import type { User } from '@/lib/models/User';
 import { UserRole, isAdminAccount, isSuperAdminAccount } from '@/lib/models/UserRole';
 import clientPromise from '@/lib/mongodb';
 
-// 初始化Resend - 确保API密钥已设置在环境变量中
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 懒初始化Resend - 仅在实际发送邮件时创建实例
+function getResend() {
+    return new Resend(process.env.RESEND_API_KEY || 'placeholder');
+}
 
 export async function POST(request: Request) {
     try {
@@ -130,7 +132,7 @@ export async function POST(request: Request) {
             }
 
             // 使用Resend发送确认邮件
-            await resend.emails.send(emailConfig);
+            await getResend().emails.send(emailConfig);
         } catch (emailError) {
             return NextResponse.json({
                 success: false,

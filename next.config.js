@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    eslint: {
+        // ESLint uses rspack-resolver which has a native binding issue on Windows.
+        // TypeScript (tsc --noEmit) is used for type-checking instead.
+        ignoreDuringBuilds: true,
+    },
     images: {
         minimumCacheTTL: 2678400,
         formats: ['image/webp'],
@@ -76,38 +81,7 @@ const nextConfig = {
         return config;
     },
     async rewrites() {
-        return [
-            // 转发非用户管理的 API 到远程服务器
-            {
-                source: '/api/brands/:path*',
-                destination: 'http://89.116.212.208:5001/api/brands/:path*',
-            },
-            {
-                source: '/api/products/:path*',
-                destination: 'http://89.116.212.208:5001/api/products/:path*',
-            },
-            {
-                source: '/api/categories/:path*',
-                destination: 'http://89.116.212.208:5001/api/categories/:path*',
-            },
-            {
-                source: '/api/health/:path*',
-                destination: 'http://89.116.212.208:5001/api/health/:path*',
-            },
-            {
-                source: '/api/search/products/:path*',
-                destination: 'http://89.116.212.208:5001/api/search/products/:path*',
-            },
-            {
-                source: '/api/products/count/:path*',
-                destination: 'http://89.116.212.208:5001/api/products/list/:path*',
-            },
-            // 其他 API 路由保持在本地
-            {
-                source: '/api/users/:path*',
-                destination: '/api/users/:path*', // 本地路由
-            }
-        ];
+        return [];
     },
     async headers() {
         return [

@@ -23,9 +23,25 @@ interface CategoryNavigationProps {
     useAnchorLinks?: boolean; // 是否使用锚链接
 }
 
-// 产品组到分类的映射
+// 产品组到分类的映射 — includes PartnerBoost/MongoDB category names
 const productGroupToCategoryMapping: Record<string, { slug: string, name: string }> = {
+    // PartnerBoost categories (what we store in MongoDB)
     'Electronics': { slug: 'Electronics', name: 'Electronics' },
+    'Clothing, Shoes & Jewelry': { slug: 'Clothing, Shoes & Jewelry', name: 'Clothing & Jewelry' },
+    'Home & Kitchen': { slug: 'Home & Kitchen', name: 'Home & Kitchen' },
+    'Sports & Outdoors': { slug: 'Sports & Outdoors', name: 'Sports & Outdoors' },
+    'Beauty & Personal Care': { slug: 'Beauty & Personal Care', name: 'Beauty' },
+    'Toys & Games': { slug: 'Toys & Games', name: 'Toys & Games' },
+    'Books': { slug: 'Books', name: 'Books' },
+    'Automotive': { slug: 'Automotive', name: 'Automotive' },
+    'Health & Household': { slug: 'Health & Household', name: 'Health' },
+    'Tools & Home Improvement': { slug: 'Tools & Home Improvement', name: 'Tools' },
+    'Pet Supplies': { slug: 'Pet Supplies', name: 'Pet Supplies' },
+    'Patio, Lawn & Garden': { slug: 'Patio, Lawn & Garden', name: 'Garden & Patio' },
+    'Baby': { slug: 'Baby', name: 'Baby' },
+    'Baby Products': { slug: 'Baby Products', name: 'Baby' },
+    'Office Products': { slug: 'Office Products', name: 'Office' },
+    // Legacy Amazon PA-API categories (kept for backward compat)
     'Home': { slug: 'Home', name: 'Home & Kitchen' },
     'Kitchen': { slug: 'Kitchen', name: 'Kitchen' },
     'Apparel': { slug: 'Apparel', name: 'Apparel' },
@@ -37,7 +53,7 @@ const productGroupToCategoryMapping: Record<string, { slug: string, name: string
     'Lawn & Patio': { slug: 'Lawn & Patio', name: 'Garden & Patio' },
     'Wireless': { slug: 'Wireless', name: 'Wireless Devices' },
     'Drugstore': { slug: 'Drugstore', name: 'Health & Household' },
-    'Automotive Parts and Accessories': { slug: 'Automotive Parts and Accessories', name: 'Automotive' }
+    'Automotive Parts and Accessories': { slug: 'Automotive Parts and Accessories', name: 'Automotive' },
 };
 
 // 分类图标映射 - 使用emoji表情替代Lucide图标
@@ -137,7 +153,21 @@ const categoryIcons: Record<string, { emoji: string, color: string }> = {
     gifts: {
         emoji: '🎁',
         color: 'from-[#5a8a9f] to-[#3d5a80]'
-    }
+    },
+    // PartnerBoost / MongoDB category names (lowercase)
+    'clothing, shoes & jewelry': { emoji: '👗', color: 'from-[#c06c84] to-[#6c5b7b]' },
+    'home & kitchen': { emoji: '🏠', color: 'from-[#81a4c4] to-[#5a8a9f]' },
+    'sports & outdoors': { emoji: '⚽', color: 'from-[#4d6d85] to-[#3d5a80]' },
+    'beauty & personal care': { emoji: '✨', color: 'from-[#f8a5c2] to-[#c06c84]' },
+    'toys & games': { emoji: '🧸', color: 'from-[#f9ca24] to-[#f0932b]' },
+    books: { emoji: '📚', color: 'from-[#6a89cc] to-[#4a69bd]' },
+    'health & household': { emoji: '💊', color: 'from-[#81a4c4] to-[#5a8a9f]' },
+    'tools & home improvement': { emoji: '🔧', color: 'from-[#7f8c8d] to-[#2c3e50]' },
+    'pet supplies': { emoji: '🐾', color: 'from-[#f9ca24] to-[#f0932b]' },
+    'patio, lawn & garden': { emoji: '🌿', color: 'from-[#6b8ea1] to-[#4d6d85]' },
+    'baby products': { emoji: '👶', color: 'from-[#81a4c4] to-[#5a8a9f]' },
+    baby: { emoji: '👶', color: 'from-[#81a4c4] to-[#5a8a9f]' },
+    'office products': { emoji: '💼', color: 'from-[#6b8ea1] to-[#4d6d85]' },
 };
 
 export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigationProps) {

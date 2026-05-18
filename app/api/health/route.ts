@@ -1,29 +1,30 @@
 import { NextResponse } from 'next/server';
 
+import clientPromise from '@/lib/mongodb';
+
 /**
  * 健康检查API端点
  * GET /api/health
  */
 export async function GET() {
     try {
-        // 从远程服务器获取健康状态
-        const response = await fetch('http://89.116.212.208:5001/api/health');
-
-        if (!response.ok) {
-            throw new Error(`远程服务器返回错误：${response.status}`);
-        }
-
-        const data = await response.json();
+        const client = await clientPromise;
+        const db = client.db(process.env.MONGODB_DB || 'oohunt');
+        // Lightweight ping
+        await db.command({ ping: 1 });
 
         return NextResponse.json({
             success: true,
-            data
+            data: {
+                status: 'ok',
+                database: 'connected',
+                timestamp: new Date().toISOString(),
+            }
         });
-    } catch {
-
+    } catch (error) {
         return NextResponse.json({
             success: false,
-            error: '无法获取健康状态'
+            error: error instanceof Error ? error.message : 'Database connection failed'
         }, { status: 500 });
     }
-} 
+}

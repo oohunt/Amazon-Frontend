@@ -5,7 +5,7 @@ import clientPromise from '@/lib/mongodb';
 // 通过slug获取分类
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
 

@@ -9,7 +9,7 @@ import type { ContentTag, ContentPage as PageData } from '@/types/cms';
 async function getTagData(slug: string): Promise<ContentTag | null> {
     try {
         // 使用服务器端直接API调用代替客户端API库
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+        const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/tags/slug/${slug}`, {
             cache: 'no-store',
@@ -40,7 +40,7 @@ async function getTagData(slug: string): Promise<ContentTag | null> {
 async function getTagPosts(tagId: string): Promise<PageData[]> {
     try {
         // 使用服务器端直接API调用代替客户端API库
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+        const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/pages?tag=${tagId}&status=published&sortBy=publishedAt&sortOrder=desc&limit=50`, {
             cache: 'no-store',
@@ -72,7 +72,7 @@ async function getTagPosts(tagId: string): Promise<PageData[]> {
 
 // 生成页面元数据
 export async function generateMetadata(
-    { params }: { params: { tag: string } }
+    { params }: { params: Promise<{ tag: string }> }
 ): Promise<Metadata> {
     // 确保先await参数
     const resolvedParams = await params;
@@ -102,7 +102,7 @@ function _formatDate(dateString: string): string {
 }
 
 // 标签文章列表页面组件
-export default async function TagPage({ params }: { params: { tag: string } }) {
+export default async function TagPage({ params }: { params: Promise<{ tag: string }> }) {
     // 确保先await参数
     const resolvedParams = await params;
     const tag = await getTagData(resolvedParams.tag);

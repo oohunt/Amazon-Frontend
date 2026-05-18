@@ -7,7 +7,7 @@ import type { ContentPageUpdateRequest } from '@/types/cms';
 // 获取单个内容页面
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params;
@@ -71,7 +71,7 @@ export async function GET(
 // 更新内容页面
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params;
@@ -185,7 +185,7 @@ export async function PUT(
 // 删除内容页面
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params;

@@ -18,7 +18,10 @@ import type {
 } from '@/types/cms';
 
 // API Base URL configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// SERVER_ORIGIN is the full site origin (no trailing /api) — used for server-side absolute URLs
+const SERVER_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
+const API_BASE_URL = `${SERVER_ORIGIN}/api`;
+// SERVER_API_URL: full /api base for axios instance; falls back to our local origin
 const SERVER_API_URL = process.env.SERVER_API_URL || API_BASE_URL;
 const DEFAULT_TIMEOUT = 15000;
 
@@ -63,7 +66,7 @@ api.interceptors.request.use(
     (config) => {
         // 在服务器端运行时，除非请求URL包含特定路径
         if (isServer() && !config.url?.includes('/products/query')) {
-            config.baseURL = 'http://localhost:3000/api';
+            config.baseURL = API_BASE_URL;
         } else if (isServer()) {
             // 对于products/query请求，使用SERVER_API_URL
             config.baseURL = SERVER_API_URL;
@@ -81,7 +84,7 @@ cmsApiClient.interceptors.request.use(
     (config) => {
         // 在服务器端运行时，强制使用本地URL
         if (isServer()) {
-            config.baseURL = 'http://localhost:3000/api';
+            config.baseURL = API_BASE_URL;
         }
 
         return config;
@@ -191,8 +194,8 @@ export const productsApi = {
 
             // 获取完整URL
             const queryString = queryParams.toString();
-            const baseUrl = isServer() ? SERVER_API_URL : '';
-            // 只有在queryString非空时才添加?
+            // Server-side needs absolute URL; client-side uses relative /api path
+            const baseUrl = isServer() ? SERVER_ORIGIN : '';
             const url = `${baseUrl}/api/products/list${queryString ? `?${queryString}` : ''}`;
 
             // 使用fetch API发起请求，利用Next.js的自动缓存

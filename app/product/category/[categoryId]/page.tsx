@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { CategoryPageWrapper } from './ClientComponents';
 
 // 服务器组件部分 - 用于生成元数据
-export const generateMetadata = async ({ params }: { params: { categoryId: string } }): Promise<Metadata> => {
+export const generateMetadata = async ({ params }: { params: Promise<{ categoryId: string }> }): Promise<Metadata> => {
     // 先await params对象
     const paramsObj = await params;
     // 解码URL参数
@@ -25,7 +25,7 @@ export const generateMetadata = async ({ params }: { params: { categoryId: strin
 };
 
 // 导出默认页面组件
-export default async function CategoryPage({ params }: { params: { categoryId: string } }) {
+export default async function CategoryPage({ params }: { params: Promise<{ categoryId: string }> }) {
     // 先await params对象
     const paramsObj = await params;
     // 解码分类名称

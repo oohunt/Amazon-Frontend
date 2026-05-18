@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 // Fetch all posts data
 async function getPages(): Promise<PageData[]> {
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
     try {
         const res = await fetch(`${apiBaseUrl}/api/cms/content`, {

@@ -3,8 +3,10 @@ import { Resend } from 'resend';
 
 import clientPromise from '@/lib/mongodb';
 
-// 初始化Resend - 确保API密钥已设置在环境变量中
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 懒初始化Resend - 仅在实际发送邮件时创建实例
+function getResend() {
+    return new Resend(process.env.RESEND_API_KEY || 'placeholder');
+}
 
 // 判断是否启用邮件通知功能（默认启用）
 const enableEmailNotification = process.env.ENABLE_CONTACT_EMAIL_NOTIFICATION !== 'false';
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
             const adminEmail = process.env.ADMIN_EMAIL || 'admin@oohunt.com';
 
             try {
-                await resend.emails.send({
+                await getResend().emails.send({
                     from: 'noreply@oohunt.com',
                     to: adminEmail,
                     subject: `New ${formSource ? `${formSource} form` : 'contact form'} message: ${subject}`,

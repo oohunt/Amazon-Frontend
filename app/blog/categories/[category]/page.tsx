@@ -9,7 +9,7 @@ import type { ContentCategory, ContentPage as PageData } from '@/types/cms';
 async function getCategoryData(slug: string): Promise<ContentCategory | null> {
     try {
         // 使用服务器端直接API调用代替客户端API库
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+        const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/categories/slug/${slug}`, {
             cache: 'no-store',
@@ -40,7 +40,7 @@ async function getCategoryData(slug: string): Promise<ContentCategory | null> {
 async function getCategoryPosts(categoryId: string): Promise<PageData[]> {
     try {
         // 使用服务器端直接API调用代替客户端API库
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+        const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/pages?category=${categoryId}&status=published&sortBy=publishedAt&sortOrder=desc&limit=50`, {
             cache: 'no-store',
@@ -72,7 +72,7 @@ async function getCategoryPosts(categoryId: string): Promise<PageData[]> {
 
 // 生成页面元数据
 export async function generateMetadata(
-    { params }: { params: { category: string } }
+    { params }: { params: Promise<{ category: string }> }
 ): Promise<Metadata> {
     // 确保先await参数
     const resolvedParams = await params;
@@ -102,7 +102,7 @@ function _formatDate(dateString: string): string {
 }
 
 // 分类文章列表页面组件
-export default async function CategoryPage({ params }: { params: { category: string } }) {
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
     // 确保先await参数
     const resolvedParams = await params;
     const category = await getCategoryData(resolvedParams.category);

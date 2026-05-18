@@ -29,5 +29,5 @@ export function CategoryPageWrapper({ categorySlug }: { categorySlug: string }) 
         return () => clearTimeout(timer);
     }, [pathname, categorySlug]);
 
-    return <ProductsPage categoryFromSlug={categorySlug} />;
+    return <ProductsPage />;
 } 
