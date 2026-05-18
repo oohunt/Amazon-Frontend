@@ -21,7 +21,8 @@ button:focus,
 /* 基础样式 */
 body {
   padding-top: var(--navbar-height);
-  @apply bg-background text-text antialiased min-h-screen relative overflow-x-hidden;
+  @apply bg-background text-text antialiased min-h-screen relative;
+  overflow-x: clip;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: none;
 }
@@ -168,7 +169,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
   }
   
   html {
-    @apply overflow-x-hidden;
+    overflow-x: clip;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: none;
   }
