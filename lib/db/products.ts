@@ -181,24 +181,33 @@ export async function countProducts(opts: Omit<ProductQueryOptions, "page" | "pa
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
     const col = await getCollection();
-    // Sample generously, then deduplicate by ASIN in JS.
-    // Avoids Atlas 32 MB in-memory sort limit while still removing dupes.
+    // Sample generously, then deduplicate by both ASIN and brand in JS.
+    // This prevents the same brand appearing multiple times on the homepage.
     const raw = await col.aggregate([
         { $match: { discount: { $nin: ["", "0", null] } } },
-        { $sample: { size: limit * 4 } },
+        { $sample: { size: limit * 8 } },
     ]).toArray();
 
-    const seen = new Set<string>();
+    const seenAsins = new Set<string>();
+    const seenBrands = new Set<string>();
     const deduped: typeof raw = [];
+
     for (const doc of raw) {
-        const key: string = doc.asin || doc.product_id || String(doc._id);
-        if (!seen.has(key)) {
-            seen.add(key);
-            deduped.push(doc);
-        }
+        const asinKey: string = doc.asin || doc.product_id || String(doc._id);
+        const brandKey: string = (doc.brand_name || "").toLowerCase().trim();
+
+        // Skip if same ASIN already included, or same brand already included
+        if (seenAsins.has(asinKey)) continue;
+        if (brandKey && seenBrands.has(brandKey)) continue;
+
+        seenAsins.add(asinKey);
+        if (brandKey) seenBrands.add(brandKey);
+        deduped.push(doc);
+
+        if (deduped.length >= limit) break;
     }
 
-    return deduped.slice(0, limit).map(toProduct);
+    return deduped.map(toProduct);
 }
 
 /** Return every DB record for a given ASIN — used by the product detail page. */
