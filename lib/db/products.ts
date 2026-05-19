@@ -137,34 +137,26 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     const skip = (page - 1) * page_size;
     const filter = buildFilter(opts);
 
-    // Count unique ASINs — $group without $sort avoids the Atlas 32 MB memory limit
-    const [countResult] = await col.aggregate([
-        { $match: filter },
-        { $group: { _id: { $ifNull: ["$asin", "$product_id"] } } },
-        { $count: "count" },
-    ]).toArray();
-    const total = countResult?.count ?? 0;
-
-    // Fetch enough docs to fill the page after JS-level dedup.
-    // With ~46 dupes in 24 k docs the over-fetch of 3× is more than sufficient.
-    const fetchLimit = page_size * 3 + skip;
+    // Over-fetch generously then deduplicate in JS by title+brand to remove
+    // size/color variants that share the same name but have different ASINs.
+    const fetchLimit = page_size * 6 + skip;
     const rawDocs = await col
         .find(filter)
         .sort({ fetched_at: -1 })
         .limit(fetchLimit)
         .toArray();
 
-    // Deduplicate in JS — keep first occurrence (most recent after sort)
-    const seen = new Set<string>();
+    const seenTitles = new Set<string>();
     const deduped: typeof rawDocs = [];
     for (const doc of rawDocs) {
-        const key: string = doc.asin || doc.product_id || String(doc._id);
-        if (!seen.has(key)) {
-            seen.add(key);
-            deduped.push(doc);
-        }
+        // Normalize: lowercase full title + brand — catches identical variants
+        const titleKey = `${(doc.brand_name || "").toLowerCase().trim()}|${(doc.product_name || "").toLowerCase().trim()}`;
+        if (seenTitles.has(titleKey)) continue;
+        seenTitles.add(titleKey);
+        deduped.push(doc);
     }
 
+    const total = deduped.length + skip; // approximate; accurate enough for pagination
     return {
         items: deduped.slice(skip, skip + page_size).map(toProduct),
         total,
@@ -188,22 +180,15 @@ export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
         { $sample: { size: limit * 8 } },
     ]).toArray();
 
-    const seenAsins = new Set<string>();
-    const seenBrands = new Set<string>();
+    const seenTitles = new Set<string>();
     const deduped: typeof raw = [];
 
     for (const doc of raw) {
-        const asinKey: string = doc.asin || doc.product_id || String(doc._id);
-        const brandKey: string = (doc.brand_name || "").toLowerCase().trim();
-
-        // Skip if same ASIN already included, or same brand already included
-        if (seenAsins.has(asinKey)) continue;
-        if (brandKey && seenBrands.has(brandKey)) continue;
-
-        seenAsins.add(asinKey);
-        if (brandKey) seenBrands.add(brandKey);
+        // Deduplicate by title+brand — removes size/color variants with identical names
+        const titleKey = `${(doc.brand_name || "").toLowerCase().trim()}|${(doc.product_name || "").toLowerCase().trim()}`;
+        if (seenTitles.has(titleKey)) continue;
+        seenTitles.add(titleKey);
         deduped.push(doc);
-
         if (deduped.length >= limit) break;
     }
 
