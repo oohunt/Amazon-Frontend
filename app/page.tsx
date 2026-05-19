@@ -15,6 +15,14 @@ interface Category {
     slug: string;
 }
 
+// Categories to never show on the homepage (clothing removed per user decision)
+const HIDDEN_CATEGORIES = new Set([
+    'Clothing, Shoes & Jewelry',
+    'Clothing',
+    'Shoes',
+    'Jewelry',
+]);
+
 // Product group to category mapping — kept in sync with CategoryNavigation
 const productGroupToCategoryMapping: Record<string, { slug: string, name: string }> = {
     'Electronics': { slug: 'Electronics', name: 'Electronics' },
@@ -73,7 +81,7 @@ export default function Home() {
 
             // Convert object to array, filter categories with count > 50, sort by count
             const sortedCategories = Object.entries(productGroups)
-                .filter(([_groupName, count]) => count > 50)
+                .filter(([groupName, count]) => count > 50 && !HIDDEN_CATEGORIES.has(groupName))
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 8) // Take top 8
                 .map(([groupName]) => {

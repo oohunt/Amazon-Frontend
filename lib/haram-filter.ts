@@ -347,6 +347,32 @@ const HARAM_KEYWORDS: Record<string, string[]> = {
     "snake shaped", "snake-shaped",
   ],
 
+  // ── 19. Women's revealing clothing & lingerie ────────────────────────────
+  revealingClothing: [
+    // Lingerie
+    "lingerie", "bra", "bras", "bralette", "bandeau", "bandeaus",
+    "push-up bra", "sports bra", "nursing bra", "strapless bra", "underwire bra",
+    "corset", "bustier", "garter belt", "garter",
+    "babydoll lingerie", "chemise lingerie", "teddy lingerie",
+    "bodystocking", "camisole lingerie", "sexy lingerie",
+    "nightgown sexy", "sleepwear lingerie",
+    // Underwear
+    "panties", "thong", "g-string", "boyshorts", "women's underwear",
+    "womens underwear", "ladies underwear", "women underwear",
+    "briefs women", "hipster underwear women",
+    // Swimwear
+    "bikini", "bikinis", "bikini top", "bikini bottom", "bikini set",
+    "women's swimsuit", "womens swimsuit", "ladies swimsuit",
+    "one-piece swimsuit", "swimwear women", "women's swimwear",
+    "tankini", "monokini",
+    // Revealing tops & bottoms
+    "crop top", "tube top", "halter top", "backless top",
+    "mini skirt", "micro skirt", "bodycon dress", "bodycon skirt",
+    "strapless dress", "off-shoulder", "see-through top", "sheer top",
+    // Shapewear / bodysuits
+    "shapewear", "body shaper", "waist trainer",
+  ],
+
   // ── 21. Valentine's Day products ─────────────────────────────────────────
   valentines: [
     "valentine's day", "valentines day", "valentine gift",
