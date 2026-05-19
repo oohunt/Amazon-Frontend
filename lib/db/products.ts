@@ -137,13 +137,18 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     const skip = (page - 1) * page_size;
     const filter = buildFilter(opts);
 
-    // Deduplicate by title+brand using $group BEFORE $sort.
-    // $group first (no preceding $sort) avoids the Atlas 32 MB memory limit.
-    // The sort runs on the already-small deduplicated set — no memory issue.
+    // Page 1: random sample after dedup → guaranteed brand variety (no brand floods).
+    // Page 2+: sort by date for deterministic pagination.
+    const isFirstPage = page === 1;
+    // Over-fetch on page 1 so JS brand-dedup has enough candidates to fill page_size.
+    const fetchLimit = isFirstPage ? page_size * 15 : page_size;
+    const sampleSize = Math.max(300, fetchLimit);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pipeline: any[] = [
         { $match: filter },
-        // Group by brand+title — collapses size/color variants into one entry
+        // Group by brand+title — collapses size/color variants into one entry.
+        // $group first (no preceding $sort) avoids the Atlas 32 MB memory limit.
         {
             $group: {
                 _id: {
@@ -154,12 +159,15 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
             },
         },
         { $replaceRoot: { newRoot: "$doc" } },
-        // Sort the small deduplicated set — safe, no memory issue
-        { $sort: { fetched_at: -1 } },
-        // Single pass for count + paginated slice
+        // First page: random sample for variety; subsequent pages: sort by date.
+        ...(isFirstPage
+            ? [{ $sample: { size: sampleSize } }]
+            : [{ $sort: { fetched_at: -1 } }]),
         {
             $facet: {
-                items: [{ $skip: skip }, { $limit: page_size }],
+                items: isFirstPage
+                    ? [{ $limit: fetchLimit }]
+                    : [{ $skip: skip }, { $limit: page_size }],
                 total: [{ $count: "count" }],
             },
         },
@@ -167,8 +175,27 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
 
     const [result] = await col.aggregate(pipeline).toArray();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let items: any[] = result?.items ?? [];
+
+    if (isFirstPage) {
+        // JS brand dedup: keep at most 1 product per brand so no single brand
+        // floods the homepage category sections regardless of crawl timing.
+        const seenBrands = new Set<string>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const brandLimited: any[] = [];
+        for (const doc of items) {
+            const brandKey = ((doc.brand_name as string) || "").toLowerCase().trim();
+            if (brandKey && seenBrands.has(brandKey)) continue;
+            if (brandKey) seenBrands.add(brandKey);
+            brandLimited.push(doc);
+            if (brandLimited.length >= page_size) break;
+        }
+        items = brandLimited;
+    }
+
     return {
-        items: (result?.items ?? []).map(toProduct),
+        items: items.map(toProduct),
         total: result?.total?.[0]?.count ?? 0,
         page,
         page_size,
