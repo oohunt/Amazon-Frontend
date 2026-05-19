@@ -137,36 +137,37 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     const skip = (page - 1) * page_size;
     const filter = buildFilter(opts);
 
-    // Deduplicate by ASIN — keep the record with the best (highest) discount per ASIN.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pipeline: any[] = [
+    // Count unique ASINs — $group without $sort avoids the Atlas 32 MB memory limit
+    const [countResult] = await col.aggregate([
         { $match: filter },
-        // Sort best discount first so $first inside $group picks it
-        { $sort: { discount: -1, fetched_at: -1 } },
-        // Group by ASIN (fallback to product_id for products without one)
-        {
-            $group: {
-                _id: { $ifNull: ["$asin", "$product_id"] },
-                doc: { $first: "$$ROOT" },
-            },
-        },
-        { $replaceRoot: { newRoot: "$doc" } },
-        // Re-sort by newest for display order
-        { $sort: { fetched_at: -1 } },
-        // Single pass for both total count and paginated slice
-        {
-            $facet: {
-                items: [{ $skip: skip }, { $limit: page_size }],
-                total: [{ $count: "count" }],
-            },
-        },
-    ];
+        { $group: { _id: { $ifNull: ["$asin", "$product_id"] } } },
+        { $count: "count" },
+    ]).toArray();
+    const total = countResult?.count ?? 0;
 
-    const [result] = await col.aggregate(pipeline).toArray();
+    // Fetch enough docs to fill the page after JS-level dedup.
+    // With ~46 dupes in 24 k docs the over-fetch of 3× is more than sufficient.
+    const fetchLimit = page_size * 3 + skip;
+    const rawDocs = await col
+        .find(filter)
+        .sort({ fetched_at: -1 })
+        .limit(fetchLimit)
+        .toArray();
+
+    // Deduplicate in JS — keep first occurrence (most recent after sort)
+    const seen = new Set<string>();
+    const deduped: typeof rawDocs = [];
+    for (const doc of rawDocs) {
+        const key: string = doc.asin || doc.product_id || String(doc._id);
+        if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(doc);
+        }
+    }
 
     return {
-        items: (result?.items ?? []).map(toProduct),
-        total: result?.total?.[0]?.count ?? 0,
+        items: deduped.slice(skip, skip + page_size).map(toProduct),
+        total,
         page,
         page_size,
     };
@@ -180,21 +181,24 @@ export async function countProducts(opts: Omit<ProductQueryOptions, "page" | "pa
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
     const col = await getCollection();
-    // Deduplicate by ASIN first, then randomly sample from the clean pool.
-    const docs = await col.aggregate([
+    // Sample generously, then deduplicate by ASIN in JS.
+    // Avoids Atlas 32 MB in-memory sort limit while still removing dupes.
+    const raw = await col.aggregate([
         { $match: { discount: { $nin: ["", "0", null] } } },
-        // Pick best discount per ASIN before sampling
-        { $sort: { discount: -1 } },
-        {
-            $group: {
-                _id: { $ifNull: ["$asin", "$product_id"] },
-                doc: { $first: "$$ROOT" },
-            },
-        },
-        { $replaceRoot: { newRoot: "$doc" } },
-        { $sample: { size: limit } },
+        { $sample: { size: limit * 4 } },
     ]).toArray();
-    return docs.map(toProduct);
+
+    const seen = new Set<string>();
+    const deduped: typeof raw = [];
+    for (const doc of raw) {
+        const key: string = doc.asin || doc.product_id || String(doc._id);
+        if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(doc);
+        }
+    }
+
+    return deduped.slice(0, limit).map(toProduct);
 }
 
 /** Return every DB record for a given ASIN — used by the product detail page. */
