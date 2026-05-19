@@ -8,8 +8,8 @@ interface PageTransitionProps {
 }
 
 /**
- * 页面过渡组件
- * 用于在不同状态之间平滑过渡的动画组件
+ * Page transition component
+ * Animation component for smooth transitions between states
  */
 const PageTransition: React.FC<PageTransitionProps> = ({
     children,

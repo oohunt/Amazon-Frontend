@@ -1,8 +1,8 @@
-// 导出各类图标组件
+// export various icon components
 export * from './icons';
 
-// 导出工具函数和类型
+// export utility functions and types
 export * from './utils';
 
-// 导出StoreIdentifier组件
+// export StoreIdentifier component
 export * from './StoreIdentifier'; 

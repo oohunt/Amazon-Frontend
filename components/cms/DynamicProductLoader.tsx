@@ -24,7 +24,7 @@ import SimpleProductElement from './Template/SimpleProductElement';
 // should be defined here or imported correctly.
 
 // --- Skeleton Placeholder ---
-// 修改 ProductSkeletonPlaceholder 返回 span
+// Modify ProductSkeletonPlaceholder to return span
 const ProductSkeletonPlaceholder = ({ style }: { style: string }) => {
     let className = "w-full h-24 my-2 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-md"; // Default (Simple)
 
@@ -41,7 +41,7 @@ const ProductSkeletonPlaceholder = ({ style }: { style: string }) => {
     }
     // Simple style uses default class
 
-    return <span className={className} />; // 使用 span 作为根元素
+    return <span className={className} />; // Use span as root element
 };
 
 // --- DynamicProductLoader ---
@@ -50,7 +50,7 @@ interface DynamicProductLoaderProps {
     productId: string;
     style?: string;
     alignment?: 'left' | 'center' | 'right';
-    containerElement?: 'div' | 'span'; // 添加容器元素属性
+    containerElement?: 'div' | 'span'; // Add container element attribute
 }
 
 // Fetcher function for SWR
@@ -92,7 +92,7 @@ export default function DynamicProductLoader({
     productId,
     style = 'simple',
     alignment = 'left',
-    containerElement = 'div' // 默认为div，可以指定为span
+    containerElement = 'div' // Default is div, can specify span
 }: DynamicProductLoaderProps) {
     const { data: product, error, isLoading } = useSWR<ComponentProduct | null>(
         productId ? ['product', productId] : null,
@@ -110,11 +110,11 @@ export default function DynamicProductLoader({
         right: 'text-right', // Or ml-auto if using flex/grid container
     };
 
-    // 修改包装类，保证卡片能够在一行内显示
-    // 对于card样式特别处理，确保正确的显示方式
+    // Modify wrapper class to ensure cards show in a single row
+    // Special handling for card style to ensure correct display
     const wrapperClassName = `${style === 'card' ? 'inline-block align-middle' : 'inline-block'} ${alignmentClasses[alignment]}`;
 
-    // 创建渲染内容的函数
+    // create function to render content
     const renderContent = () => {
         // Loading state
         if (isLoading) {
@@ -145,7 +145,7 @@ export default function DynamicProductLoader({
         return productElement;
     };
 
-    // 对于card样式，统一使用span容器确保内联显示
+    // For card style, use span container to ensure inline display
     return (style === 'card') ? (
         <span className={wrapperClassName}>
             {renderContent()}

@@ -1,6 +1,6 @@
 /**
- * 服务端收藏功能工具
- * 处理与收藏相关的服务端逻辑
+ * Server-side favorites utility
+ * Handle server-side favorites logic
  */
 
 import fs from 'fs';
@@ -9,11 +9,11 @@ import path from 'path';
 import type { NextApiRequest } from 'next';
 
 
-// 数据存储路径
+// Data storage path
 const DATA_DIR = path.join(process.cwd(), '.data');
 const FAVORITES_DIR = path.join(DATA_DIR, 'favorites');
 
-// 初始化数据目录
+// initialize data directory
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
 }
@@ -23,9 +23,9 @@ if (!fs.existsSync(FAVORITES_DIR)) {
 }
 
 /**
- * 从请求中获取客户端ID
- * @param req NextApiRequest对象
- * @returns 客户端ID或null
+ * Get client ID from request
+ * @param req NextApiRequest object
+ * @returns Client ID or null
  */
 export function getClientIdFromRequest(req: NextApiRequest): string | null {
     const clientId = req.headers['x-client-id'];
@@ -38,28 +38,28 @@ export function getClientIdFromRequest(req: NextApiRequest): string | null {
 }
 
 /**
- * 验证客户端ID是否有效
- * @param clientId 客户端ID
- * @returns 是否有效
+ * Validate whether client ID is valid
+ * @param clientId Client ID
+ * @returns Whether it is valid
  */
 export function validateClientId(clientId: string): boolean {
-    // 简单验证：确保clientId是以client_开头的字符串
+    // Simple validation: ensure clientId is a string starting with client_
     return Boolean(clientId && typeof clientId === 'string' && clientId.startsWith('client_'));
 }
 
 /**
- * 获取客户端的收藏列表文件路径
- * @param clientId 客户端ID
- * @returns 文件路径
+ * Get client favorites list file path
+ * @param clientId Client ID
+ * @returns File path
  */
 function getClientFavoritesPath(clientId: string): string {
     return path.join(FAVORITES_DIR, `${clientId}.json`);
 }
 
 /**
- * 获取客户端的收藏商品ID列表
- * @param clientId 客户端ID
- * @returns 收藏的商品ID数组
+ * Get client's favorited product ID list
+ * @param clientId Client ID
+ * @returns Array of favorited product IDs
  */
 export function getClientFavoriteIds(clientId: string): string[] {
     const filePath = getClientFavoritesPath(clientId);
@@ -83,20 +83,20 @@ export function getClientFavoriteIds(clientId: string): string[] {
 }
 
 /**
- * 保存客户端的收藏商品ID列表
- * @param clientId 客户端ID
- * @param productIds 收藏的商品ID数组
+ * Save client's favorited product ID list
+ * @param clientId Client ID
+ * @param productIds Array of favorited product IDs
  */
 export function saveClientFavoriteIds(clientId: string, productIds: string[]): void {
     const filePath = getClientFavoritesPath(clientId);
 
     try {
-        // 确保数据目录存在
+        // Ensure data directory exists
         if (!fs.existsSync(FAVORITES_DIR)) {
             fs.mkdirSync(FAVORITES_DIR, { recursive: true });
         }
 
-        // 保存数据
+        // save data
         fs.writeFileSync(filePath, JSON.stringify(productIds), 'utf-8');
     } catch {
         return;
@@ -104,14 +104,14 @@ export function saveClientFavoriteIds(clientId: string, productIds: string[]): v
 }
 
 /**
- * 添加商品到客户端的收藏列表
- * @param clientId 客户端ID
- * @param productId 商品ID
- * @returns 更新后的收藏商品ID数组
+ * Add product to client favorites list
+ * @param clientId Client ID
+ * @param productId Product ID
+ * @returns Updated array of favorited product IDs
  */
 export function addToClientFavorites(clientId: string, productId: string): string[] {
     if (!productId || typeof productId !== 'string') {
-        throw new Error('无效的商品ID');
+        throw new Error('Invalid product ID');
     }
 
     const favoriteIds = getClientFavoriteIds(clientId);
@@ -125,14 +125,14 @@ export function addToClientFavorites(clientId: string, productId: string): strin
 }
 
 /**
- * 从客户端的收藏列表中移除商品
- * @param clientId 客户端ID
- * @param productId 商品ID
- * @returns 更新后的收藏商品ID数组
+ * Remove product from client favorites list
+ * @param clientId Client ID
+ * @param productId Product ID
+ * @returns Updated array of favorited product IDs
  */
 export function removeFromClientFavorites(clientId: string, productId: string): string[] {
     if (!productId || typeof productId !== 'string') {
-        throw new Error('无效的商品ID');
+        throw new Error('Invalid product ID');
     }
 
     let favoriteIds = getClientFavoriteIds(clientId);
@@ -146,20 +146,20 @@ export function removeFromClientFavorites(clientId: string, productId: string): 
 }
 
 /**
- * 同步客户端收藏列表
- * @param clientId 客户端ID
- * @param productIds 商品ID数组
- * @returns 更新后的收藏商品ID数组
+ * Sync client favorites list
+ * @param clientId Client ID
+ * @param productIds Array of product IDs
+ * @returns Updated array of favorited product IDs
  */
 export function syncClientFavorites(clientId: string, productIds: string[]): string[] {
     if (!Array.isArray(productIds)) {
-        throw new Error('无效的商品ID数组');
+        throw new Error('Invalid product ID array');
     }
 
-    // 过滤无效的ID
+    // Filter out invalid IDs
     const validProductIds = productIds.filter(id => typeof id === 'string' && id.trim() !== '');
 
-    // 保存数据
+    // save data
     saveClientFavoriteIds(clientId, validProductIds);
 
     return validProductIds;

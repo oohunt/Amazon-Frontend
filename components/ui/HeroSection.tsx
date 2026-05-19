@@ -82,16 +82,16 @@ export function HeroSection() {
     const { theme } = useTheme();
     const _isDark = theme === 'dark';
 
-    // 动画控制器
+    // Animation controller
     const controls = useAnimation();
 
-    // 获取产品数据
+    // Get product data
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setIsLoading(true);
 
-                // 请求新的Hero API
+                // Request new Hero API
                 const response = await axios.get('/api/products/hero', {
                     params: {
                         limit: 3
@@ -99,7 +99,7 @@ export function HeroSection() {
                 });
 
                 if (response.data && response.data.success) {
-                    // 直接使用API返回的处理好的数据
+                    // Use processed data returned by API directly
                     if (response.data.products) {
                         setProducts(response.data.products);
                     }
@@ -114,7 +114,7 @@ export function HeroSection() {
                 setError('Failed to load deals');
                 setIsLoading(false);
 
-                // 使用备选促销卡片数据
+                // Use fallback promotional card data
                 setPromoCards([
                     {
                         id: 1,
@@ -153,7 +153,7 @@ export function HeroSection() {
         fetchProducts();
     }, []);
 
-    // 生成随机气泡 - 在客户端渲染后进行
+    // Generate random bubbles — done after client-side render
     useEffect(() => {
         const generateBubbles = () => {
             const newBubbles = Array.from({ length: 8 }).map(() => ({
@@ -170,7 +170,7 @@ export function HeroSection() {
         generateBubbles();
     }, []);
 
-    // 自动轮播促销卡片
+    // Auto-carousel promotional cards
     useEffect(() => {
         if (promoCards.length === 0) return;
 
@@ -178,7 +178,7 @@ export function HeroSection() {
             setActivePromo((prev) => (prev + 1) % promoCards.length);
         }, 5000);
 
-        // 初始动画
+        // Initial animation
         controls.start({
             opacity: 1,
             y: 0,
@@ -188,7 +188,7 @@ export function HeroSection() {
         return () => clearInterval(interval);
     }, [promoCards.length, controls]);
 
-    // 液态按钮SVG过滤器定义
+    // Liquid button SVG filter definition
     const svgFilters = (
         <svg width="0" height="0" className="absolute">
             <defs>
@@ -216,17 +216,17 @@ export function HeroSection() {
     );
 
     return (
-        // 适应新布局结构，不再全宽显示
+        // Adapt to new layout structure, no longer full-width display
         <div className="relative w-full rounded-xl">
-            {/* SVG过滤器 */}
+            {/* SVG filter */}
             {svgFilters}
 
-            {/* 替换背景为浅蓝色 */}
+            {/* Replace background with light blue */}
             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#1B5479] to-[#287EB7] dark:from-[#1B5479] dark:to-[#287EB7]" style={{ zIndex: 2 }} />
 
-            {/* 简化背景装饰元素 */}
+            {/* Simplified background decoration elements */}
             <div className="absolute inset-0 overflow-hidden rounded-xl" style={{ zIndex: 1 }}>
-                {/* 简化左侧装饰球 */}
+                {/* Simplified left decorative ball */}
                 <motion.div
                     className="absolute -left-16 top-1/4 w-32 h-32 rounded-full bg-[#287EB7] dark:bg-[#287EB7]"
                     animate={{
@@ -239,7 +239,7 @@ export function HeroSection() {
                     }}
                 />
 
-                {/* 简化右侧装饰球 */}
+                {/* Simplified right decorative ball */}
                 <motion.div
                     className="absolute -right-20 top-2/3 w-40 h-40 rounded-full bg-[#1B5479] dark:bg-[#1B5479]"
                     animate={{
@@ -254,23 +254,23 @@ export function HeroSection() {
                 />
             </div>
 
-            {/* 主要内容 */}
+            {/* Main content */}
             <div
                 className="relative py-8 rounded-xl overflow-hidden"
                 style={{ zIndex: 3 }}
             >
-                {/* 内容容器，保持居中 */}
+                {/* Content container, centered */}
                 <div className="px-4 md:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
-                        {/* 左侧文本区域 (占7列) */}
+                        {/* Left text area (7 columns) */}
                         <motion.div
                             className="md:col-span-7 z-10"
                             initial={{ opacity: 0, y: 50 }}
                             animate={controls}
                         >
-                            {/* 移除背景以显示蓝色底色，并确保文字为白色 */}
+                            {/* Remove background to show blue base, ensure text is white */}
                             <div className="relative p-4 sm:p-6 rounded-xl">
-                                {/* 标题 */}
+                                {/* Title */}
                                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 sm:mb-3 tracking-tight">
                                     <motion.span
                                         className="inline-block"
@@ -322,7 +322,7 @@ export function HeroSection() {
                                     </motion.span>
                                 </h1>
 
-                                {/* 副标题 */}
+                                {/* Subtitle */}
                                 <motion.p
                                     className="text-base sm:text-lg md:text-xl text-white max-w-xl mb-6 sm:mb-8"
                                     initial={{ opacity: 0, y: 20 }}
@@ -338,9 +338,9 @@ export function HeroSection() {
                                     OOHunt tracks the best deals, sales, and coupons from Amazon, Walmart, Target and more - all in one place.
                                 </motion.p>
 
-                                {/* 按钮组 */}
+                                {/* Button group */}
                                 <div className="flex flex-wrap gap-3 sm:gap-4">
-                                    {/* 修改按钮为橙色 */}
+                                    {/* Changed button to orange */}
                                     <motion.div
                                         className="relative group w-full sm:w-auto"
                                         whileHover={{ scale: 1.05 }}
@@ -357,7 +357,7 @@ export function HeroSection() {
                             </div>
                         </motion.div>
 
-                        {/* 右侧促销卡片 (占5列) */}
+                        {/* Right-side promotional cards (5 columns) */}
                         <motion.div
                             className="md:col-span-5 z-10 mt-8 md:mt-0"
                         >
@@ -392,7 +392,7 @@ export function HeroSection() {
                                                 display: activePromo === index ? 'block' : 'none'
                                             }}
                                         >
-                                            {/* 收藏按钮 - 放置在卡片外层，使用绝对定位 */}
+                                            {/* Favorite button — placed outside the card, using absolute positioning */}
                                             {activePromo === index && (
                                                 <div
                                                     className="absolute top-3 right-3 z-20"
@@ -409,7 +409,7 @@ export function HeroSection() {
                                                 </div>
                                             )}
 
-                                            {/* 产品图片背景 - 全尺寸，提高可视性 */}
+                                            {/* Product image background - full size, improved visibility */}
                                             {card.image ? (
                                                 <div className="absolute inset-0 w-full h-full group">
                                                     <div className="relative w-full h-full">
@@ -423,20 +423,20 @@ export function HeroSection() {
                                                             className="transition-transform duration-500 group-hover:scale-105"
                                                         />
                                                     </div>
-                                                    {/* 简化渐变叠加层 - 使用半透明纯色 */}
+                                                    {/* Simplified gradient overlay — using semi-transparent solid color */}
                                                     <div className="absolute inset-0 bg-black/40 transition-opacity duration-500 group-hover:opacity-50" />
                                                 </div>
                                             ) : (
                                                 <div className="absolute inset-0 w-full h-full bg-primary dark:bg-primary">
-                                                    {/* 移除背景纹理 */}
+                                                    {/* Remove background texture */}
                                                 </div>
                                             )}
 
-                                            {/* 卡片内容 - 采用顶部标题和底部操作按钮的布局 */}
+                                            {/* Card content - title at top and action buttons at bottom */}
                                             <div className="absolute inset-0 p-5 sm:p-6 flex flex-col h-full">
-                                                {/* 顶部区域 */}
+                                                {/* Top area */}
                                                 <div className="mb-auto">
-                                                    {/* 简化折扣标签 */}
+                                                    {/* Simplified discount badge */}
                                                     <motion.div
                                                         className="inline-block mb-3 bg-accent dark:bg-accent text-white font-bold px-3 py-1.5 rounded-lg text-sm shadow-md"
                                                         whileHover={{ scale: 1.05 }}
@@ -456,13 +456,13 @@ export function HeroSection() {
                                                     </motion.h3>
                                                 </div>
 
-                                                {/* 底部区域 - 使用简单纯色背景 */}
+                                                {/* Bottom area — simple solid background */}
                                                 <div className="mt-auto">
-                                                    {/* 简化半透明背景 */}
+                                                    {/* Simplified semi-transparent background */}
                                                     <div className="bg-black/30 rounded-xl py-2.5 px-4 shadow-lg transform transition-all duration-300 hover:bg-black/40">
                                                         <div className="flex flex-row items-center sm:justify-between gap-3">
                                                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                                {/* 动态品牌图标 */}
+                                                                {/* Dynamic brand icon */}
                                                                 <div className="w-6 h-6 rounded-full flex-shrink-0 bg-white/20 flex items-center justify-center">
                                                                     {card.brand ? (
                                                                         <span className="text-xs font-bold text-white">
@@ -476,7 +476,7 @@ export function HeroSection() {
                                                                 </div>
 
                                                                 <div className="truncate">
-                                                                    {/* 品牌名称 */}
+                                                                    {/* Brand name */}
                                                                     {card.brand && (
                                                                         <motion.p
                                                                             className="text-xs text-white/80 truncate"
@@ -488,7 +488,7 @@ export function HeroSection() {
                                                                         </motion.p>
                                                                     )}
 
-                                                                    {/* 产品描述 */}
+                                                                    {/* Product description */}
                                                                     <motion.p
                                                                         className="text-sm text-white font-medium truncate"
                                                                         initial={{ opacity: 0, x: -10 }}
@@ -525,7 +525,7 @@ export function HeroSection() {
                                                 </div>
                                             </div>
 
-                                            {/* 指示器 - 更简洁的设计 */}
+                                            {/* Indicator — cleaner design */}
                                             <div className="absolute bottom-3 sm:bottom-4 right-4 flex gap-1.5">
                                                 {promoCards.map((card) => (
                                                     <button

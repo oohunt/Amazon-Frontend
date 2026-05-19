@@ -2,19 +2,19 @@ import { NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// MongoDB查询值可能的类型
+// Possible types for MongoDB query values
 type _MongoQueryValue = string | number | boolean | { $regex: string, $options: string } | Date | RegExp | Record<string, unknown>;
 
-// 定义查询条件的接口
+// Define query conditions interface
 interface Query {
     $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
-    isProcessed?: boolean; // 可选属性
-    formSource?: string | { $exists: boolean, $ne?: null }; // 表单来源类型
+    isProcessed?: boolean; // Optional property
+    formSource?: string | { $exists: boolean, $ne?: null }; // Form source type
 }
 
 export async function GET(req: Request) {
     try {
-        // 从URL获取查询参数
+        // Get query parameters from URL
         const { searchParams } = new URL(req.url);
         const page = searchParams.get("page") ? parseInt(searchParams.get("page") as string) : 1;
         const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit") as string) : 10;
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
         const formSource = searchParams.get("formSource") as string;
         const formSourceExists = searchParams.get("formSourceExists");
 
-        // 验证分页参数
+        // Validate pagination parameters
         const validPage = page > 0 ? page : 1;
         const validLimit = limit > 0 ? limit : 10;
         const skip = (validPage - 1) * validLimit;

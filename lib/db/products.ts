@@ -137,14 +137,36 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     const skip = (page - 1) * page_size;
     const filter = buildFilter(opts);
 
-    const [docs, total] = await Promise.all([
-        col.find(filter).sort({ fetched_at: -1 }).skip(skip).limit(page_size).toArray(),
-        col.countDocuments(filter),
-    ]);
+    // Deduplicate by ASIN — keep the record with the best (highest) discount per ASIN.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pipeline: any[] = [
+        { $match: filter },
+        // Sort best discount first so $first inside $group picks it
+        { $sort: { discount: -1, fetched_at: -1 } },
+        // Group by ASIN (fallback to product_id for products without one)
+        {
+            $group: {
+                _id: { $ifNull: ["$asin", "$product_id"] },
+                doc: { $first: "$$ROOT" },
+            },
+        },
+        { $replaceRoot: { newRoot: "$doc" } },
+        // Re-sort by newest for display order
+        { $sort: { fetched_at: -1 } },
+        // Single pass for both total count and paginated slice
+        {
+            $facet: {
+                items: [{ $skip: skip }, { $limit: page_size }],
+                total: [{ $count: "count" }],
+            },
+        },
+    ];
+
+    const [result] = await col.aggregate(pipeline).toArray();
 
     return {
-        items: docs.map(toProduct),
-        total,
+        items: (result?.items ?? []).map(toProduct),
+        total: result?.total?.[0]?.count ?? 0,
         page,
         page_size,
     };
@@ -158,12 +180,30 @@ export async function countProducts(opts: Omit<ProductQueryOptions, "page" | "pa
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
     const col = await getCollection();
-    // Get a random sample of products with meaningful discounts
+    // Deduplicate by ASIN first, then randomly sample from the clean pool.
     const docs = await col.aggregate([
-        // Products with a discount stored (non-empty string)
         { $match: { discount: { $nin: ["", "0", null] } } },
+        // Pick best discount per ASIN before sampling
+        { $sort: { discount: -1 } },
+        {
+            $group: {
+                _id: { $ifNull: ["$asin", "$product_id"] },
+                doc: { $first: "$$ROOT" },
+            },
+        },
+        { $replaceRoot: { newRoot: "$doc" } },
         { $sample: { size: limit } },
     ]).toArray();
+    return docs.map(toProduct);
+}
+
+/** Return every DB record for a given ASIN — used by the product detail page. */
+export async function getProductsByAsin(asin: string): Promise<Product[]> {
+    const col = await getCollection();
+    const docs = await col
+        .find({ $or: [{ asin }, { product_id: asin }] })
+        .sort({ discount: -1, fetched_at: -1 })
+        .toArray();
     return docs.map(toProduct);
 }
 

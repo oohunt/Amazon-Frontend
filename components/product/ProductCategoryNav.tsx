@@ -9,10 +9,10 @@ import { useCategoryStats } from '@/lib/hooks';
 type ProductCategoryNavProps = {
     selectedCategory: string;
     onCategorySelect: (category: string) => void;
-    displayMode?: 'scroll' | 'expand'; // 显示模式: scroll-滚动模式, expand-展开收起模式
+    displayMode?: 'scroll' | 'expand'; // Display mode: scroll-scroll mode, expand-expand/collapse mode
 };
 
-// 定义API响应类型
+// Define API response type
 interface BrowseNode {
     name?: string;
     count?: number;
@@ -25,7 +25,7 @@ interface CategoryStatsResponse {
     };
 }
 
-// 动画变体配置
+// Animation variant configuration
 const variants = {
     container: {
         hidden: { opacity: 0 },
@@ -43,24 +43,24 @@ const variants = {
     }
 };
 
-// 按字母分组分类
+// Group categories alphabetically
 const groupCategoriesByAlphabet = (categories: Array<{ name: string, count: number }>) => {
     const groups: Record<string, Array<{ name: string, count: number }>> = {};
 
-    // 对分类按首字母分组
+    // Group categories by first letter
     categories.forEach(category => {
-        // 获取首字母并转为大写
+        // Get first letter and convert to uppercase
         const firstLetter = category.name.charAt(0).toUpperCase();
 
-        // 如果该字母组不存在，则创建
+        // If letter group doesn't exist, create it
         if (!groups[firstLetter]) {
             groups[firstLetter] = [];
         }
-        // 将分类添加到对应字母组
+        // Add category to corresponding letter group
         groups[firstLetter].push(category);
     });
 
-    // 按字母顺序排序
+    // Sort alphabetically
     return Object.entries(groups)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([letter, categories]) => ({
@@ -69,7 +69,7 @@ const groupCategoriesByAlphabet = (categories: Array<{ name: string, count: numb
         }));
 };
 
-// 字母索引组件
+// Alphabetical index component
 const _AlphabetIndex = ({
     groups,
     onSelectLetter,
@@ -102,7 +102,7 @@ const _AlphabetIndex = ({
     );
 };
 
-// 分类组组件
+// Category group component
 const _CategoryGroups = ({
     groups,
     selectedCategory,
@@ -149,34 +149,34 @@ const _CategoryGroups = ({
 export function ProductCategoryNav({
     selectedCategory,
     onCategorySelect,
-    displayMode = 'scroll' // 默认为滚动模式
+    displayMode = 'scroll' // Default to scroll mode
 }: ProductCategoryNavProps) {
     const [showAll, setShowAll] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    // 使用useRef记住上一次通过点击设置的分类
+    // Use useRef to remember last category set via click
     const lastSelectedCategoryRef = useRef('');
-    // 添加一个ref来标记组件是否已挂载
+    // Adda ref to mark whether the component is mounted
     const isMountedRef = useRef(false);
 
-    // 从URL中读取分类参数
+    // Read category parameter from URL
     const categoryFromUrl = searchParams.get('category') || searchParams.get('product_groups') || '';
 
-    // 简化逻辑：始终使用父组件传入的selectedCategory作为当前选中值
-    // 不再区分是否在分类页面，统一处理方式
+    // Simplify logic: always use selectedCategory passed by parent as current selection
+    // No longer differentiating category pages, unified handling
     const actualSelectedCategory = selectedCategory;
 
-    // 只在组件初始挂载时从URL更新分类，避免循环调用
+    // Update category from URL only on initial mount to avoid circular calls
     useEffect(() => {
-        // 如果已经挂载过，则跳过
+        // If already mounted, skip
         if (isMountedRef.current) return;
 
-        // 标记为已挂载
+        // Mark as mounted
         isMountedRef.current = true;
 
-        // 只在URL有分类参数，且与当前选中分类不同时更新父组件状态
+        // Update parent component status only when URL has category param different from currently selected
         if (categoryFromUrl && categoryFromUrl !== selectedCategory) {
             onCategorySelect(categoryFromUrl);
         }
@@ -191,20 +191,20 @@ export function ProductCategoryNav({
     const [directData, setDirectData] = useState<CategoryStatsResponse | null>(null);
     const [directLoading, setDirectLoading] = useState(false);
 
-    // 检测设备类型
+    // Detect device type
     useEffect(() => {
         const checkDeviceType = () => {
             setIsMobile(window.innerWidth < 640);
             setIsTablet(window.innerWidth >= 640 && window.innerWidth < 768);
         };
 
-        // 初次加载检测
+        // First-load detection
         checkDeviceType();
 
-        // 监听窗口大小变化
+        // Listen for window size changes
         window.addEventListener('resize', checkDeviceType);
 
-        // 清理函数
+        // Cleanup function
         return () => window.removeEventListener('resize', checkDeviceType);
     }, []);
 
@@ -248,17 +248,17 @@ export function ProductCategoryNav({
         }))
         .sort((a, b) => b.count - a.count);
 
-    // 按字母分组分类
+    // Group categories alphabetically
     const _groupedCategories = useMemo(() => {
         return groupCategoriesByAlphabet(categories);
     }, [categories]);
 
-    // 显示的类别数量 - 根据设备类型决定
+    // number of categories to show — determined by device type
     const mobileLimit = 9;
     const tabletLimit = 12;
     const desktopLimit = 8;
 
-    // 展开模式下的动画配置
+    // animation configuration in expand mode
     const expandAnimationVariants = {
         hidden: {
             opacity: 0,
@@ -278,16 +278,16 @@ export function ProductCategoryNav({
         }
     };
 
-    // 获取初始显示的分类数量和扩展分类
+    // Get initial display category count and extended categories
     const getInitialAndExtendedCategories = useCallback(() => {
         if (displayMode === 'expand') {
-            // 桌面展开模式
+            // Desktop expand mode
             const initialCategories = categories.slice(0, desktopLimit);
             const extendedCategories = categories.slice(desktopLimit);
 
             return { initialCategories, extendedCategories };
         } else {
-            // 滚动模式下根据设备类型决定
+            // In scroll mode, determine based on device type
             if (isMobile) {
                 const initialCategories = categories.slice(0, mobileLimit);
                 const extendedCategories = categories.slice(mobileLimit);
@@ -309,9 +309,9 @@ export function ProductCategoryNav({
         [getInitialAndExtendedCategories]
     );
 
-    // 根据设备类型和显示模式判断是否应当显示展开按钮
+    // Determine whether to show expand button based on device type and display mode
     const shouldShowExpandButton = useCallback(() => {
-        // 滚动模式下，移动端和平板端才显示"更多"按钮
+        // Show "more" button only on mobile/tablet in scroll mode
         if (displayMode === 'scroll') {
             if (isMobile && categories.length > mobileLimit) return true;
             if (isTablet && categories.length > tabletLimit) return true;
@@ -319,7 +319,7 @@ export function ProductCategoryNav({
             return false;
         }
 
-        // 展开模式下，桌面端显示"展开/收起"按钮
+        // In expand mode, show "Expand/Collapse" button on desktop
         if (displayMode === 'expand' && categories.length > desktopLimit) {
             return true;
         }
@@ -327,7 +327,7 @@ export function ProductCategoryNav({
         return false;
     }, [categories.length, isMobile, isTablet, mobileLimit, tabletLimit, desktopLimit, displayMode]);
 
-    // 判断当前分类是否在初始或扩展列表中
+    // Check if current category is in the initial or extended list
     const isInInitialList = useCallback((categoryName: string) => {
         return initialCategories.some(cat => cat.name === categoryName);
     }, [initialCategories]);
@@ -336,7 +336,7 @@ export function ProductCategoryNav({
         return extendedCategories.some(cat => cat.name === categoryName);
     }, [extendedCategories]);
 
-    // 根据displayMode返回不同的布局样式
+    // Return different layout styles based on displayMode
     const getContainerClassName = () => {
         if (displayMode === 'expand') {
             return "flex flex-wrap items-center gap-1.5";
@@ -345,7 +345,7 @@ export function ProductCategoryNav({
         return "flex items-center space-x-1.5 min-w-max";
     };
 
-    // 获取按钮的样式类
+    // Get button style classes
     const getButtonClassName = (isSelected: boolean) => {
         return `
             h-7 px-3 py-1 rounded-full text-sm font-medium 
@@ -359,64 +359,64 @@ export function ProductCategoryNav({
 
     // Handle click on "All" button
     const handleAllClick = useCallback(() => {
-        // 记住这次选择的分类
+        // Remember this category selection
         lastSelectedCategoryRef.current = '';
 
-        // 先更新父组件状态，确保状态同步
+        // Update parent component status first to ensure status sync
         onCategorySelect('');
 
-        // 直接操作URL，使用最简单的方法
+        // Manipulate URL directly using simplest method
         if (typeof window !== 'undefined') {
             try {
-                // 方法1：直接替换URL，强制更新
+                // Method 1: Replace URL directly, force update
                 window.history.replaceState(
                     { as: '/product', url: '/product' },
                     '',
                     '/product'
                 );
 
-                // 方法2：延迟执行router.replace，确保它是最后一个执行的导航
+                // Method 2: Delay router.replace to ensure it is the last navigation executed
                 setTimeout(() => {
                     router.replace('/product', { scroll: false });
                 }, 50);
             } catch {
-                // 如果出错，使用最直接的方法
+                // If error, use most direct approach
                 window.location.href = '/product';
             }
         }
     }, [onCategorySelect, router]);
 
-    // 处理分类点击事件
+    // Handle category clickevent
     const handleCategoryClick = useCallback((category: string) => {
-        // 记录最后一次通过点击选择的分类
+        // Record last category selected via click
         lastSelectedCategoryRef.current = category;
 
 
-        // 先更新父组件状态，确保状态同步
+        // Update parent component status first to ensure status sync
         onCategorySelect(category);
 
-        // 构建新的URL路径 - 使用categoryId参数
+        // Build new URL path - using categoryId parameter
         const newPath = category
             ? `/product/category/${encodeURIComponent(category)}`
             : '/product';
 
-        // 直接操作URL，使用最简单的方法
+        // Manipulate URL directly using simplest method
         if (typeof window !== 'undefined') {
-            // 取消所有可能的导航事件
+            // Cancel all possible navigation events
             try {
-                // 方法1：直接替换URL，强制更新
+                // Method 1: Replace URL directly, force update
                 window.history.replaceState(
                     { as: newPath, url: newPath },
                     '',
                     newPath
                 );
 
-                // 方法2：延迟执行router.replace，确保它是最后一个执行的导航
+                // Method 2: Delay router.replace to ensure it is the last navigation executed
                 setTimeout(() => {
                     router.replace(newPath, { scroll: false });
                 }, 50);
             } catch {
-                // 如果出错，使用最直接的方法
+                // If error, use most direct approach
                 window.location.href = newPath;
             }
         }
@@ -425,23 +425,23 @@ export function ProductCategoryNav({
     // Toggle show more/less or navigate to categories page
     const toggleShowAll = useCallback(() => {
         if (displayMode === 'expand') {
-            // 展开模式下直接切换显示状态
+            // directly toggle show status in expand mode
             setShowAll(!showAll);
 
             return;
         }
 
         if (isMobile || isTablet) {
-            // 滚动模式下的移动端和平板端导航到分类页面
-            // 在导航前存储当前路径（完整URL）
+            // Navigate to category page on mobile/tablet in scroll mode
+            // Store current path (full URL) before navigating
             const currentPath = window.location.pathname + window.location.search;
 
             sessionStorage.setItem('prevPath', currentPath);
 
-            // 导航到分类页面并传递当前选中的分类
+            // Navigate to category page and pass currently selected category
             const newPath = `/categories${actualSelectedCategory ? `?category=${encodeURIComponent(actualSelectedCategory)}` : ''}`;
 
-            // 直接使用浏览器API更新URL
+            // Use browser API to update URL directly
             if (typeof window !== 'undefined') {
                 window.history.replaceState(
                     { url: newPath, as: newPath, options: { shallow: true, scroll: false } },
@@ -449,7 +449,7 @@ export function ProductCategoryNav({
                     newPath
                 );
 
-                // 同时仍然调用router.replace确保Next.js状态更新
+                // Also call router.replace to ensure Next.js status update
                 router.replace(newPath, { scroll: false });
             }
         } else {
@@ -471,14 +471,14 @@ export function ProductCategoryNav({
 
     return (
         <div className="py-1">
-            {/* 初始分类列表（总是显示） */}
+            {/* Initial category list (always show) */}
             <motion.div
                 className={getContainerClassName()}
                 variants={variants.container}
                 initial="hidden"
                 animate="show"
             >
-                {/* 全部分类按钮 */}
+                {/* All categories button */}
                 <motion.button
                     variants={variants.item}
                     whileHover={{ scale: 1.05 }}
@@ -490,7 +490,7 @@ export function ProductCategoryNav({
                     All
                 </motion.button>
 
-                {/* 初始分类按钮 */}
+                {/* Initial category button */}
                 <AnimatePresence mode="popLayout">
                     {initialCategories.map((category) => (
                         <motion.button
@@ -508,7 +508,7 @@ export function ProductCategoryNav({
                     ))}
                 </AnimatePresence>
 
-                {/* 展开/收起按钮 */}
+                {/* Expand/collapse button */}
                 {shouldShowExpandButton() && (
                     <motion.button
                         variants={variants.item}
@@ -530,7 +530,7 @@ export function ProductCategoryNav({
                 )}
             </motion.div>
 
-            {/* 扩展分类列表（展开模式且showAll为true时显示） */}
+            {/* Extended category list (shown when expanded and showAll is true) */}
             {displayMode === 'expand' && extendedCategories.length > 0 && (
                 <motion.div
                     className="flex flex-wrap items-center gap-1.5 mt-2 pt-2 border-t border-[#e5e7eb] dark:border-[#374151]"
@@ -565,7 +565,7 @@ export function ProductCategoryNav({
                 </motion.div>
             )}
 
-            {/* 当前选中分类不在可见范围时的提示 */}
+            {/* Hint when currently selected category is out of visible range */}
             {displayMode === 'expand' &&
                 actualSelectedCategory &&
                 !isInInitialList(actualSelectedCategory) &&

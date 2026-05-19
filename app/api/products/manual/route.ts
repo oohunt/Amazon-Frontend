@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
 /**
- * 处理商品手动添加的POST请求 - stores directly in MongoDB
+ * Handle manual product addition POST request — stores directly in MongoDB
  */
 export async function POST(request: NextRequest) {
     try {
@@ -46,12 +46,12 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            message: '商品添加成功',
+            message: 'Product added successfully',
             id: result.insertedId.toString(),
         });
     } catch (error) {
         return NextResponse.json(
-            { success: false, error: error instanceof Error ? error.message : '服务器处理请求时出错' },
+            { success: false, error: error instanceof Error ? error.message : 'Server error processing request' },
             { status: 500 }
         );
     }

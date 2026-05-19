@@ -44,7 +44,7 @@ const nextConfig = {
             os: false,
             cluster: false,
             v8: false,
-            // MongoDB 相关模块
+            // MongoDB-related modules
             mongodb: false,
             'mongodb-client-encryption': false,
             '@mongodb-js/zstd': false,
@@ -53,12 +53,12 @@ const nextConfig = {
             aws4: false,
         },
     },
-    // 保留webpack配置用于生产构建
+    // Keep webpack config for production build
     webpack: (config, { isServer }) => {
-        // 只对客户端构建进行调整，服务器端构建保持不变
+        // Adjust client build only, server build remains unchanged
         if (!isServer) {
-            // 防止客户端包含 Node.js 模块和 MongoDB 相关模块
-            // 这解决了 MongoDB 客户端在浏览器环境中尝试加载 Node.js 内置模块的问题
+            // Prevent client from including Node.js and MongoDB-related modules
+            // This fixes MongoDB client attempting to load Node.js built-ins in browser environment
             config.resolve.fallback = {
                 ...config.resolve.fallback,
                 fs: false,
@@ -69,7 +69,7 @@ const nextConfig = {
                 os: false,
                 cluster: false,
                 v8: false,
-                // MongoDB 相关模块
+                // MongoDB-related modules
                 mongodb: false,
                 'mongodb-client-encryption': false,
                 '@mongodb-js/zstd': false,
@@ -86,7 +86,7 @@ const nextConfig = {
     async headers() {
         return [
             {
-                // 匹配所有API路由
+                // Match all API routes
                 source: '/api/:path*',
                 headers: [
                     { key: 'Access-Control-Allow-Credentials', value: 'true' },

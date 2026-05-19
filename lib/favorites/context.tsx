@@ -1,6 +1,6 @@
 /**
- * 收藏功能Context模块
- * 提供全局的收藏状态和操作方法
+ * Favorites feature Context module
+ * Provides global favorites state and action methods
  */
 
 import { useSession } from 'next-auth/react';
@@ -18,25 +18,25 @@ import {
     syncLocalFavorites
 } from './storage';
 
-// 定义Context的类型
+// Define Context type
 interface FavoritesContextType {
-    // 状态
-    favorites: Product[];          // 收藏的商品列表
-    favoriteIds: string[];         // 收藏的商品ID列表
-    isLoading: boolean;            // 加载状态
-    error: Error | null;           // 错误信息
-    isAuthenticated: boolean;      // 是否已登录
+    // State
+    favorites: Product[];          // List of favorited products
+    favoriteIds: string[];         // List of favorited product IDs
+    isLoading: boolean;            // Loading state
+    error: Error | null;           // Error information
+    isAuthenticated: boolean;      // Whether the user is logged in
 
-    // 方法
-    addFavorite: (productId: string) => Promise<{ success: boolean; message: string }>;              // 添加收藏
-    removeFavorite: (productId: string) => Promise<{ success: boolean; message: string }>;           // 移除收藏
-    isFavorite: (productId: string) => boolean;                     // 判断是否已收藏
-    refreshFavorites: () => Promise<void>;                          // 刷新收藏列表
-    clearFavorites: () => Promise<void>;                            // 清空收藏
-    syncWithServer: () => Promise<void>;                           // 与服务器同步
+    // Methods
+    addFavorite: (productId: string) => Promise<{ success: boolean; message: string }>;              // Add to favorites
+    removeFavorite: (productId: string) => Promise<{ success: boolean; message: string }>;           // Remove from favorites
+    isFavorite: (productId: string) => boolean;                     // Check if already favorited
+    refreshFavorites: () => Promise<void>;                          // Refresh favorites list
+    clearFavorites: () => Promise<void>;                            // Clear favorites
+    syncWithServer: () => Promise<void>;                           // Sync with server
 }
 
-// 创建Context
+// Create Context
 const FavoritesContext = createContext<FavoritesContextType>({
     favorites: [],
     favoriteIds: [],
@@ -51,13 +51,13 @@ const FavoritesContext = createContext<FavoritesContextType>({
     syncWithServer: async () => { }
 });
 
-// Provider组件Props类型
+// Provider component Props type
 interface FavoritesProviderProps {
     children: React.ReactNode;
 }
 
 /**
- * 收藏功能Provider组件
+ * Favorites feature Provider component
  */
 export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
     const { data: session } = useSession();
@@ -65,15 +65,15 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | null>(null);
 
-    // 提取收藏的商品ID列表
+    // Extract the list of favorited product IDs
     const favoriteIds = useMemo(() => {
         return favorites.map(product => product.asin || product.id || '');
     }, [favorites]);
 
-    // 是否已登录
+    // Whether the user is logged in
     const isAuthenticated = !!session?.user;
 
-    // 在组件挂载时从本地存储初始化状态
+    // Initialize state from local storage when the component mounts
     useEffect(() => {
         const localFavoriteIds = getLocalFavorites();
 
@@ -89,7 +89,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }, []);
 
     /**
-     * 刷新收藏列表
+     * Refresh favorites list
      */
     const refreshFavorites = useCallback(async () => {
         try {
@@ -97,18 +97,18 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
             setError(null);
 
             if (isAuthenticated) {
-                // 从服务器获取收藏列表
+                // Fetch favorites list from the server
                 const response = await favoritesApi.getFavorites();
 
                 if (response.data.code === 200) {
                     setFavorites(response.data.data);
-                    // 同步到本地存储，过滤掉 undefined 值
+                    // Sync to local storage, filtering out undefined values
                     syncLocalFavorites(response.data.data.map(p => p.id || p.asin).filter((id): id is string => id !== undefined));
                 } else {
                     throw new Error(response.data.message);
                 }
             } else {
-                // 从本地存储获取
+                // Fetch from local storage
                 const localFavoriteIds = getLocalFavorites();
                 const simpleProducts = localFavoriteIds.map(id => ({
                     id,
@@ -126,7 +126,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }, [isAuthenticated]);
 
     /**
-     * 添加收藏
+     * Add to favorites
      */
     const addFavorite = useCallback(async (productId: string) => {
         if (!productId || favoriteIds.includes(productId)) {
@@ -137,17 +137,17 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
             setError(null);
 
             if (isAuthenticated) {
-                // 调用服务器API
+                // Call server API
                 const response = await favoritesApi.addFavorite(productId);
 
                 if (response.data.code !== 200) {
                     throw new Error(response.data.message);
                 }
             }
-            // 无论是否登录，都添加到本地存储
+            // Always add to local storage regardless of login state
             addLocalFavorite(productId);
 
-            // 直接更新本地状态，而不是重新获取完整列表
+            // Update local state directly instead of re-fetching the full list
             setFavorites(prev => [
                 ...prev,
                 {
@@ -168,10 +168,10 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }, [favoriteIds, isAuthenticated]);
 
     /**
-     * 移除收藏
+     * Remove from favorites
      */
     const removeFavorite = useCallback(async (productId: string) => {
-        // 同时检查状态和本地存储
+        // Check both state and local storage
         const isInFavorites = favoriteIds.includes(productId) || isLocalFavorite(productId);
 
         if (!productId || !isInFavorites) {
@@ -182,17 +182,17 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
             setError(null);
 
             if (isAuthenticated) {
-                // 调用服务器API
+                // Call server API
                 const response = await favoritesApi.removeFavorite(productId);
 
                 if (response.data.code !== 200) {
                     throw new Error(response.data.message);
                 }
             }
-            // 无论是否登录，都从本地存储中移除
+            // Always remove from local storage regardless of login state
             removeLocalFavorite(productId);
 
-            // 直接更新本地状态，而不是重新获取完整列表
+            // Update local state directly instead of re-fetching the full list
             setFavorites(prev => prev.filter(product =>
                 (product.id !== productId) && (product.asin !== productId)
             ));
@@ -208,26 +208,26 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }, [favoriteIds, isAuthenticated]);
 
     /**
-     * 判断商品是否已收藏
+     * Check if a product is in favorites
      */
     const isFavorite = useCallback((productId: string) => {
         return favoriteIds.includes(productId) || isLocalFavorite(productId);
     }, [favoriteIds]);
 
     /**
-     * 清空收藏
+     * Clear favorites
      */
     const clearFavorites = useCallback(async () => {
         try {
             if (isAuthenticated) {
-                // 调用服务器API同步空列表
+                // Call server API to sync an empty list
                 const response = await favoritesApi.syncFavorites([]);
 
                 if (response.data.code !== 200) {
                     throw new Error(response.data.message);
                 }
             }
-            // 清空本地存储
+            // Clear local storage
             clearLocalFavorites();
             await refreshFavorites();
         } catch (err) {
@@ -236,7 +236,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     }, [isAuthenticated, refreshFavorites]);
 
     /**
-     * 与服务器同步收藏列表
+     * Sync favorites list with server
      */
     const syncWithServer = useCallback(async () => {
         if (!isAuthenticated) {
@@ -247,18 +247,18 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
             setIsLoading(true);
             setError(null);
 
-            // 获取本地收藏ID列表
+            // Get local favorites ID list
             const localIds = getLocalFavorites();
 
-            // 获取服务器端收藏列表
+            // Get server-side favorites list
             const serverResponse = await favoritesApi.getFavorites();
             const serverIds = serverResponse.data.data.map(p => p.id || p.asin).filter((id): id is string => id !== undefined);
 
-            // 计算需要同步的ID（本地有但服务器没有的）
+            // Calculate IDs to sync (exists locally but not on server)
             const idsToSync = localIds.filter(id => !serverIds.includes(id));
 
             if (idsToSync.length > 0) {
-                // 只同步差异部分
+                // Sync only the differences
                 const response = await favoritesApi.syncFavorites(idsToSync);
 
                 if (response.data.code !== 200) {
@@ -266,7 +266,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
                 }
             }
 
-            // 合并本地和服务器数据
+            // Merge local and server data
             const allIds = Array.from(new Set([...localIds, ...serverIds]));
             const mergedProducts = allIds.map(id => ({
                 id,
@@ -275,7 +275,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
             })) as Product[];
 
             setFavorites(mergedProducts);
-            // 更新本地存储
+            // update local storage
             syncLocalFavorites(allIds);
 
         } catch (err) {
@@ -285,7 +285,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         }
     }, [isAuthenticated]);
 
-    // 构建Context值
+    // Build context value
     const contextValue = useMemo(() => ({
         favorites,
         favoriteIds,
@@ -320,7 +320,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
 };
 
 /**
- * 使用收藏Context的Hook
+ * Hook for consuming the favorites context
  */
 export const useFavoritesContext = () => useContext(FavoritesContext);
 

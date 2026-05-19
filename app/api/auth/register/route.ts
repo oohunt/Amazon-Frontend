@@ -3,7 +3,7 @@ import type { MongoClient } from 'mongodb';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// 使用纯JavaScript实现的bcryptjs代替bcrypt，避免原生模块加载问题
+// Use bcryptjs (pure JavaScript implementation) instead of bcrypt to avoid native module loading issues
 
 import { ensureTemplateExists } from '@/lib/email/email-template-init';
 import { EMAIL_TEMPLATE_TYPES } from '@/lib/email/email-template-types';
@@ -12,17 +12,17 @@ import type { User } from '@/lib/models/User';
 import { UserRole, isAdminAccount, isSuperAdminAccount } from '@/lib/models/UserRole';
 import clientPromise from '@/lib/mongodb';
 
-// 懒初始化Resend - 仅在实际发送邮件时创建实例
+// Lazy-initialize Resend - only create the instance when actually sending emails
 function getResend() {
     return new Resend(process.env.RESEND_API_KEY || 'placeholder');
 }
 
 export async function POST(request: Request) {
     try {
-        // 解析请求体获取注册信息
+        // Parse the request body to get registration information
         const { name, email, password } = await request.json();
 
-        // 基本验证
+        // Basic validation
         if (!name || !email || !password) {
             return NextResponse.json(
                 { error: 'Please provide all required fields' },
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 电子邮件格式验证
+        // Email format validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const clientPromiseWithTimeout = Promise.race([
             clientPromise,
             new Promise((_, reject) =>
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         const client = await clientPromiseWithTimeout;
         const db = client.db(process.env.MONGODB_DB || "oohunt");
 
-        // 检查电子邮件是否已在使用中
+        // Check if the email is already in use
         const existingUser = await db.collection('users').findOne({ email });
 
         if (existingUser) {
@@ -68,23 +68,23 @@ export async function POST(request: Request) {
             );
         }
 
-        // 使用bcryptjs对密码进行哈希处理
+        // Hash the password using bcryptjs
         const saltRounds = 10;
         const hashedPassword = await bcryptjs.hash(password, saltRounds);
 
-        // 确定用户角色
+        // Determine user role
         let role = UserRole.USER;
 
-        // 首先检查是否为超级管理员账户
+        // First check if this is a super admin account
         if (isSuperAdminAccount(email)) {
             role = UserRole.SUPER_ADMIN;
         }
-        // 然后检查是否为普通管理员账户
+        // Then check if this is a regular admin account
         else if (isAdminAccount(email)) {
             role = UserRole.ADMIN;
         }
 
-        // 创建用户
+        // Create user
         const newUser: Omit<User, '_id'> = {
             name,
             email,
@@ -96,9 +96,9 @@ export async function POST(request: Request) {
 
         const result = await db.collection('users').insertOne(newUser);
 
-        // 发送注册确认邮件
+        // Send registration confirmation email
         try {
-            // 尝试从数据库获取并编译邮件模板，使用模板类型查询
+            // Attempt to fetch and compile the email template from the database by template type
             const templateResult = await getCompiledEmailTemplate(
                 EMAIL_TEMPLATE_TYPES.USER_REGISTRATION,
                 {
@@ -106,32 +106,32 @@ export async function POST(request: Request) {
                     email,
                     date: new Date()
                 },
-                true // 标记为按类型查询
+                true // Flag as query-by-type
             );
 
-            // 准备发送邮件的配置
+            // Prepare email sending configuration
             const emailConfig = {
-                from: 'onboarding@resend.dev', // 默认发件人
+                from: 'onboarding@resend.dev', // Default sender
                 to: [email],
                 subject: 'Welcome to OOHUNT! Account Registration',
-                html: `<p>Hello ${name}, thank you for registering!</p>` // 默认简单内容
+                html: `<p>Hello ${name}, thank you for registering!</p>` // Default simple content
             };
 
-            // 如果成功获取到模板，则使用模板内容
+            // If the template was retrieved successfully, use its content
             if (templateResult.success) {
                 emailConfig.subject = templateResult.subject || emailConfig.subject;
                 emailConfig.html = templateResult.html || emailConfig.html;
 
-                // 如果模板指定了发件人且环境不是开发环境，则使用模板中的发件人
+                // If the template specifies a sender and the environment is not development, use the template sender
                 if (templateResult.from && process.env.NODE_ENV !== 'development') {
                     emailConfig.from = templateResult.from;
                 }
             } else {
-                // 如果模板不存在或未激活，尝试创建默认模板
+                // If the template does not exist or is not active, attempt to create the default template
                 await ensureTemplateExists(EMAIL_TEMPLATE_TYPES.USER_REGISTRATION);
             }
 
-            // 使用Resend发送确认邮件
+            // Send the confirmation email using Resend
             await getResend().emails.send(emailConfig);
         } catch (emailError) {
             return NextResponse.json({
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
         // eslint-disable-next-line no-console
         console.error('Registration error:', error);
 
-        // 处理特定错误类型
+        // Handle specific error types
         if (error instanceof Error) {
             if (error.message === 'Database connection timeout') {
                 return NextResponse.json(

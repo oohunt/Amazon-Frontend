@@ -7,7 +7,7 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { ComponentProduct } from '@/types';
 
-// 基础产品组件 - 简单行布局
+// Basic product component — simple row layout
 const SimpleProductElement = ({ product }: { product: ComponentProduct }) => {
     const { id, title, price, image, url, cj_url, asin } = product;
     const effectiveUrl = cj_url || url || '';
@@ -40,8 +40,8 @@ const SimpleProductElement = ({ product }: { product: ComponentProduct }) => {
                 </span>
             </span>
             <StoreIdentifier url={effectiveUrl} align="right" showName={false} className="mb-0 flex-shrink-0" apiProvider={product.apiProvider} />
-            {/* Optionally keep the '产品' tag if needed for CMS context */}
-            {/* <div className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full ml-2">产品</div> */}
+            {/* Optionally keep the 'Product' tag if needed for CMS context */}
+            {/* <div className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full ml-2">Product</div> */}
         </span>
     );
 };

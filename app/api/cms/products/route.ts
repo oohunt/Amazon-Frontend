@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 获取产品列表，用于CMS内容页面中嵌入
+// Get product list for embedding in CMS content pages
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
         const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('products');
 
-        // 构建查询条件
+        // Build query conditions
         const query: Record<string, unknown> = {};
 
         if (search) {
@@ -35,21 +35,21 @@ export async function GET(request: NextRequest) {
             query.categoryId = category;
         }
 
-        // 确保只获取已发布的产品
+        // Only fetch published products
         query.status = 'published';
 
-        // 计算总数
+        // Calculate total count
         const total = await collection.countDocuments(query);
         const totalPages = Math.ceil(total / limit);
 
-        // 获取数据
+        // Fetch data
         const products = await collection.find(query)
             .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .toArray();
 
-        // 转换数据格式，只返回CMS嵌入所需的字段
+        // Format data, returning only the fields required for CMS embedding
         const formattedProducts = products.map(product => ({
             id: product._id.toString(),
             asin: product.asin || null,
@@ -74,8 +74,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
             {
                 status: false,
-                message: '获取产品列表失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get product list, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

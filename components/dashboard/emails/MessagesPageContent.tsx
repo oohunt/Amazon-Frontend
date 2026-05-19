@@ -328,7 +328,7 @@ const MessagesPageContent = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // 构建API参数
+    // Build API parameters
     const getApiParams = () => {
         const params: Record<string, string | number | boolean | object | undefined> = {
             page,
@@ -338,20 +338,20 @@ const MessagesPageContent = () => {
             search: debouncedSearchTerm
         };
 
-        // 处理状态过滤
+        // Handle status filtering
         if (activeTab === 'pending') {
             params.is_processed = false;
         } else if (statusFilter) {
             params.is_processed = statusFilter === 'true';
         }
 
-        // 处理来源过滤
+        // Handle source filtering
         if (activeTab === 'contact') {
-            params.formSource = { $exists: false }; // 没有formSource字段的是联系表单
+            params.formSource = { $exists: false }; // Entries without formSource field are contact forms
         } else if (activeTab === 'general') {
-            params.formSource = 'general'; // 普通产品邮件订阅
+            params.formSource = 'general'; // General product email subscription
         } else if (activeTab === 'blog') {
-            params.formSource = 'blog'; // 博客内容邮件订阅
+            params.formSource = 'blog'; // Blog content email subscription
         }
 
         return params;
@@ -388,7 +388,7 @@ const MessagesPageContent = () => {
         setPage(newPage);
     };
 
-    // 获取当前标签页的名称
+    // Get current tab name
     const getTabName = () => {
         switch (activeTab) {
             case 'all': return 'All Messages';
@@ -414,7 +414,7 @@ const MessagesPageContent = () => {
             params.append('is_processed', statusFilter);
         }
 
-        // 添加来源过滤参数
+        // Addsource filter parameter
         if (activeTab === 'contact') {
             params.append('form_type', 'contact');
         } else if (activeTab === 'general') {
@@ -541,7 +541,7 @@ const MessagesPageContent = () => {
                                         Date {getSortIcon('createdAt')}
                                     </div>
                                 </th>
-                                {/* 来源列 - 仅在"全部"标签页显示 */}
+                                {/* Source column — shown only on the 'All' tab */}
                                 {activeTab === 'all' && (
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Source
@@ -586,7 +586,7 @@ const MessagesPageContent = () => {
                                                 minute: '2-digit'
                                             })}
                                         </td>
-                                        {/* 来源列 - 仅在"全部"标签页显示 */}
+                                        {/* Source column — shown only on the 'All' tab */}
                                         {activeTab === 'all' && (
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {!item.formSource ? (
@@ -689,7 +689,7 @@ const MessagesPageContent = () => {
                                                 minute: '2-digit'
                                             })}
                                         </div>
-                                        {/* 来源行 - 仅在"全部"标签页显示 */}
+                                        {/* Source row — shown only on the 'All' tab */}
                                         {activeTab === 'all' && (
                                             <div className="text-sm text-gray-500">
                                                 Source: {!item.formSource ? 'Contact Form' :

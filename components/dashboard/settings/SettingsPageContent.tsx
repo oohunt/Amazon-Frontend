@@ -23,14 +23,14 @@ export function SettingsPageContent() {
     });
     const [activeTab, setActiveTab] = useState('social');
 
-    // 当获取到数据时更新表单
+    // Update form when data is fetched
     useEffect(() => {
         if (socialLinks) {
             setFormData(socialLinks);
         }
     }, [socialLinks]);
 
-    // 处理输入变化
+    // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
 
@@ -40,7 +40,7 @@ export function SettingsPageContent() {
         }));
     };
 
-    // 保存设置
+    // save settings
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 

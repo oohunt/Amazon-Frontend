@@ -44,12 +44,12 @@ import { ProductSelector, type Product } from './ProductSelector';
 import { EmailCollectionFormBlot } from './Template/email/EmailCollectionFormBlot';
 import { TiptapToolbar } from './TiptapToolbar';
 
-// 产品命令类型定义
+// Product command type definition
 interface ProductCommands {
     insertProduct: (attributes: ProductAttributes) => boolean;
 }
 
-// 默认字符限制
+// Default character limit
 const DEFAULT_CHAR_LIMIT = 10000;
 
 interface RichTextEditorProps {
@@ -59,7 +59,7 @@ interface RichTextEditorProps {
     className?: string;
     editorClass?: string;
     onEditorReady?: (editor: EditorType) => void;
-    charLimit?: number; // 添加字符限制属性
+    charLimit?: number; // Add character limit attribute
 }
 
 export function RichTextEditor({
@@ -69,7 +69,7 @@ export function RichTextEditor({
     className = '',
     editorClass = '',
     onEditorReady,
-    charLimit = DEFAULT_CHAR_LIMIT // 默认10000
+    charLimit = DEFAULT_CHAR_LIMIT // Default 10000
 }: RichTextEditorProps) {
     const [showProductSelector, setShowProductSelector] = useState(false);
     const [isClient, setIsClient] = useState(false);
@@ -81,11 +81,11 @@ export function RichTextEditor({
     const [showMetadataSelector] = useState(false);
     const [showFloatingImageInput, setShowFloatingImageInput] = useState(false);
 
-    // 客户端渲染检测
+    // Client-side render detection
     useEffect(() => {
         setIsClient(true);
 
-        // 添加全局样式以修复气泡菜单宽度问题
+        // Add global styles to fix bubble menu width issue
         const style = document.createElement('style');
 
         style.innerHTML = `
@@ -99,12 +99,12 @@ export function RichTextEditor({
                 white-space: nowrap !important;
             }
             
-            /* 确保模态框在编辑器浮动菜单之上 */
+            /* Ensure modal is above editor floating menu */
             .modal-backdrop, .modal-content {
-                z-index: 9999 !important; /* 使用更高的z-index值 */
+                z-index: 9999 !important; /* Use higher z-index value */
             }
             
-            /* 针对HeroUI Modal组件的CSS选择器 */
+            /* CSS selector targeting HeroUI Modal component */
             [data-overlay-container] [role="dialog"],
             [aria-labelledby="modal-title"] {
                 z-index: 9999 !important;
@@ -116,17 +116,17 @@ export function RichTextEditor({
             div[role="presentation"][data-overlay] {
                 z-index: 9999 !important;
             }
-            /* 修复模态框叠加问题 */
+            /* Fix modal overlay issue */
             div[data-overlay-container="true"] {
                 isolation: isolate;
             }
             
-            /* 新增：隐藏 FloatingMenu 的 CSS 类 */
+            /* New: CSS class to hide FloatingMenu */
             .floating-menu-hidden {
                 opacity: 0 !important;
                 visibility: hidden !important;
                 pointer-events: none !important;
-                transition: none !important; /* 确保立即隐藏 */
+                transition: none !important; /* Ensure immediate hiding */
             }
         `;
         document.head.appendChild(style);
@@ -136,20 +136,20 @@ export function RichTextEditor({
         };
     }, []);
 
-    // 初始化编辑器
+    // initialize editor
     const editor = useEditor({
         extensions: [
-            // 首先加载TextStyle和Color扩展，确保它们在其他扩展之前初始化
-            // 文本样式扩展 - 用于颜色等
+            // Load TextStyle and Color extensions first to ensure they initialize before other extensions
+            // Text style extension — for colors etc.
             TextStyle,
-            // 颜色扩展
+            // Color extension
             Color.configure({
                 types: ['textStyle'],
             }),
-            // 然后加载其他扩展
+            // Then load other extensions
             StarterKit.configure({
-                // 配置 StarterKit 选项
-                heading: false, // 禁用StarterKit自带的heading扩展
+                // Configure StarterKit options
+                heading: false, // Disable heading extension bundled with StarterKit
                 codeBlock: {
                     HTMLAttributes: {
                         class: 'bg-gray-100 rounded p-2 font-mono text-sm',
@@ -162,7 +162,7 @@ export function RichTextEditor({
                 },
                 dropcursor: false
             }),
-            // 单独配置Heading扩展支持六级标题
+            // Configure Heading extension separately to support six heading levels
             Heading.configure({
                 levels: [1, 2, 3, 4, 5, 6],
             }),
@@ -192,52 +192,52 @@ export function RichTextEditor({
                 alignments: ['left', 'center', 'right'],
                 defaultAlignment: 'left',
             }),
-            // 高亮插件
+            // Highlight plugin
             Highlight.configure({
                 multicolor: true,
                 HTMLAttributes: {
                     class: 'bg-yellow-200 px-1 rounded',
                 },
             }),
-            // 排版插件
+            // Typography plugin
             Typography,
             Underline,
             ProductBlot,
             ProductMetadataBlot,
             EmailCollectionFormBlot,
-            // 字符计数扩展
+            // Character count extension
             CharacterCount.configure({
-                limit: charLimit, // 设置字符限制
-                // 使用更准确的分词方法计算中文单词数
+                limit: charLimit, // Set character limit
+                // Use more accurate word segmentation to count Chinese words
                 wordCounter: (text) => {
-                    // 移除空白字符后按照中英文分词规则计算
+                    // calculate after removing whitespace using Chinese/English word segmentation rules
                     const trimmedText = text.trim();
 
                     if (!trimmedText) return 0;
 
-                    // 对中英文进行简单分词，处理中英文混合情况
-                    // 1. 英文以空格分隔
-                    // 2. 中文每个字符视为一个词的一部分
-                    // 3. 中英文交界处分词
+                    // Simple word segmentation for Chinese/English mixed text
+                    // 1. English words separated by spaces
+                    // 2. Each Chinese character is treated as part of a word
+                    // 3. Split at Chinese-English boundaries
 
-                    // 将文本按空格分隔，然后处理每个部分
+                    // Split text by spaces and process each part
                     const parts = trimmedText.split(/\s+/);
                     let wordCount = 0;
 
                     for (const part of parts) {
                         if (!part) continue;
 
-                        // 判断是否包含中文字符
+                        // Check if it contains Chinese characters
                         const hasChinese = /[\u4e00-\u9fff]/.test(part);
 
                         if (hasChinese) {
-                            // 中文分词：连续的中文字符视为一个词
-                            // 简单方法：将中英文交界处分词
+                            // Chinese word segmentation: consecutive Chinese characters treated as one word
+                            // Simple method: split at Chinese/English boundaries
                             const segments = part.split(/(?:(?<=[\u4e00-\u9fff])(?=[^\u4e00-\u9fff])|(?<=[^\u4e00-\u9fff])(?=[\u4e00-\u9fff]))/);
 
                             wordCount += segments.filter(segment => segment.length > 0).length;
                         } else {
-                            // 非中文（英文、数字等）
+                            // Non-Chinese (English, numbers, etc.)
                             wordCount += 1;
                         }
                     }
@@ -249,7 +249,7 @@ export function RichTextEditor({
             Focus.configure({ className: 'has-focus', mode: 'all' }),
             ListKeymap,
             Youtube.configure({
-                // 可以根据需要添加配置，例如：
+                // Add configuration as needed, for example:
                 // width: 640,
                 // height: 480,
                 // nocookie: true,
@@ -261,7 +261,7 @@ export function RichTextEditor({
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
 
-            // 更新字符和单词计数
+            // update character and word count
             if (editor.storage.characterCount) {
                 setCharactersCount(editor.storage.characterCount.characters());
                 setWordsCount(editor.storage.characterCount.words());
@@ -271,58 +271,58 @@ export function RichTextEditor({
             attributes: {
                 class: 'focus:outline-none prose max-w-none',
             },
-            // 阻止编辑器中的键盘事件冒泡到表单
+            // Stop keyboard event bubbling from editor to form
             handleKeyDown: (view, event) => {
-                // 阻止Ctrl+S或Cmd+S (保存快捷键)
+                // Block Ctrl+S or Cmd+S (save shortcut)
                 if ((event.ctrlKey || event.metaKey) && event.key === 's') {
                     event.preventDefault();
 
                     return true;
                 }
 
-                // 阻止单独的Enter键冒泡到表单（防止表单提交）
+                // Block standalone Enter key from bubbling to form (prevent form submission)
                 if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
-                    // 不阻止编辑器内部的Enter操作，但阻止冒泡
+                    // Do not prevent Enter inside editor, but stop propagation
                     event.stopPropagation();
 
-                    return false; // 让Tiptap继续处理Enter键
+                    return false; // Let Tiptap continue handling Enter key
                 }
 
                 return false;
             },
         },
-        immediatelyRender: false, // 解决SSR水合问题
+        immediatelyRender: false, // Fix SSR hydration issue
     });
 
-    // 当编辑器初始化完成时，调用onEditorReady回调
+    // Call onEditorReady callback when editor initialization is complete
     useEffect(() => {
         if (editor && onEditorReady) {
             onEditorReady(editor);
         }
     }, [editor, onEditorReady]);
 
-    // 计算字符限制进度
+    // Calculate character limit progress
     const characterLimitProgress = editor && editor.storage.characterCount
         ? Math.min(100, Math.round((charactersCount / charLimit) * 100))
         : 0;
 
-    // 判断是否接近或超过限制
+    // Check if it is approaching or exceeding the limit
     const isNearLimit = characterLimitProgress > 80 && characterLimitProgress < 100;
     const isOverLimit = characterLimitProgress >= 100;
 
-    // 计算剩余字符数
+    // Calculate remaining character count
     const remainingChars = Math.max(0, charLimit - charactersCount);
 
-    // 当超出字符限制时，通知父组件
+    // Notify parent component when character limit is exceeded
     useEffect(() => {
-        // 如果编辑器被初始化，并且有onEditorReady回调
+        // If editor is initialized and onEditorReady callback exists
         if (editor && onEditorReady) {
-            // 将编辑器实例和字符限制状态传递给父组件
+            // Pass editor instance and character limit status to parent component
             onEditorReady(editor);
 
-            // 可以通过自定义事件或者修改DOM属性来通知表单
+            // Notify form via custom events or modifying DOM attributes
             if (editor.options.element) {
-                // 在编辑器元素上设置自定义属性，表单可以检查此属性决定是否允许提交
+                // Set custom attribute on editor element, form can check this attribute to decide whether to allow submit
                 const editorElement = editor.options.element as HTMLElement;
 
                 editorElement.dataset.isOverLimit = String(isOverLimit);
@@ -330,22 +330,22 @@ export function RichTextEditor({
         }
     }, [editor, onEditorReady, isOverLimit]);
 
-    // 处理选择产品
+    // Handle product selection
     const handleProductSelect = (product: Product) => {
         if (!editor) return;
 
-        // 使用类型断言处理插入产品命令
+        // Use type assertion to handle insert product commands
         const commands = editor.commands as unknown as ProductCommands;
 
         commands.insertProduct({
             id: product.id || product.asin || '',
             title: product.title,
             price: product.price || 0,
-            // 图片处理：优先使用 main_image，其次是image
+            // Image handling: prefer main_image, fall back to image
             image: product.main_image || product.image_url || '/placeholder-product.jpg',
-            // asin处理：直接使用asin或默认为空字符串
+            // ASIN handling: use asin directly or default to empty string
             asin: product.asin || '',
-            // 样式处理：使用产品提供的样式或默认为卡片样式
+            // Style handling: use product-provided style or default to card style
             style: product.style || 'card'
         });
 
@@ -353,7 +353,7 @@ export function RichTextEditor({
         setShowProductSelector(false);
     };
 
-    // 新增：处理链接 Popover 打开/关闭
+    // New: handle link Popover open/close
     const handleLinkOpenChange = useCallback((open: boolean) => {
         if (open && editor) {
             const currentUrl = editor.getAttributes('link').href || '';
@@ -363,12 +363,12 @@ export function RichTextEditor({
         setIsLinkPopoverOpen(open);
     }, [editor]);
 
-    // 应用链接
+    // Apply link
     const handleApplyLink = useCallback(() => {
         if (!editor) return;
         const urlToSet = linkUrl.trim();
 
-        // 简单 URL 验证 (或根据需要移除/增强)
+        // Simple URL validation (or remove/enhance as needed)
         if (!urlToSet || !/^https?:\/\//i.test(urlToSet)) {
             editor.chain().focus().extendMarkRange('link').unsetLink().run();
         } else {
@@ -377,16 +377,16 @@ export function RichTextEditor({
         setIsLinkPopoverOpen(false);
     }, [editor, linkUrl]);
 
-    // 移除链接
+    // remove link
     const handleRemoveLink = useCallback(() => {
         if (!editor) return;
         editor.chain().focus().extendMarkRange('link').unsetLink().run();
         setIsLinkPopoverOpen(false);
     }, [editor]);
 
-    // 处理高亮文本
+    // Handle highlighted text
     const handleHighlight = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-        // 阻止事件冒泡，防止触发表单提交
+        // Stop event bubbling to prevent triggering form submission
         e.preventDefault();
         e.stopPropagation();
 
@@ -394,23 +394,23 @@ export function RichTextEditor({
         editor.chain().focus().toggleHighlight().run();
     }, [editor]);
 
-    // 处理 FloatingMenu 中的图片添加
+    // Handle image add in FloatingMenu
     const handleFloatingImageAdd = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-        // 阻止事件冒泡，防止触发表单提交
+        // Stop event bubbling to prevent triggering form submission
         e.preventDefault();
         e.stopPropagation();
 
         if (!editor) return;
 
-        // 立即使编辑器失去焦点，确保菜单消失
+        // Immediately blur editor to ensure menu disappears
         editor.commands.blur();
 
-        // 不再使用原生prompt，改用状态控制的模态框或Popover
-        // 恢复直接设置状态
+        // No longer using native prompt, replaced with status-controlled modal or Popover
+        // Restore direct status setting
         setShowFloatingImageInput(true);
     }, [editor]);
 
-    // 处理图片URL应用
+    // Handle image URL application
     const handleApplyImageUrl = useCallback((url: string) => {
         if (!editor || !url) return;
 
@@ -421,50 +421,50 @@ export function RichTextEditor({
         setShowFloatingImageInput(false);
     }, [editor]);
 
-    // 打开产品选择器的回调
+    // Callback to open product selector
     const _handleAddProductClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
 
-        // 立即使编辑器失去焦点，确保菜单消失
+        // Immediately blur editor to ensure menu disappears
         editor?.commands.blur();
 
-        // 恢复直接设置状态
+        // Restore direct status setting
         setShowProductSelector(true);
     }, [editor]);
 
-    // 或者你可能需要创建一个新的工具栏调用包装器
+    // Or you may need to create a new toolbar call wrapper
     const handleAddProductWrapper = () => {
         setShowProductSelector(true);
     };
 
-    // 恢复 handleProductStyleChange，因为样式按钮仍然需要它
+    // Restore handleProductStyleChange as style buttons still need it
     const handleProductStyleChange = useCallback((style: string) => {
         if (editor && editor.isActive('product')) {
             editor.chain().focus().updateAttributes('product', { style }).run();
         }
     }, [editor]);
 
-    // 当任何模态框打开时，确保编辑器失去焦点
+    // Ensure editor loses focus when any modal opens
     useEffect(() => {
         if (showProductSelector || showProductPicker || showMetadataSelector || showFloatingImageInput) {
             editor?.commands.blur();
         }
     }, [editor, showProductSelector, showProductPicker, showMetadataSelector, showFloatingImageInput]);
 
-    // 如果不在客户端，返回占位符
+    // If not on client, return placeholder
     if (!isClient) {
         return <div className={className}><div className={editorClass}>Loading editor...</div></div>;
     }
 
     return (
         <div className={`rich-text-editor ${className} border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all duration-150 flex flex-col h-[850px] ${isOverLimit ? 'border-red-300 focus-within:border-red-500 focus-within:ring-red-500' : ''}`}>
-            {/* 编辑器顶部工具栏 - 使用sticky定位并确保不收缩 */}
+            {/* Editor top toolbar — sticky positioning, prevents shrinking */}
             <div className="p-2 border-b border-gray-300 flex flex-wrap items-center gap-1 bg-white sticky top-0 z-50 shadow-sm flex-shrink-0">
                 <TiptapToolbar editor={editor} onAddProduct={handleAddProductWrapper} />
             </div>
 
-            {/* 编辑器内容区域 - 设置为可滚动容器 */}
+            {/* Editor content area — set as scrollable container */}
             <div className="relative flex-grow overflow-y-auto">
                 <EditorContent
                     editor={editor}
@@ -472,7 +472,7 @@ export function RichTextEditor({
                     translate="no"
                 />
 
-                {/* 添加自定义样式 */}
+                {/* Add custom styles */}
                 <style jsx global>{`
                     .ProseMirror h1 {
                         font-size: 2rem;
@@ -524,19 +524,19 @@ export function RichTextEditor({
                         margin-bottom: 0.75rem;
                     }
                     
-                    /* 禁用翻译功能相关样式 */
+                    /* Styles for disabling translation functionality */
                     .ProseMirror {
-                        translate: no; /* 现代浏览器禁用翻译 */
-                        -webkit-translate: no; /* Safari 特定属性 */
+                        translate: no; /* Disable translation in modern browsers */
+                        -webkit-translate: no; /* Safari-specific property */
                     }
                     
-                    /* 修改选择文本样式 */
+                    /* Modify text selection styles */
                     .ProseMirror ::selection {
                         background-color: rgba(59, 130, 246, 0.3);
                         color: inherit;
                     }
 
-                    /* 修复气泡菜单宽度问题 */
+                    /* Fix bubble menu width issue */
                     .tippy-box {
                         width: auto !important;
                         max-width: none !important;
@@ -548,21 +548,21 @@ export function RichTextEditor({
                         white-space: nowrap !important;
                     }
                     
-                    /* 确保模态框在编辑器浮动菜单之上 */
+                    /* Ensure modal is above editor floating menu */
                     .modal-backdrop, .modal-content {
-                        z-index: 9999 !important; /* 使用更高的z-index值 */
+                        z-index: 9999 !important; /* Use higher z-index value */
                     }
                     
-                    /* 新增：隐藏 FloatingMenu 的 CSS 类 */
+                    /* New: CSS class to hide FloatingMenu */
                     .floating-menu-hidden {
                         opacity: 0 !important;
                         visibility: hidden !important;
                         pointer-events: none !important;
-                        transition: none !important; /* 确保立即隐藏 */
+                        transition: none !important; /* Ensure immediate hiding */
                     }
                 `}</style>
 
-                {/* Markdown快捷方式提示 */}
+                {/* Markdown shortcut hints */}
                 {!editor?.getText() && (
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400 text-center pointer-events-none">
                         <p className="mb-2">Markdown shortcuts available</p>
@@ -580,10 +580,10 @@ export function RichTextEditor({
                 )}
             </div>
 
-            {/* 字符统计和单词统计 */}
+            {/* Character count and word count */}
             {editor && (
                 <div className="px-4 py-2 border-t border-gray-200 bg-gray-50 flex-shrink-0">
-                    {/* 字符限制进度条 */}
+                    {/* Character limit progress bar */}
                     <div className="h-1.5 w-full bg-gray-200 rounded-full mb-2">
                         <div
                             className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${isOverLimit ? 'bg-red-500' : isNearLimit ? 'bg-yellow-500' : 'bg-green-500'
@@ -623,19 +623,19 @@ export function RichTextEditor({
             )}
 
             {editor && (
-                /* 气泡菜单：添加 whitespace-nowrap 和 min-w-max 类解决菜单宽度不自适应内容的问题 */
+                /* Bubble menu: add whitespace-nowrap and min-w-max classes to fix menu width not adapting to content */
                 <BubbleMenu
                     editor={editor}
                     tippyOptions={{
                         duration: 100,
-                        maxWidth: 'none', // 允许菜单完全扩展到其内容的宽度
+                        maxWidth: 'none', // Allow menu to fully expand to its content width
                         placement: 'top',
                         offset: [0, 10],
                         zIndex: 50,
                         animation: 'shift-away',
                         interactive: true,
                         appendTo: () => document.body,
-                        // 确保菜单不会超出视口
+                        // Ensure menu doesn't overflow viewport
                         popperOptions: {
                             modifiers: [
                                 {
@@ -653,7 +653,7 @@ export function RichTextEditor({
                                     },
                                 },
                                 {
-                                    name: 'sizeByReference', // 添加确保宽度自适应的修饰符
+                                    name: 'sizeByReference', // Add modifier to ensure width adapts
                                     enabled: true,
                                     options: {
                                         width: 'auto',
@@ -662,7 +662,7 @@ export function RichTextEditor({
                             ],
                         },
                         onCreate: ({ popper }) => {
-                            // 直接设置popper样式
+                            // Set popper style directly
                             if (popper && popper.firstElementChild) {
                                 (popper.firstElementChild as HTMLElement).style.width = 'auto';
                                 (popper.firstElementChild as HTMLElement).style.maxWidth = 'none';
@@ -670,13 +670,13 @@ export function RichTextEditor({
                             }
                         },
                         onShow: (instance) => {
-                            // 防止谷歌翻译触发
+                            // Prevent Google Translate from triggering
                             const selection = window.getSelection();
 
                             if (selection && selection.toString()) {
-                                // 延迟执行，让BubbleMenu先显示
+                                // Delay execution to let BubbleMenu show first
                                 setTimeout(() => {
-                                    // 暂时清除选择然后立即恢复，打断谷歌翻译
+                                    // Temporarily clear selection then restore, interrupting Google Translate
                                     if (selection.rangeCount > 0) {
                                         const range = selection.getRangeAt(0);
 
@@ -688,7 +688,7 @@ export function RichTextEditor({
                                 }, 0);
                             }
 
-                            // 修复宽度问题
+                            // Fix width issue
                             if (instance.popper && instance.popper.firstElementChild) {
                                 (instance.popper.firstElementChild as HTMLElement).style.width = 'auto';
                                 (instance.popper.firstElementChild as HTMLElement).style.maxWidth = 'none';
@@ -708,7 +708,7 @@ export function RichTextEditor({
                     }}
                 >
                     {isNodeSelection(editor.state.selection) && editor.isActive('product') ? (
-                        // --- 产品节点选中时的菜单 (只有样式按钮) ---
+                        // --- Menu when product node is selected (style buttons only) ---
                         (() => {
                             const selection = editor.state.selection;
                             const currentNode = isNodeSelection(selection) ? selection.node : null;
@@ -717,7 +717,7 @@ export function RichTextEditor({
 
                             return (
                                 <div className="flex items-center gap-1.5 whitespace-nowrap min-w-max overflow-visible flex-shrink-0 flex-nowrap">
-                                    {/* 样式按钮 - 使用 nowrap，移除 flex-wrap */}
+                                    {/* Style buttons — use nowrap, remove flex-wrap */}
                                     <span className="text-xs text-gray-500 mr-1 flex-shrink-0">layout:</span>
                                     <div className="flex items-center flex-shrink-0 flex-nowrap">
                                         {PRODUCT_STYLES.map((styleOption) => (
@@ -736,14 +736,14 @@ export function RichTextEditor({
                             );
                         })()
                     ) : (
-                        // --- 文本格式化工具 (保持不变) ---
+                        // --- Text formatting tools (unchanged) ---
                         <>
                             <div className="flex items-center whitespace-nowrap min-w-max flex-shrink-0 flex-nowrap">
                                 <button
                                     type="button"
                                     onClick={() => editor?.chain().focus().toggleBold().run()}
                                     className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors flex-shrink-0 ${editor?.isActive('bold') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                    title="加粗"
+                                    title="Bold"
                                 >
                                     <Bold size={16} />
                                 </button>
@@ -751,7 +751,7 @@ export function RichTextEditor({
                                     type="button"
                                     onClick={() => editor?.chain().focus().toggleItalic().run()}
                                     className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors flex-shrink-0 ${editor?.isActive('italic') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                    title="斜体"
+                                    title="Italic"
                                 >
                                     <Italic size={16} />
                                 </button>
@@ -759,7 +759,7 @@ export function RichTextEditor({
                                     type="button"
                                     onClick={() => editor?.chain().focus().toggleStrike().run()}
                                     className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors flex-shrink-0 ${editor?.isActive('strike') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                    title="删除线"
+                                    title="Strikethrough"
                                 >
                                     <Strikethrough size={16} />
                                 </button>
@@ -767,7 +767,7 @@ export function RichTextEditor({
                                     type="button"
                                     onClick={handleHighlight}
                                     className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors flex-shrink-0 ${editor?.isActive('highlight') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                    title="高亮文本"
+                                    title="Highlight text"
                                 >
                                     <Highlighter size={16} />
                                 </button>
@@ -777,7 +777,7 @@ export function RichTextEditor({
                                             <button
                                                 type="button"
                                                 className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors ${editor?.isActive('link') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                                title="添加/编辑链接"
+                                                title="Add/Edit link"
                                             >
                                                 <LinkIcon size={16} />
                                             </button>
@@ -793,8 +793,8 @@ export function RichTextEditor({
                                                 className="w-full"
                                             />
                                             <div className="flex justify-end gap-2">
-                                                <Button size="sm" onClick={handleApplyLink}>应用</Button>
-                                                <Button size="sm" onClick={handleRemoveLink}>移除</Button>
+                                                <Button size="sm" onClick={handleApplyLink}>Apply</Button>
+                                                <Button size="sm" onClick={handleRemoveLink}>Remove</Button>
                                             </div>
                                         </div>
                                     </PopoverContent>
@@ -805,7 +805,7 @@ export function RichTextEditor({
                                         <button
                                             type="button"
                                             className={`p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors ${editor?.isActive('textStyle') ? 'bg-blue-100 text-blue-600' : ''}`}
-                                            title="文本颜色"
+                                            title="Text color"
                                         >
                                             <Palette size={16} />
                                         </button>
@@ -817,10 +817,10 @@ export function RichTextEditor({
                 </BubbleMenu>
             )}
 
-            {/* 只有在没有任何模态框打开时才显示FloatingMenu */}
+            {/* Only show floating menu when no modal is open */}
             {editor && (
                 () => {
-                    // 计算模态框是否打开的状态
+                    // Calculate whether modal is open status
                     const isModalOpen = showProductSelector || showFloatingImageInput || showMetadataSelector;
 
                     return (
@@ -828,41 +828,41 @@ export function RichTextEditor({
                             editor={editor}
                             tippyOptions={{
                                 duration: 100,
-                                appendTo: () => document.body, // 附加到 body
-                                placement: 'bottom-start',      // 初始位置
+                                appendTo: () => document.body, // Attach to body
+                                placement: 'bottom-start',      // Initial position
                                 popperOptions: {
                                     modifiers: [
                                         {
                                             name: 'flip',
                                             options: {
-                                                fallbackPlacements: ['top-start', 'right-start', 'left-start'], // 翻转顺序
-                                                padding: 5, // 距离视口边缘的内边距
+                                                fallbackPlacements: ['top-start', 'right-start', 'left-start'], // Flip order
+                                                padding: 5, // Padding from viewport edge
                                             },
                                         },
                                         {
                                             name: 'preventOverflow',
                                             options: {
-                                                boundary: 'viewport', // 防止溢出视口
-                                                padding: 5, // 距离视口边缘的内边距
+                                                boundary: 'viewport', // Prevent viewport overflow
+                                                padding: 5, // Padding from viewport edge
                                             },
                                         },
                                         {
                                             name: 'offset',
                                             options: {
-                                                offset: [0, 8], // 向下偏移 8px
+                                                offset: [0, 8], // Offset 8px downward
                                             },
                                         },
                                     ],
                                 },
                             }}
-                            // 动态添加隐藏类
+                            // Dynamically add hide class
                             className={`bg-white border border-gray-200 p-1 rounded shadow-lg flex flex-col gap-0.5 z-[50] ${isModalOpen ? 'floating-menu-hidden' : ''}`}
                             shouldShow={({ state }) => {
                                 const { $from } = state.selection;
                                 const currentLineIsEmpty = $from.parent.content.size === 0;
                                 const baseCondition = currentLineIsEmpty && $from.parent.type.name === 'paragraph';
 
-                                // 不再需要在此处检查模态框状态，交给 className 处理
+                                // No longer checking modal status here, delegated to className
                                 // const modalIsOpen = showProductSelector || showFloatingImageInput || showMetadataSelector;
                                 // return baseCondition && !modalIsOpen; 
                                 return baseCondition;
@@ -965,7 +965,7 @@ export function RichTextEditor({
                 />
             )}
 
-            {/* 图片URL输入模态框 */}
+            {/* Image URL input modal */}
             {showFloatingImageInput && (
                 <Modal
                     isOpen={showFloatingImageInput}

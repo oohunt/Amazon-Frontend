@@ -8,7 +8,7 @@ import { useCustomScripts } from '@/lib/hooks';
 import { ScriptLocation } from '@/lib/models/CustomScript';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
-// 定义自定义脚本的接口
+// Define custom script interface
 interface CustomScript {
     _id?: string;
     name: string;

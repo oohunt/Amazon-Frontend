@@ -4,18 +4,18 @@ import clientPromise from '@/lib/mongodb';
 
 export async function GET(_request: Request) {
     try {
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
 
-        // 获取email_templates集合
+        // Get email_templates collection
         const collection = db.collection('email_templates');
 
-        // 查询所有模板
+        // Query all templates
         const templates = await collection.find({}).toArray();
 
-        // 格式化返回结果
+        // Format return result
         const formattedTemplates = templates.map(template => ({
             id: template._id.toString(),
             templateId: template.templateId,
@@ -43,14 +43,14 @@ export async function GET(_request: Request) {
     }
 }
 
-// 创建新模板
+// create new template
 export async function POST(request: Request) {
     try {
-        // 获取请求体数据
+        // Get request body data
         const data = await request.json();
         const { name, subject, fromName, fromEmail, htmlContent, templateId, type, isActive } = data;
 
-        // 数据验证 - 提供详细的错误信息
+        // Data validation — provide detailed error message
         const missingFields = [];
 
         if (!name) missingFields.push('name');
@@ -72,13 +72,13 @@ export async function POST(request: Request) {
             );
         }
 
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 检查templateId唯一性
+        // Check templateId uniqueness
         const existingTemplate = await collection.findOne({ templateId });
 
         if (existingTemplate) {
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 添加创建时间和更新时间
+        // add create time and update time
         const now = new Date();
         const templateData = {
             name,
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
             updatedAt: now
         };
 
-        // 插入新模板
+        // Insert new template
         const result = await collection.insertOne(templateData);
 
         if (!result.acknowledged) {
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 返回新创建的模板ID
+        // return newly created template ID
         return NextResponse.json({
             success: true,
             message: 'Email template created successfully',

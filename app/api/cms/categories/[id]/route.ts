@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import type { ContentCategoryUpdateRequest } from '@/types/cms';
 
-// 获取单个分类
+// Get a single category
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -16,32 +16,32 @@ export async function GET(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的分类ID'
+                    message: 'Invalid category ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_categories');
 
-        // 查询分类
+        // Query the category
         const category = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!category) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到分类'
+                    message: 'Category not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 转换格式
+        // Format data
         const formattedCategory = {
             ...category,
             _id: category._id.toString(),
@@ -58,15 +58,15 @@ export async function GET(
         return NextResponse.json(
             {
                 status: false,
-                message: '获取分类失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get category, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 更新分类
+// Update category
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -79,32 +79,32 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的分类ID'
+                    message: 'Invalid category ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_categories');
 
-        // 检查分类是否存在
+        // Check if the category exists
         const existingCategory = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!existingCategory) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到分类'
+                    message: 'Category not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 如果更新了slug，检查它是否与其他分类冲突
+        // If the slug was updated, check for conflicts with other categories
         if (body.slug && body.slug !== existingCategory.slug) {
             const slugExists = await collection.findOne({
                 slug: body.slug,
@@ -115,20 +115,20 @@ export async function PUT(
                 return NextResponse.json(
                     {
                         status: false,
-                        message: '该URL路径已被使用，请选择其他路径'
+                        message: 'This URL path is already in use, please choose a different one'
                     },
                     { status: 400 }
                 );
             }
         }
 
-        // 构建更新数据
+        // Build update data
         const updateData = {
             ...body,
             updatedAt: new Date()
         };
 
-        // 更新数据
+        // Update data
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             { $set: updateData }
@@ -138,16 +138,16 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到分类'
+                    message: 'Category not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 获取更新后的分类
+        // Get the updated category
         const updatedCategory = await collection.findOne({ _id: new ObjectId(id) });
 
-        // 转换格式
+        // Format data
         const formattedCategory = {
             ...updatedCategory,
             _id: updatedCategory?._id.toString(),
@@ -157,7 +157,7 @@ export async function PUT(
 
         return NextResponse.json({
             status: true,
-            message: '分类更新成功',
+            message: 'Category updated successfully',
             data: formattedCategory
         });
     } catch (error) {
@@ -165,15 +165,15 @@ export async function PUT(
         return NextResponse.json(
             {
                 status: false,
-                message: '更新分类失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to update category, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 删除分类
+// Delete category
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -185,20 +185,20 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的分类ID'
+                    message: 'Invalid category ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_categories');
         const pagesCollection = db.collection('cms_pages');
 
-        // 检查是否有页面使用此分类
+        // Check if any pages are using this category
         const pagesUsingCategory = await pagesCollection.countDocuments({
             categories: id
         });
@@ -207,13 +207,13 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: `无法删除分类，有${pagesUsingCategory}个页面正在使用该分类`
+                    message: `Cannot delete category, ${pagesUsingCategory} page(s) are currently using it`
                 },
                 { status: 400 }
             );
         }
 
-        // 检查是否有子分类
+        // Check if there are any child categories
         const childCategories = await collection.countDocuments({
             parentId: id
         });
@@ -222,20 +222,20 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: `无法删除分类，有${childCategories}个子分类依赖于该分类`
+                    message: `Cannot delete category, ${childCategories} child category(ies) depend on it`
                 },
                 { status: 400 }
             );
         }
 
-        // 删除分类
+        // Delete the category
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到分类或删除失败'
+                    message: 'Category not found or deletion failed'
                 },
                 { status: 404 }
             );
@@ -243,15 +243,15 @@ export async function DELETE(
 
         return NextResponse.json({
             status: true,
-            message: '分类删除成功'
+            message: 'Category deleted successfully'
         });
     } catch (error) {
 
         return NextResponse.json(
             {
                 status: false,
-                message: '删除分类失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to delete category, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

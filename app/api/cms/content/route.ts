@@ -61,8 +61,8 @@ export async function GET() {
         return NextResponse.json(
             {
                 status: false,
-                message: '获取博客文章失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get blog posts, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: 'URL路径为必填项'
+                    message: 'URL path is required'
                 },
                 { status: 400 }
             );
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到指定的页面'
+                    message: 'The specified page was not found'
                 },
                 { status: 404 }
             );
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         );
 
         if (result.matchedCount === 0) {
-            throw new Error('更新失败，未找到匹配的文档');
+            throw new Error('Update failed, no matching document found');
         }
 
         // Get updated page
@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 status: false,
-                message: '更新页面失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to update page, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

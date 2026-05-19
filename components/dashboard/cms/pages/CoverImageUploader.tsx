@@ -8,8 +8,8 @@ interface CoverImageUploaderProps {
 }
 
 /**
- * 封面图片上传组件
- * 用于CMS页面的封面图片上传
+ * Cover image upload component
+ * Cover image upload for CMS pages
  */
 export default function CoverImageUploader({ currentImageUrl, onImageUploaded }: CoverImageUploaderProps) {
     const [isDragging, setIsDragging] = useState(false);
@@ -17,14 +17,14 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
     const [error, setError] = useState<string | null>(null);
     const [imageUrl, setImageUrl] = useState(currentImageUrl);
 
-    // 当外部currentImageUrl变化时更新内部状态
+    // Update internal status when external currentImageUrl changes
     React.useEffect(() => {
         setImageUrl(currentImageUrl);
     }, [currentImageUrl]);
 
-    // 处理文件上传 (Moved before handleDrop)
+    // Handle file upload (Moved before handleDrop)
     const handleFileUpload = useCallback(async (file: File) => {
-        // 验证文件类型
+        // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
         if (!validTypes.includes(file.type)) {
@@ -33,7 +33,7 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
             return;
         }
 
-        // 验证文件大小 (5MB)
+        // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             setError('Image size must be less than 5MB');
 
@@ -59,7 +59,7 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
                 throw new Error(data.error || 'Upload failed');
             }
 
-            // 设置内部状态并通知父组件
+            // Set internal status and notify parent component
             setImageUrl(data.url);
             onImageUploaded(data.url);
         } catch (err) {
@@ -69,27 +69,27 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
         }
     }, [onImageUploaded]);
 
-    // 处理拖拽进入事件
+    // Handle drag enter event
     const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(true);
     }, []);
 
-    // 处理拖拽离开事件
+    // Handle drag leave event
     const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
     }, []);
 
-    // 处理拖拽悬停事件
+    // Handle drag hover event
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
     }, []);
 
-    // 处理拖放事件
+    // Handle drop event
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -102,7 +102,7 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
         }
     }, [handleFileUpload]);
 
-    // 处理文件选择事件
+    // Handle file selection event
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
@@ -111,14 +111,14 @@ export default function CoverImageUploader({ currentImageUrl, onImageUploaded }:
         }
     }, [handleFileUpload]);
 
-    // 处理URL输入变更
+    // Handle URL input change
     const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setImageUrl(e.target.value);
-        // 当用户输入URL时同时通知父组件
+        // Notify parent component when user enters URL
         onImageUploaded(e.target.value);
     }, [onImageUploaded]);
 
-    // 移除当前图片
+    // remove current image
     const handleRemoveImage = useCallback(() => {
         setImageUrl('');
         onImageUploaded('');

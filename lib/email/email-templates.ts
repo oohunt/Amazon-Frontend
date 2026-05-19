@@ -7,14 +7,14 @@ import {
     type EmailTemplate
 } from './email-template-types';
 
-// 重新导出
+// Re-exports
 export { EMAIL_TEMPLATE_TYPES };
 export type { EmailTemplateType, TemplateVariables, EmailTemplate };
 
 /**
- * 根据模板ID获取邮件模板
- * @param templateId 模板ID
- * @returns 邮件模板数据
+ * Get an email template by template ID
+ * @param templateId Template ID
+ * @returns Email template data
  */
 export async function getEmailTemplate(templateId: string): Promise<EmailTemplate | null> {
     try {
@@ -49,9 +49,9 @@ export async function getEmailTemplate(templateId: string): Promise<EmailTemplat
 }
 
 /**
- * 根据模板类型获取邮件模板
- * @param type 模板类型
- * @returns 邮件模板数据
+ * Get an email template by template type
+ * @param type Template type
+ * @returns Email template data
  */
 export async function getEmailTemplateByType(type: EmailTemplateType): Promise<EmailTemplate | null> {
     try {
@@ -60,7 +60,7 @@ export async function getEmailTemplateByType(type: EmailTemplateType): Promise<E
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 查询指定类型且处于激活状态的模板
+        // Query for templates of the specified type that are active
         const template = await collection.findOne({ type, isActive: true });
 
         if (!template) {
@@ -86,31 +86,31 @@ export async function getEmailTemplateByType(type: EmailTemplateType): Promise<E
 }
 
 /**
- * 使用变量替换模板内容
- * @param content 模板内容
- * @param variables 变量对象
- * @returns 替换后的内容
+ * Replace template content with variables
+ * @param content Template content
+ * @param variables Variable object
+ * @returns Content with variables replaced
  */
 export function compileTemplate(content: string, variables: TemplateVariables): string {
     return content.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
         const value = variables[key.trim()];
 
-        // 如果变量是日期对象，格式化为字符串
+        // If the variable is a Date object, format it as a string
         if (value instanceof Date) {
             return value.toLocaleDateString();
         }
 
-        // 如果变量存在，返回其值；否则保持原样
+        // If the variable exists, return its value; otherwise keep the placeholder as-is
         return value !== undefined ? String(value) : match;
     });
 }
 
 /**
- * 获取并编译邮件模板
- * @param templateIdOrType 模板ID或类型
- * @param variables 模板变量
- * @param isType 是否按类型查询
- * @returns 处理后的模板数据
+ * Get and compile an email template
+ * @param templateIdOrType Template ID or type
+ * @param variables Template variables
+ * @param isType Whether to query by type
+ * @returns Processed template data
  */
 export async function getCompiledEmailTemplate(
     templateIdOrType: string,
@@ -127,10 +127,10 @@ export async function getCompiledEmailTemplate(
         let template: EmailTemplate | null;
 
         if (isType) {
-            // 按类型查询模板
+            // Query template by type
             template = await getEmailTemplateByType(templateIdOrType as EmailTemplateType);
         } else {
-            // 按ID查询模板（保持向后兼容）
+            // Query template by ID (maintain backward compatibility)
             template = await getEmailTemplate(templateIdOrType);
         }
 
@@ -141,7 +141,7 @@ export async function getCompiledEmailTemplate(
             };
         }
 
-        // 如果模板被禁用，返回错误
+        // If the template is disabled, return an error
         if (!template.isActive) {
             return {
                 success: false,

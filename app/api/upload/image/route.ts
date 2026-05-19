@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { auth } from '@/auth';
 
-// 初始化S3客户端（用于Cloudflare R2）
+// initialize S3 client (for Cloudflare R2)
 const s3Client = new S3Client({
     region: 'auto',
     endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -14,7 +14,7 @@ const s3Client = new S3Client({
     },
 });
 
-// 允许的文件类型
+// Allowed file types
 const ALLOWED_FILE_TYPES = [
     'image/jpeg',
     'image/png',
@@ -22,63 +22,63 @@ const ALLOWED_FILE_TYPES = [
     'image/webp',
 ];
 
-// 最大文件大小（5MB）
+// Maximum file size (5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-// 是否为测试模式
+// Whether in test mode
 const TEST_MODE = process.env.R2_TEST_MODE === 'true';
 
 export async function POST(request: NextRequest) {
     try {
-        // 验证用户身份
+        // Validate user identity
         const session = await auth();
 
         if (!session || !session.user) {
             return NextResponse.json(
-                { error: '未授权访问' },
+                { error: 'Unauthorized access' },
                 { status: 401 }
             );
         }
 
-        // 检查用户角色（可选，根据需要调整）
-        // 此处可根据实际需求增加管理员角色验证
+        // Check user role (optional, adjust as needed)
+        // Admin role validation can be added here based on actual needs
 
-        // 处理表单数据
+        // Handle form data
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
         if (!file) {
             return NextResponse.json(
-                { error: '未找到文件' },
+                { error: 'File not found' },
                 { status: 400 }
             );
         }
 
-        // 验证文件类型
+        // Validate file type
         if (!ALLOWED_FILE_TYPES.includes(file.type)) {
             return NextResponse.json(
-                { error: '不支持的文件类型' },
+                { error: 'Unsupported file type' },
                 { status: 400 }
             );
         }
 
-        // 验证文件大小
+        // Validate file size
         if (file.size > MAX_FILE_SIZE) {
             return NextResponse.json(
-                { error: '文件大小超过限制（5MB）' },
+                { error: 'File size exceeds limit (5MB)' },
                 { status: 400 }
             );
         }
 
-        // 如果是测试模式，则返回模拟成功响应
+        // If in test mode, return mock success response
         if (TEST_MODE) {
 
-            // 生成唯一文件名
+            // Generate unique file name
             const extension = file.name.split('.').pop() || '';
             const fileName = `test-${uuidv4()}.${extension}`;
             const filePath = `uploads/images/${fileName}`;
 
-            // 构建模拟URL
+            // Build mock URL
             const publicUrl = `https://test-r2-url.example.com/${filePath}`;
 
             return NextResponse.json({
@@ -89,15 +89,15 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // 读取文件内容
+        // Read file content
         const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-        // 生成唯一文件名
+        // Generate unique file name
         const extension = file.name.split('.').pop() || '';
         const fileName = `${uuidv4()}.${extension}`;
         const filePath = `uploads/images/${fileName}`;
 
-        // 上传到R2
+        // Upload to R2
         await s3Client.send(new PutObjectCommand({
             Bucket: process.env.R2_BUCKET_NAME,
             Key: filePath,
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
             ContentType: file.type,
         }));
 
-        // 构建公共URL
+        // Build public URL
         const publicUrl = `${process.env.R2_PUBLIC_URL}/${filePath}`;
 
         return NextResponse.json({
@@ -117,13 +117,13 @@ export async function POST(request: NextRequest) {
     } catch {
 
         return NextResponse.json(
-            { error: '上传图片失败' },
+            { error: 'Failed to upload image' },
             { status: 500 }
         );
     }
 }
 
-// 设置允许的最大负载大小（10MB）
+// Set maximum allowed payload size (10MB)
 export const config = {
     api: {
         bodyParser: {

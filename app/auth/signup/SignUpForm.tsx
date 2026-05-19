@@ -19,7 +19,7 @@ export default function SignUpForm() {
         setError("");
         setIsLoading(true);
 
-        // 验证密码匹配
+        // Validate that passwords match
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             setIsLoading(false);
@@ -28,7 +28,7 @@ export default function SignUpForm() {
         }
 
         try {
-            // 调用注册 API
+            // Call the registration API
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {
@@ -47,7 +47,7 @@ export default function SignUpForm() {
                 throw new Error(data.error || "Registration failed");
             }
 
-            // 注册成功，重定向到登录页面
+            // Registration successful, redirect to sign-in page
             router.push('/auth/signin?registered=true');
         } catch (error) {
             setError(error instanceof Error ? error.message : "An error occurred during registration");

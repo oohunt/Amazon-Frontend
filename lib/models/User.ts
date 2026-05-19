@@ -3,7 +3,7 @@ import type { ObjectId } from "mongodb";
 import type { UserRole } from "./UserRole";
 
 /**
- * 用户模型接口
+ * User model interface
  */
 export interface User {
     _id?: ObjectId;
@@ -17,7 +17,7 @@ export interface User {
 }
 
 /**
- * 用户注册请求接口
+ * User registration request interface
  */
 export interface RegisterUserRequest {
     name: string;
@@ -26,7 +26,7 @@ export interface RegisterUserRequest {
 }
 
 /**
- * 用户响应接口（不包含敏感信息）
+ * User response interface (excluding sensitive information)
  */
 export interface UserResponse {
     id: string;
@@ -37,7 +37,7 @@ export interface UserResponse {
 }
 
 /**
- * 将用户数据转换为安全的响应格式
+ * Convert user data to a safe response format
  */
 export function toUserResponse(user: User): UserResponse {
     return {

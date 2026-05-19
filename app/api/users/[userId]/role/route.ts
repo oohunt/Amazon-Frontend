@@ -5,54 +5,54 @@ import { auth } from '@/auth';
 import { UserRole, isSuperAdmin } from '@/lib/models/UserRole';
 import clientPromise from '@/lib/mongodb';
 
-// 配置路由选项
+// Configure route options
 export const dynamic = 'force-dynamic';
 
-// 更新用户角色
+// Update user role
 export async function PUT(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> }
 ) {
     try {
-        // 验证权限
+        // Validate permissions
         const session = await auth();
 
         if (!session?.user || !isSuperAdmin(session.user.role as UserRole)) {
             return NextResponse.json(
-                { error: '仅超级管理员可以更改用户角色' },
+                { error: 'Only super admins can change user roles' },
                 { status: 403 }
             );
         }
 
-        // 验证参数
+        // Validate parameters
         const { userId } = await context.params;
 
         if (!userId || !ObjectId.isValid(userId)) {
             return NextResponse.json(
-                { error: '无效的用户ID' },
+                { error: 'Invalid user ID' },
                 { status: 400 }
             );
         }
 
-        // 获取请求数据
+        // Get request data
         const { role } = await request.json();
 
         if (!role || !Object.values(UserRole).includes(role as UserRole)) {
             return NextResponse.json(
-                { error: '无效的用户角色' },
+                { error: 'Invalid user role' },
                 { status: 400 }
             );
         }
 
-        // 防止修改自己的角色
+        // Prevent modifying own role
         if (session.user.id === userId) {
             return NextResponse.json(
-                { error: '不能修改自己的角色' },
+                { error: 'Cannot modify your own role' },
                 { status: 400 }
             );
         }
 
-        // 数据库操作
+        // Database operation
         const client = await clientPromise;
         const db = client.db('oohunt');
         const objectId = new ObjectId(userId);
@@ -69,19 +69,19 @@ export async function PUT(
 
         if (result.matchedCount === 0) {
             return NextResponse.json(
-                { error: '用户不存在' },
+                { error: 'User does not exist' },
                 { status: 404 }
             );
         }
 
         return NextResponse.json({
-            message: '用户角色更新成功',
+            message: 'User role updated successfully',
             id: userId,
             role
         });
     } catch {
         return NextResponse.json(
-            { error: '服务器错误' },
+            { error: 'Server error' },
             { status: 500 }
         );
     }

@@ -7,7 +7,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { UserRole, isAdminAccount, isSuperAdminAccount } from "@/lib/models/UserRole";
 
-// 添加环境变量检查
+// Add environment variable check
 const checkEnvVariables = () => {
     const requiredVars = [
         'AUTH_GOOGLE_ID',
@@ -21,53 +21,53 @@ const checkEnvVariables = () => {
     const missingVars = requiredVars.filter(varName => !process.env[varName]);
 
     if (missingVars.length > 0) {
-        NextResponse.json({ warning: `缺少以下环境变量: ${missingVars.join(', ')}` }, { status: 200 });
+        NextResponse.json({ warning: `Missing the following environment variables: ${missingVars.join(', ')}` }, { status: 200 });
 
-        // 检查特别重要的变量
+        // Check critical variables
         if (missingVars.includes('AUTH_SECRET') && missingVars.includes('NEXTAUTH_SECRET')) {
-            NextResponse.json({ error: 'AUTH_SECRET 和 NEXTAUTH_SECRET 环境变量均未设置，这可能导致身份验证问题' }, { status: 200 });
-            // 在开发环境中自动设置一个开发密钥
+            NextResponse.json({ error: 'AUTH_SECRET and NEXTAUTH_SECRET environment variables are not set, which may cause authentication issues' }, { status: 200 });
+            // Auto-set dev key in development environment
             if (process.env.NODE_ENV === 'development') {
                 process.env.NEXTAUTH_SECRET = 'development-secret-do-not-use-in-production';
-                NextResponse.json({ warning: '在开发环境中设置了临时的 NEXTAUTH_SECRET，请勿在生产环境中使用' }, { status: 200 });
+                NextResponse.json({ warning: 'Temporary NEXTAUTH_SECRET set for development, do not use in production' }, { status: 200 });
             }
         }
 
         if (missingVars.includes('AUTH_GOOGLE_ID') || missingVars.includes('AUTH_GOOGLE_SECRET')) {
-            NextResponse.json({ error: 'Google OAuth 配置不完整，Google登录功能可能不可用' }, { status: 200 });
+            NextResponse.json({ error: 'Google OAuth configuration is incomplete, Google login may be unavailable' }, { status: 200 });
         }
 
         if (missingVars.includes('MONGODB_URI') || missingVars.includes('MONGODB_DB')) {
-            NextResponse.json({ error: 'MongoDB 配置不完整，用户数据可能无法正确存储' }, { status: 200 });
+            NextResponse.json({ error: 'MongoDB configuration is incomplete, user data may not be stored correctly' }, { status: 200 });
         }
     }
 
-    // 检查NEXTAUTH_URL是否设置正确
+    // Check if NEXTAUTH_URL is set correctly
     if (!process.env.NEXTAUTH_URL && typeof window === 'undefined') {
-        NextResponse.json({ warning: 'NEXTAUTH_URL 环境变量未设置，这可能导致回调URL问题' }, { status: 200 });
+        NextResponse.json({ warning: 'NEXTAUTH_URL environment variable is not set, which may cause callback URL issues' }, { status: 200 });
 
-        // 在开发环境中尝试设置默认值
+        // Try to set default value in development environment
         if (process.env.NODE_ENV === 'development') {
             process.env.NEXTAUTH_URL = 'http://localhost:3000';
-            NextResponse.json({ warning: '在开发环境中设置了默认的 NEXTAUTH_URL=http://localhost:3000' }, { status: 200 });
+            NextResponse.json({ warning: 'Set default NEXTAUTH_URL=http://localhost:3000 in development environment' }, { status: 200 });
         }
     }
 };
 
-// 在服务器端检查环境变量
+// Check environment variables on server side
 if (typeof window === 'undefined') {
     checkEnvVariables();
 }
 
-// 添加详细的日志工具
+// Add detailed logging utility
 const logAuth = (message: string, error?: unknown) => {
     if (process.env.NODE_ENV === "development" || process.env.DEBUG_AUTH === "true") {
         NextResponse.json({ message: `[Auth] ${message}` }, { status: 200 });
         if (error) {
-            // 安全处理不同类型的错误参数
+            // Safely handle different error parameter types
             try {
                 if (Array.isArray(error)) {
-                    // 处理数组类型的错误参数
+                    // Handle array-type error parameters
                     NextResponse.json({
                         error: `[Auth Error] ` + error.map(item =>
                             typeof item === 'object' && item !== null
@@ -76,20 +76,20 @@ const logAuth = (message: string, error?: unknown) => {
                         ).join(', ')
                     }, { status: 200 });
                 } else if (error instanceof Error) {
-                    // 处理标准Error对象
+                    // Handle standard Error object
                     NextResponse.json({ error: `[Auth Error] ${error.name}: ${error.message}` }, { status: 200 });
                     if (error.stack) {
                         NextResponse.json({ error: `[Auth Stack] ${error.stack}` }, { status: 200 });
                     }
                 } else if (typeof error === 'object' && error !== null) {
-                    // 处理一般对象
+                    // Handle general objects
                     NextResponse.json({ error: `[Auth Error] ` + JSON.stringify(error, Object.getOwnPropertyNames(error)) }, { status: 200 });
                 } else {
-                    // 处理基本类型
+                    // Handle primitive types
                     NextResponse.json({ error: `[Auth Error] ` + error }, { status: 200 });
                 }
             } catch (logError) {
-                // 避免日志记录本身导致的错误
+                // Avoid errors caused by logging itself
                 NextResponse.json({ error: `[Auth Error] Failed to log error: ${logError instanceof Error ? logError.message : 'Unknown error'}` }, { status: 200 });
             }
         }
@@ -115,9 +115,9 @@ export const config = {
                     response_type: "code"
                 }
             },
-            // 添加检查Google ID令牌的有效性
+            // Add check for Google ID token validity
             async profile(profile) {
-                logAuth(`处理Google用户资料: ${profile.email}`);
+                logAuth(`Processing Google user profile: ${profile.email}`);
 
                 return {
                     id: profile.sub,
@@ -142,7 +142,7 @@ export const config = {
                 try {
                     // Only run on server-side
                     if (typeof window === 'undefined') {
-                        logAuth(`尝试验证用户凭据: ${credentials.username}`);
+                        logAuth(`Attempting to verify user credentials: ${credentials.username}`);
 
                         // Dynamic import to avoid client-side import errors
                         let clientPromise;
@@ -153,16 +153,16 @@ export const config = {
 
                             bcryptCompare = bcryptjs.compare;
                         } catch (error) {
-                            logAuth("MongoDB客户端或bcrypt导入失败", error);
+                            logAuth("MongoDB client or bcrypt import failed", error);
 
                             return null;
                         }
 
-                        // 开发环境默认管理员账户
+                        // Development environment default admin account
                         if (process.env.NODE_ENV === "development" &&
                             ((credentials.username === "root@amazon-frontend.com" && credentials.password === "admin123") ||
                                 (credentials.username === "admin@amazon-frontend.com" && credentials.password === "admin123"))) {
-                            logAuth("使用开发环境默认管理员账户登录");
+                            logAuth("Logging in with development environment default admin account");
 
                             return {
                                 id: credentials.username === "root@amazon-frontend.com" ? "root" : "admin",
@@ -177,7 +177,7 @@ export const config = {
                         try {
                             client = await clientPromise;
                         } catch (error) {
-                            logAuth("MongoDB连接失败", error);
+                            logAuth("MongoDBConnectFailed", error);
 
                             return null;
 
@@ -200,7 +200,7 @@ export const config = {
                                 if (process.env.NODE_ENV === "development" &&
                                     credentials.username === "admin" &&
                                     credentials.password === "password") {
-                                    logAuth("使用开发环境测试账户登录");
+                                    logAuth("Logging in with development environment test account");
 
                                     return {
                                         id: "1",
@@ -210,7 +210,7 @@ export const config = {
                                     };
                                 }
 
-                                logAuth(`用户不存在: ${credentials.username}`);
+                                logAuth(`User does not exist: ${credentials.username}`);
 
                                 return null;
                             }
@@ -219,32 +219,32 @@ export const config = {
                             const isValid = await bcryptCompare(credentials.password, user.password);
 
                             if (!isValid) {
-                                logAuth(`密码验证失败: ${credentials.username}`);
+                                logAuth(`Password verification failed: ${credentials.username}`);
 
                                 return null;
                             }
 
-                            // 更新provider字段，如果尚未设置
+                            // update provider field if not already set
                             try {
                                 if (!user.provider) {
                                     await db.collection("users").updateOne(
                                         { _id: user._id },
                                         { $set: { provider: 'credentials', lastLogin: new Date() } }
                                     );
-                                    logAuth(`更新用户provider为credentials: ${user._id}`);
+                                    logAuth(`Updating user provider to credentials: ${user._id}`);
                                 } else {
-                                    // 仅更新最后登录时间
+                                    // Update last login time only
                                     await db.collection("users").updateOne(
                                         { _id: user._id },
                                         { $set: { lastLogin: new Date() } }
                                     );
                                 }
                             } catch (error) {
-                                logAuth("更新用户provider信息失败", error);
-                                // 继续登录流程，不阻止
+                                logAuth("Failed to update user provider info", error);
+                                // continue login flow without blocking
                             }
 
-                            logAuth(`用户凭据验证成功: ${user._id}`);
+                            logAuth(`User credentials verified successfully: ${user._id}`);
 
                             return {
 
@@ -256,7 +256,7 @@ export const config = {
                                 provider: user.provider || 'credentials'
                             };
                         } catch (error) {
-                            logAuth("数据库操作失败", error);
+                            logAuth("Database operation failed", error);
 
                             return null;
                         }
@@ -276,7 +276,7 @@ export const config = {
                         return null;
                     }
                 } catch (error) {
-                    logAuth("用户授权过程中发生未捕获异常", error);
+                    logAuth("Uncaught exception during user authorization", error);
 
                     return null;
                 }
@@ -306,9 +306,9 @@ export const config = {
         },
         async signIn({ user, account }) {
             try {
-                // 只在服务器端处理
+                // Handle only on server side
                 if (typeof window === 'undefined' && user?.email) {
-                    logAuth(`开始处理用户登录: ${user.email}, 提供商: ${account?.provider}`);
+                    logAuth(`Starting user login processing: ${user.email}, provider: ${account?.provider}`);
 
                     let clientPromise;
 
@@ -316,17 +316,17 @@ export const config = {
 
                         clientPromise = (await import('@/lib/mongodb')).default;
                     } catch (error) {
-                        logAuth("MongoDB客户端导入失败", error);
-                        // 在开发环境中，允许没有数据库的情况下登录
+                        logAuth("MongoDB client import failed", error);
+                        // In development environment, allow login without database
                         if (process.env.NODE_ENV === "development") {
-                            logAuth("允许用户在开发环境中无数据库登录");
+                            logAuth("Allowing user to log in without database in development environment");
 
-                            // 用临时ID创建用户
+                            // Using temporary ID toCreate user
                             if (!user.id) {
                                 user.id = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
                             }
 
-                            // 根据用户邮箱设置角色
+                            // Setting role based on user email
                             if (isSuperAdminAccount(user.email)) {
                                 user.role = UserRole.SUPER_ADMIN;
                             } else if (isAdminAccount(user.email)) {
@@ -338,15 +338,15 @@ export const config = {
                             return true;
                         }
 
-                        return false; // 阻止登录流程继续
+                        return false; // Blocking login flow
                     }
 
                     let client;
 
                     try {
-                        // 设置10秒超时
+                        // Setting 10-second timeout
                         const timeoutPromise = new Promise<never>((_, reject) => {
-                            setTimeout(() => reject(new Error("MongoDB连接超时")), 10000);
+                            setTimeout(() => reject(new Error("MongoDB connection timed out")), 10000);
                         });
 
                         client = await Promise.race([
@@ -354,18 +354,18 @@ export const config = {
                             timeoutPromise
                         ]);
                     } catch (error) {
-                        logAuth("MongoDB连接失败", error);
+                        logAuth("MongoDBConnectFailed", error);
 
-                        // 在开发环境中，允许没有数据库的情况下登录
+                        // In development environment, allow login without database
                         if (process.env.NODE_ENV === "development") {
-                            logAuth("允许用户在开发环境中无数据库登录");
+                            logAuth("Allowing user to log in without database in development environment");
 
-                            // 用临时ID创建用户
+                            // Using temporary ID toCreate user
                             if (!user.id) {
                                 user.id = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
                             }
 
-                            // 根据用户邮箱设置角色
+                            // Setting role based on user email
                             if (isSuperAdminAccount(user.email)) {
                                 user.role = UserRole.SUPER_ADMIN;
                             } else if (isAdminAccount(user.email)) {
@@ -377,26 +377,26 @@ export const config = {
                             return true;
                         }
 
-                        return false; // 阻止登录流程继续
+                        return false; // Blocking login flow
                     }
 
-                    // 其余与数据库通信的代码保持不变...
+                    // The rest of the database communication code remains unchanged...
                     try {
                         const db = client.db(process.env.MONGODB_DB || "oohunt");
-                        // 检查用户是否已存在
+                        // Check if user already exists
                         const dbUser = await db.collection('users').findOne({ email: user.email });
 
                         if (!dbUser && account?.provider === 'google') {
-                            // 如果是新的 Google 用户，创建用户记录
-                            logAuth(`创建新Google用户: ${user.email}`);
+                            // If new Google user, create user record
+                            logAuth(`Creating new Google user: ${user.email}`);
 
                             let role = UserRole.USER;
 
-                            // 首先检查是否为超级管理员账户
+                            // First check if super admin account
                             if (isSuperAdminAccount(user.email)) {
                                 role = UserRole.SUPER_ADMIN;
                             }
-                            // 然后检查是否为普通管理员账户
+                            // Then check if regular admin account
                             else if (isAdminAccount(user.email)) {
                                 role = UserRole.ADMIN;
                             }
@@ -414,11 +414,11 @@ export const config = {
 
                             const result = await db.collection('users').insertOne(newUser);
 
-                            logAuth(`新用户创建成功: ${result.insertedId.toString()}`);
+                            logAuth(`New user created successfully: ${result.insertedId.toString()}`);
                             user.id = result.insertedId.toString();
                         } else if (dbUser) {
-                            // 检查是否需要更新provider字段
-                            logAuth(`更新现有用户: ${dbUser._id.toString()}`);
+                            // Checking if provider field needs to be updated
+                            logAuth(`Updating existing user: ${dbUser._id.toString()}`);
 
                             const updates: {
                                 lastLogin: Date;
@@ -435,27 +435,27 @@ export const config = {
                                 updates.provider = 'credentials';
                             }
 
-                            // 更新现有用户的最后登录时间和provider
+                            // update existing user's last login time and provider
                             await db.collection('users').updateOne(
                                 { _id: new ObjectId(dbUser._id) },
                                 { $set: updates }
                             );
                             user.id = dbUser._id.toString();
-                            logAuth(`用户更新成功: ${dbUser._id.toString()}`);
+                            logAuth(`User updated successfully: ${dbUser._id.toString()}`);
                         }
                     } catch (error) {
-                        logAuth("数据库操作失败", error);
+                        logAuth("Database operation failed", error);
 
-                        // 在开发环境中，允许没有数据库的情况下登录
+                        // In development environment, allow login without database
                         if (process.env.NODE_ENV === "development") {
-                            logAuth("允许用户在开发环境中无数据库登录");
+                            logAuth("Allowing user to log in without database in development environment");
 
-                            // 用临时ID创建用户
+                            // Using temporary ID toCreate user
                             if (!user.id) {
                                 user.id = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
                             }
 
-                            // 根据用户邮箱设置角色
+                            // Setting role based on user email
                             if (isSuperAdminAccount(user.email)) {
                                 user.role = UserRole.SUPER_ADMIN;
                             } else if (isAdminAccount(user.email)) {
@@ -467,36 +467,36 @@ export const config = {
                             return true;
                         }
 
-                        return false; // 阻止登录流程继续
+                        return false; // Blocking login flow
                     }
                 }
 
                 return true;
             } catch (error) {
-                logAuth("登录处理异常", error);
+                logAuth("Login processing exception", error);
 
-                return false; // 出现任何未捕获的错误，都阻止登录流程
+                return false; // Block login flow on any uncaught error
             }
         },
         jwt({ token, user, account }) {
-            // 初次登录时，将用户信息添加到token中
+            // On first login, add user info to token
             if (user) {
-                logAuth(`生成JWT: ${user.id}`);
+                logAuth(`Generating JWT: ${user.id}`);
                 token.id = user.id;
                 token.role = user.role || UserRole.USER;
             }
 
-            // 对于Google登录，检查是否为预定义的管理员账户
+            // For Google login, check if it is a predefined admin account
             if (account && account.provider === "google" && user?.email) {
-                // 首先检查是否为超级管理员账户
+                // First check if super admin account
                 if (isSuperAdminAccount(user.email)) {
                     token.role = UserRole.SUPER_ADMIN;
-                    logAuth(`Google登录用户升级为超级管理员: ${user.email}`);
+                    logAuth(`Google login user upgraded to super admin: ${user.email}`);
                 }
-                // 然后检查是否为普通管理员账户
+                // Then check if regular admin account
                 else if (isAdminAccount(user.email)) {
                     token.role = UserRole.ADMIN;
-                    logAuth(`Google登录用户升级为管理员: ${user.email}`);
+                    logAuth(`Google login user upgraded to admin: ${user.email}`);
                 }
             }
 
@@ -511,81 +511,81 @@ export const config = {
                 session.user.role = token.role as UserRole;
             }
 
-            // 执行会话有效性检查
+            // Performing session validity check
             if (typeof window === 'undefined' && token.id && session.user.id) {
-                logAuth(`处理会话: ${token.id}`);
+                logAuth(`Processing session: ${token.id}`);
 
-                // 这里不进行数据库检查以提高性能，JWT已经包含了必要信息
-                // 会话恢复检查将在需要高安全性的路由中单独执行
+                // No database check here for performance; JWT already contains required info
+                // Session recovery check will be executed separately in high-security routes
             }
 
             return session;
         },
         async redirect({ url, baseUrl }) {
-            logAuth(`处理重定向: ${url}, baseUrl: ${baseUrl}`);
+            logAuth(`Processing redirect: ${url}, baseUrl: ${baseUrl}`);
 
-            // 检测错误页面重定向循环
+            // Detecting error page redirect loop
             if (url.includes("/auth/error")) {
-                // 我们在URL中添加一个计数器来跟踪重定向次数
+                // Adding a counter in the URL to track redirect count
                 const urlObj = new URL(url, baseUrl);
                 const redirectCount = parseInt(urlObj.searchParams.get("redirectCount") || "0", 10);
 
-                // 如果已经重定向了5次以上，强制返回首页
+                // If redirected more than 5 times, force redirect to home page
                 if (redirectCount >= 5) {
-                    logAuth(`检测到过多的重定向 (${redirectCount}次)，强制重定向到首页`);
+                    logAuth(`Detected too many redirects (${redirectCount} times), forcing redirect to home page`);
 
                     return baseUrl;
                 }
 
-                // 如果是重定向到错误页面，在URL中添加计数器
+                // If redirecting to error page, add counter in URL
                 urlObj.searchParams.set("redirectCount", (redirectCount + 1).toString());
 
                 return urlObj.toString();
             }
 
-            // 检测登录页面重定向循环
+            // Detecting login page redirect loop
             if (url.includes("/auth/signin")) {
-                // 如果已经在错误页面或登录页面，且正在重定向到相同页面
-                // 则中断可能的循环，直接返回首页
+                // If already on error or login page and redirecting to same page
+                // break potential loop and redirect to home page
 
                 const urlObj = new URL(url, baseUrl);
 
                 if (urlObj.searchParams.has("callbackUrl") &&
                     (urlObj.searchParams.get("callbackUrl")?.includes("/auth/error") ||
                         urlObj.searchParams.get("callbackUrl")?.includes("/auth/signin"))) {
-                    logAuth(`检测到潜在的重定向循环，强制重定向到首页`);
+                    logAuth(`Detected potential redirect loop, forcing redirect to home page`);
 
                     return baseUrl;
                 }
             }
 
-            // 验证重定向URL
+            // Validate redirect URL
             if (url.startsWith(baseUrl)) {
-                // 允许内部重定向
+                // Allow internal redirects
                 return url;
             } else if (url.startsWith("/")) {
-                // 允许相对路径重定向
+                // Allow relative path redirects
                 return new URL(url, baseUrl).toString();
             }
 
-            // 默认重定向到首页
-            logAuth(`不安全的重定向URL: ${url}，重定向到首页`);
+            // Default redirect to home page
+            logAuth(`Unsafe redirect URL: ${url}，redirecting to home page`);
 
             return baseUrl;
         },
     },
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // 30天
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    // 改进JWT secret配置
+    // Improve JWT secret configuration
     secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === "development" ? "development-secret-do-not-use-in-production" : undefined),
-    // 移除不安全的fallback secret
+    // remove unsafe fallback secret
     jwt: {
-        // 确保JWT有合理的过期时间
-        maxAge: 30 * 24 * 60 * 60, // 30天
+        // Ensure JWT has a reasonable expiration time
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    // 改进cookie配置
+    // Improve cookie configuration
     cookies: {
         sessionToken: {
             name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
@@ -600,21 +600,21 @@ export const config = {
     debug: process.env.NODE_ENV === "development",
     logger: {
         error(code, ...message) {
-            // 简化处理，避免复杂的参数结构
-            const errorMessage = `错误(${code}): ${message.join(' ')}`;
+            // Simplify handling, avoid complex parameter structures
+            const errorMessage = `Error(${code}): ${message.join(' ')}`;
 
             logAuth(errorMessage);
         },
         warn(code, ...message) {
-            // 简化处理，避免复杂的参数结构
-            const warnMessage = `警告(${code}): ${message.join(' ')}`;
+            // Simplify handling, avoid complex parameter structures
+            const warnMessage = `Warning(${code}): ${message.join(' ')}`;
 
             logAuth(warnMessage);
         },
         debug(code, ...message) {
             if (process.env.DEBUG_AUTH === "true") {
-                // 简化处理，避免复杂的参数结构
-                const debugMessage = `调试(${code}): ${message.join(' ')}`;
+                // Simplify handling, avoid complex parameter structures
+                const debugMessage = `Debug(${code}): ${message.join(' ')}`;
 
                 logAuth(debugMessage);
             }
@@ -622,42 +622,42 @@ export const config = {
     },
 } satisfies NextAuthConfig;
 
-// 仅在服务器端初始化 Auth.js 的 MongoDB 适配器
+// Initialize Auth.js MongoDB adapter on server side only
 if (typeof window === 'undefined') {
     const initializeAdapter = async () => {
         try {
-            logAuth("初始化MongoDB适配器");
+            logAuth("Initializing MongoDB adapter");
             const { MongoDBAdapter } = await import("@auth/mongodb-adapter");
 
-            // 改进MongoDB连接参数，添加重试和超时配置
+            // Improve MongoDB connection parameters, add retry and timeout configuration
             const mongodb = await import('@/lib/mongodb');
             const clientPromise = mongodb.default;
 
-            // 测试连接
+            // Test connection
             try {
                 const testClient = await clientPromise;
-                // 设置30秒超时
+                // Setting 30-second timeout
                 const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error("MongoDB连接测试超时")), 10000);
+                    setTimeout(() => reject(new Error("MongoDB connection test timed out")), 10000);
                 });
 
-                // 尝试ping测试，使用Promise.race确保不会无限等待
+                // Attempting ping test, using Promise.race to prevent infinite wait
                 await Promise.race([
                     testClient.db().command({ ping: 1 }),
                     timeoutPromise
                 ]);
 
-                logAuth("MongoDB连接测试成功");
+                logAuth("MongoDB connection test successful");
             } catch (connError) {
-                const errorMsg = "MongoDB连接测试失败";
+                const errorMsg = "MongoDB connection test failed";
 
                 logAuth(errorMsg, connError);
 
-                // 如果在开发环境中，则不抛出错误，使用内存适配器替代
+                // In development environment, do not throw error, use in-memory adapter instead
                 if (process.env.NODE_ENV === "development") {
-                    logAuth("在开发环境中，将使用内存会话存储替代MongoDB");
+                    logAuth("In development environment, will use in-memory session storage instead of MongoDB");
 
-                    // 不抛出错误，但返回null表示使用默认JWT模式
+                    // Do not throw error, return null to use default JWT mode
                     return;
                 }
 
@@ -668,17 +668,17 @@ if (typeof window === 'undefined') {
                 databaseName: process.env.MONGODB_DB || "oohunt",
             }) as Adapter;
 
-            logAuth("MongoDB适配器初始化成功");
+            logAuth("MongoDB adapter initialized successfully");
         } catch (adapterError) {
-            logAuth("MongoDB适配器初始化失败", adapterError);
-            // 适配器初始化失败时，设置为null但不抛出错误
+            logAuth("MongoDB adapter initialization failed", adapterError);
+            // When adapter initialization fails, set to null without throwing error
             adapter = null;
         }
     };
 
     // Set up adapter during initialization
     initializeAdapter().catch((error) => {
-        logAuth("MongoDB适配器初始化过程中出现未捕获异常", error);
+        logAuth("Uncaught exception during MongoDB adapter initialization", error);
     });
 }
 

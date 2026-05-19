@@ -4,8 +4,8 @@ import { DEFAULT_TEMPLATES } from './email-template-defaults';
 import type { EmailTemplateType } from './email-template-types';
 
 /**
- * 初始化默认邮件模板
- * 检查数据库中是否已存在各类型模板，不存在则创建默认模板
+ * Initialize default email templates
+ * Checks if templates of each type already exist in the database; if not, creates the default templates
  */
 export async function initializeEmailTemplates(): Promise<{
     success: boolean;
@@ -18,16 +18,16 @@ export async function initializeEmailTemplates(): Promise<{
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 统计新创建的模板数量
+        // Count newly created templates
         let createdCount = 0;
 
-        // 检查并创建每种类型的模板
+        // Check and create each type of template
         for (const template of DEFAULT_TEMPLATES) {
-            // 检查该类型的模板是否已存在
+            // Check if a template of this type already exists
             const existingTemplate = await collection.findOne({ type: template.type });
 
             if (!existingTemplate) {
-                // 添加创建时间和更新时间
+                // Add creation and update timestamps
                 const now = new Date();
                 const templateData = {
                     ...template,
@@ -35,7 +35,7 @@ export async function initializeEmailTemplates(): Promise<{
                     updatedAt: now,
                 };
 
-                // 向数据库插入默认模板
+                // Insert the default template into the database
                 await collection.insertOne(templateData);
                 createdCount++;
             }
@@ -56,8 +56,8 @@ export async function initializeEmailTemplates(): Promise<{
 }
 
 /**
- * 获取指定类型的模板，如果不存在则创建默认模板
- * 主要用于确保关键邮件功能不会因为模板缺失而失败
+ * Get the template of the specified type, creating a default template if it does not exist
+ * Primarily used to ensure critical email functionality does not fail due to missing templates
  */
 export async function ensureTemplateExists(type: EmailTemplateType): Promise<boolean> {
     try {
@@ -66,15 +66,15 @@ export async function ensureTemplateExists(type: EmailTemplateType): Promise<boo
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 检查该类型的模板是否已存在
+        // Check if a template of this type already exists
         const existingTemplate = await collection.findOne({ type });
 
         if (!existingTemplate) {
-            // 获取该类型的默认模板配置
+            // Get the default template configuration for this type
             const defaultTemplate = DEFAULT_TEMPLATES.find(t => t.type === type);
 
             if (defaultTemplate) {
-                // 添加创建时间和更新时间
+                // Add creation and update timestamps
                 const now = new Date();
                 const templateData = {
                     ...defaultTemplate,
@@ -82,7 +82,7 @@ export async function ensureTemplateExists(type: EmailTemplateType): Promise<boo
                     updatedAt: now,
                 };
 
-                // 向数据库插入默认模板
+                // Insert the default template into the database
                 await collection.insertOne(templateData);
 
                 return true;

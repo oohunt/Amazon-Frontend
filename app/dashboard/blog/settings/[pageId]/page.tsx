@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-// 复用CMS页面设置组件
+// Reuse the CMS page settings component
 import PageSettingsPage from '@/app/dashboard/cms/pages/settings/[pageId]/page';
 
 export const metadata: Metadata = {

@@ -3,16 +3,16 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 定义更新数据的接口
+// Define update data interface
 interface UpdateData {
     isProcessed: boolean;
-    processedAt?: Date; // 可选属性
-    notes?: string; // 可选属性
+    processedAt?: Date; // Optional property
+    notes?: string; // Optional property
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        // 从params获取ID
+        // Get ID from params
         const { id } = await params;
 
         if (!id) {
@@ -24,10 +24,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         const { isProcessed, notes } = await request.json();
 
-        // 使用环境变量配置的数据库名
+        // Use database name from environment variable configuration
         const dbName = process.env.MONGODB_DB || 'oohunt';
 
-        // 验证ID格式
+        // Validate ID format
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: 'Invalid message ID' },
@@ -35,7 +35,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             );
         }
 
-        // 验证isProcessed是否为布尔值
+        // Validate if isProcessed is boolean
         if (typeof isProcessed !== 'boolean') {
             return NextResponse.json(
                 { success: false, message: 'Status must be a boolean value' },
@@ -47,18 +47,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const db = client.db(dbName);
         const collection = db.collection('contact_messages');
 
-        // 准备更新数据
+        // Prepare update data
         const updateData: UpdateData = {
             isProcessed,
             ...(isProcessed ? { processedAt: new Date() } : {})
         };
 
-        // 如果提供了备注，更新备注
+        // If notes provided, update notes
         if (notes !== undefined) {
             updateData.notes = notes;
         }
 
-        // 更新留言状态
+        // update message status
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             { $set: updateData }

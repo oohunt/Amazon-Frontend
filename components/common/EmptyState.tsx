@@ -10,8 +10,8 @@ interface EmptyStateProps {
 }
 
 /**
- * 空状态组件
- * 用于显示当列表或数据为空时的提示信息
+ * Empty state component
+ * Display a prompt when a list or data is empty
  */
 const EmptyState: React.FC<EmptyStateProps> = ({
     title,
@@ -22,7 +22,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
     return (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-            {/* 图标 */}
+            {/* Icon */}
             {icon || (
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                     <svg
@@ -42,13 +42,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({
                 </div>
             )}
 
-            {/* 标题 */}
+            {/* Title */}
             <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
 
-            {/* 描述 */}
+            {/* Description */}
             <p className="mb-6 max-w-md text-gray-500">{description}</p>
 
-            {/* 操作按钮 */}
+            {/* Action buttons */}
             {actionText && actionLink && (
                 <Link
                     href={actionLink}

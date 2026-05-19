@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
 /**
- * 健康检查API端点
+ * Health check API endpoint
  * GET /api/health
  */
 export async function GET() {

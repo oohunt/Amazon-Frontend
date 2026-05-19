@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 
 import { CategoryPageWrapper } from './ClientComponents';
 
-// 服务器组件部分 - 用于生成元数据
+// Server component — used to generate metadata
 export const generateMetadata = async ({ params }: { params: Promise<{ categoryId: string }> }): Promise<Metadata> => {
-    // 先await params对象
+    // Await params object first
     const paramsObj = await params;
-    // 解码URL参数
+    // Decode URL parameters
     const categoryName = decodeURIComponent(paramsObj.categoryId);
-    // 将分类名称首字母大写
+    // Capitalize first letter of category name
     const formattedCategory = categoryName
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -24,13 +24,13 @@ export const generateMetadata = async ({ params }: { params: Promise<{ categoryI
     };
 };
 
-// 导出默认页面组件
+// export default page component
 export default async function CategoryPage({ params }: { params: Promise<{ categoryId: string }> }) {
-    // 先await params对象
+    // Await params object first
     const paramsObj = await params;
-    // 解码分类名称
+    // Decode category name
     const categorySlug = decodeURIComponent(paramsObj.categoryId);
 
-    // 使用客户端包装器组件，确保URL一致性
+    // Use client wrapper component to ensure URL consistency
     return <CategoryPageWrapper categorySlug={categorySlug} />;
 } 

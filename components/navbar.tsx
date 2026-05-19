@@ -43,16 +43,16 @@ const _menuItemVariants = {
   hover: { scale: 1.05 }
 };
 
-// 搜索下拉菜单动画
+// Search dropdown animation
 const searchDropdownVariants = {
   hidden: { opacity: 0, y: -10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
   exit: { opacity: 0, y: -10, transition: { duration: 0.15 } }
 };
 
-// 添加自定义样式来隐藏搜索框的清除按钮
+// Add custom style to hide search box clear button
 const searchInputStyles = `
-  /* 隐藏搜索框的清除按钮 */
+  /* Hide search box clear button */
   input[type="search"]::-webkit-search-cancel-button {
     -webkit-appearance: none;
     display: none;
@@ -76,10 +76,10 @@ export const Navbar = () => {
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 限制预览搜索结果的数量
+  // Limit the number of search preview results
   const previewLimit = 5;
 
-  // 使用Hook搜索产品
+  // Use hook to search products
   const { data: searchResults, isLoading } = useProductSearch({
     keyword: searchKeyword,
     page: 1,
@@ -87,7 +87,7 @@ export const Navbar = () => {
     sort_by: "relevance"
   });
 
-  // 使用useEffect确保组件已挂载并延迟启用动画
+  // Use useEffect to ensure component is mounted and delay enabling animation
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldAnimate(true);
@@ -96,19 +96,19 @@ export const Navbar = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // 监听滚动事件
+  // Listen for scroll events
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // 初始检查
+    handleScroll(); // Initial check
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 监听点击事件，当点击搜索框外部时关闭预览
+  // Listen for click events — close preview when clicking outside the search box
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -126,15 +126,15 @@ export const Navbar = () => {
     };
   }, []);
 
-  // 监听路由变化，当路由变化时关闭所有面板
+  // Listen for route changes — close all panels on route change
   useEffect(() => {
     closeAllPanels();
   }, [pathname]);
 
-  // 监听视窗尺寸变化，当尺寸变化时关闭对应的搜索面板
+  // Listen for viewport size changes — close the relevant search panel on resize
   useEffect(() => {
     const handleResize = () => {
-      // 如果是桌面尺寸且搜索面板打开，则关闭搜索面板
+      // If desktop size and search panel is open, close the search panel
       if (window.innerWidth >= 1024) { // lg breakpoint in Tailwind is 1024px
         setIsSearchOpen(false);
         setIsTabletSearchOpen(false);
@@ -143,13 +143,13 @@ export const Navbar = () => {
 
     window.addEventListener("resize", handleResize);
 
-    // 初始检查
+    // Initial check
     handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 添加ResizeObserver逻辑
+  // Add ResizeObserver logic
   useEffect(() => {
     const navbar = document.querySelector('.navbar-container');
 
@@ -168,7 +168,7 @@ export const Navbar = () => {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // 处理搜索输入变化
+  // Handle search input change
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = e.target.value;
 
@@ -176,27 +176,27 @@ export const Navbar = () => {
     setShowSearchPreview(keyword.length > 0);
   };
 
-  // 处理搜索表单提交
+  // Handle search form submission
   const handleSearchSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
 
     if (searchKeyword.trim()) {
       setShowSearchPreview(false);
-      // 导航到搜索结果页面，带上搜索参数
+      // Navigate to search results page with search params
       router.push(`/search?keyword=${encodeURIComponent(searchKeyword)}`);
     }
   };
 
-  // 处理搜索预览项点击
+  // Handle search preview item click
   const handlePreviewItemClick = (productId: string | undefined) => {
     if (!productId) return;
     setShowSearchPreview(false);
     router.push(`/product/${productId}`);
   };
 
-  // 优化触发搜索框显示/隐藏的函数
+  // Optimized function to show/hide the search box
   const toggleSearch = () => {
-    // 判断是移动端还是平板端
+    // Determine if it is mobile or tablet
     const isTablet = window.matchMedia('(min-width: 768px) and (max-width: 1279px)').matches;
 
     if (isTablet) {
@@ -205,21 +205,21 @@ export const Navbar = () => {
       setIsSearchOpen(!isSearchOpen);
     }
 
-    // 自动聚焦搜索框
+    // Auto-focus search box
     setTimeout(() => {
       searchInputRef.current?.focus();
     }, 100);
   };
 
-  // 检查导航项是否为当前页面
+  // Check if nav item matches the current page
   const isCurrentPage = (href: string) => {
-    // 主页特殊处理
+    // Special handling for home page
     if (href === "/" && pathname === "/") {
       return true;
     }
 
-    // 其他页面判断路径是否以href开头并且是完整的路径部分
-    // 例如：/products 应该只匹配 /products 和 /products/，而不匹配 /products/123
+    // For other pages, check if path starts with href and is a complete path segment
+    // e.g. /products should match /products and /products/ but not /products/123
     if (href !== "/") {
       return pathname === href || pathname === `${href}/`;
     }
@@ -227,14 +227,14 @@ export const Navbar = () => {
     return false;
   };
 
-  // 添加关闭所有面板的函数
+  // Add function to close all panels
   const closeAllPanels = () => {
     setIsSearchOpen(false);
     setIsTabletSearchOpen(false);
     setIsMenuOpen(false);
   };
 
-  // 处理导航点击
+  // Handle navigation click
   const handleNavigation = () => {
     closeAllPanels();
   };
@@ -247,7 +247,7 @@ export const Navbar = () => {
       transition={{ duration: 0.3 }}
       className="w-full fixed top-0 left-0 right-0 z-[9990] navbar-container"
     >
-      {/* 添加全局样式 */}
+      {/* Add global styles */}
       <style jsx global>{searchInputStyles}</style>
 
       <HeroUINavbar
@@ -257,11 +257,11 @@ export const Navbar = () => {
         isMenuOpen={isMenuOpen}
         onMenuOpenChange={setIsMenuOpen}
       >
-        {/* 外层容器 */}
+        {/* Outer container */}
         <div className="w-full flex justify-center">
-          {/* 内容限宽容器 */}
+          {/* Content width-limit container */}
           <div className="w-full max-w-[1500px] relative z-[9991]">
-            {/* 导航栏主体 */}
+            {/* Navbar body */}
             <div className="flex items-center justify-between w-full h-16 lg:h-16 lg:px-8">
               {/* Logo and Search Bar Content - Left Side */}
               <div className="flex items-center gap-4 flex-1 lg:max-w-[35%] xl:max-w-[40%]">
@@ -274,7 +274,7 @@ export const Navbar = () => {
                   />
                 </div>
 
-                {/* 移动端居中 Logo */}
+                {/* Mobile centered logo */}
                 <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2 lg:hidden">
                   <NavbarBrand as="li" className="flex-shrink-0">
                     <motion.div
@@ -295,7 +295,7 @@ export const Navbar = () => {
                 </div>
 
                 <div className="hidden lg:flex items-center gap-2 lg:gap-3">
-                  {/* 桌面端 Logo */}
+                  {/* Desktop logo */}
                   <NavbarBrand as="li" className="flex-shrink-0">
                     <motion.div
                       whileHover={{ scale: 1.05 }}
@@ -317,7 +317,7 @@ export const Navbar = () => {
 
               {/* Navigation Menu Content - Right Side */}
               <div className="hidden lg:flex items-center justify-end gap-3 lg:gap-4 xl:gap-6 flex-1">
-                {/* 将搜索栏添加到这里 - 导航菜单左侧 */}
+                {/* Search bar added here — left of navigation menu */}
                 <div className="hidden lg:block w-full lg:w-[280px] xl:w-[350px] 2xl:w-[400px]" ref={searchContainerRef}>
                   <form onSubmit={handleSearchSubmit} className="w-full relative group">
                     <Input

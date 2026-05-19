@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         const is_active = searchParams.get('is_active');
         const collection = searchParams.get('collection') || 'email_list';
 
-        // 记录使用的数据库名称
+        // Log the database name being used
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
             headers
         });
     } catch (error) {
-        // 设置响应头
+        // Set response headers
         const headers = new Headers();
 
         headers.append('Content-Type', 'application/json');

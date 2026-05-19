@@ -4,19 +4,19 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// 定义错误消息映射
+// Define error message mapping
 const errorMessages: Record<string, string> = {
-    Configuration: "服务器配置错误，请联系管理员",
-    AccessDenied: "访问被拒绝，您可能没有足够的权限或登录过程出现错误",
-    Verification: "登录链接已过期或已被使用",
-    CredentialsSignin: "用户名或密码无效",
-    Default: "身份验证过程中发生错误",
+    Configuration: "Server configuration error, please contact the administrator",
+    AccessDenied: "Access denied. You may not have sufficient permissions or an error occurred during sign in",
+    Verification: "The sign-in link has expired or has already been used",
+    CredentialsSignin: "Invalid username or password",
+    Default: "An error occurred during authentication",
 
-    // 添加针对MongoDB连接错误的特殊消息
-    DatabaseConnection: "数据库连接错误，开发环境下您仍可登录",
+    // Special message for MongoDB connection errors
+    DatabaseConnection: "Database connection error. In development you can still sign in",
 
-    // 添加针对Google登录错误的特殊消息
-    GoogleOAuthError: "Google登录过程出错，请稍后再试"
+    // Special message for Google sign-in errors
+    GoogleOAuthError: "An error occurred during Google sign in, please try again later"
 };
 
 export default function ErrorPage() {
@@ -28,12 +28,12 @@ export default function ErrorPage() {
 
     useEffect(() => {
 
-        // 检查重定向计数器，防止无限循环
+        // Check redirect counter to prevent infinite loops
         const count = searchParams?.get("redirectCount");
 
         if (count) {
             setRedirectCount(parseInt(count, 10));
-            // 如果重定向次数过多，自动转到主页
+            // If too many redirects have occurred, automatically go to the homepage
             if (parseInt(count, 10) > 10) {
                 router.push("/");
 
@@ -41,7 +41,7 @@ export default function ErrorPage() {
             }
         }
 
-        // 从 URL 中获取错误信息
+        // Get error information from the URL
         const errorType = searchParams?.get("error") || "Default";
         const errorDescParam = searchParams?.get("error_description");
 
@@ -50,17 +50,17 @@ export default function ErrorPage() {
         if (errorDescParam) {
             setErrorDesc(decodeURIComponent(errorDescParam));
         } else {
-            // 根据错误类型显示相应消息
+            // Show the corresponding message based on error type
             setErrorDesc(errorMessages[errorType] || errorMessages.Default);
 
-            // 如果是AccessDenied错误，并且在开发环境，添加更多提示
+            // If AccessDenied error in development environment, add more details
             if (errorType === "AccessDenied" && process.env.NODE_ENV === "development") {
-                setErrorDesc(prev => `${prev}\n\n开发环境下，可能是MongoDB连接失败导致的。请检查数据库配置。`);
+                setErrorDesc(prev => `${prev}\n\nIn development, this may be caused by a MongoDB connection failure. Please check your database configuration.`);
             }
         }
     }, [searchParams, router]);
 
-    // 处理返回主页按钮
+    // Handle return to home button
     const handleReturnHome = () => {
         router.push("/");
     };
@@ -70,14 +70,14 @@ export default function ErrorPage() {
             <div className="w-full max-w-md space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-red-600">
-                        身份验证错误
+                        Authentication Error
                     </h2>
                     <p className="mt-2 text-center text-lg whitespace-pre-line">
-                        {error ? errorDesc : "加载中..."}
+                        {error ? errorDesc : "Loading..."}
                     </p>
                     {redirectCount > 0 && (
                         <p className="mt-2 text-center text-sm text-gray-600">
-                            检测到重定向次数: {redirectCount} 次
+                            Redirect count detected: {redirectCount}
                         </p>
                     )}
                 </div>
@@ -86,13 +86,13 @@ export default function ErrorPage() {
                         href="/auth/signin"
                         className="rounded-md bg-indigo-600 py-2 px-4 text-sm font-semibold text-white hover:bg-indigo-500"
                     >
-                        返回登录
+                        Back to Sign In
                     </Link>
                     <button
                         onClick={handleReturnHome}
                         className="rounded-md bg-gray-600 py-2 px-4 text-sm font-semibold text-white hover:bg-gray-500"
                     >
-                        返回首页
+                        Back to Home
                     </button>
                 </div>
             </div>

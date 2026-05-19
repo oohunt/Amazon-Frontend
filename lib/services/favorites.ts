@@ -4,7 +4,7 @@ import type { UserFavorite, UserFavoritesResponse } from "@/lib/models/UserFavor
 import clientPromise from "@/lib/mongodb";
 
 /**
- * 获取收藏集合
+ * Get favorites collection
  */
 async function getFavoritesCollection(): Promise<Collection<UserFavorite>> {
     const client = await clientPromise;
@@ -14,7 +14,7 @@ async function getFavoritesCollection(): Promise<Collection<UserFavorite>> {
 }
 
 /**
- * 获取用户的收藏列表
+ * Get user's favorites list
  */
 export async function getUserFavorites(userId: string): Promise<UserFavoritesResponse> {
     const collection = await getFavoritesCollection();
@@ -30,7 +30,7 @@ export async function getUserFavorites(userId: string): Promise<UserFavoritesRes
 }
 
 /**
- * 添加收藏
+ * Add to favorites
  */
 export async function addFavorite(userId: string, productId: string): Promise<UserFavorite> {
     const collection = await getFavoritesCollection();
@@ -48,7 +48,7 @@ export async function addFavorite(userId: string, productId: string): Promise<Us
 }
 
 /**
- * 删除收藏
+ * Delete favorite
  */
 export async function removeFavorite(userId: string, productId: string): Promise<boolean> {
     const collection = await getFavoritesCollection();
@@ -58,7 +58,7 @@ export async function removeFavorite(userId: string, productId: string): Promise
 }
 
 /**
- * 检查商品是否已收藏
+ * Check whether a product is favorited
  */
 export async function isFavorited(userId: string, productId: string): Promise<boolean> {
     const collection = await getFavoritesCollection();
@@ -68,19 +68,19 @@ export async function isFavorited(userId: string, productId: string): Promise<bo
 }
 
 /**
- * 批量同步收藏
+ * Batch-sync favorites
  */
 export async function syncFavorites(userId: string, productIds: string[]): Promise<UserFavorite[]> {
     const collection = await getFavoritesCollection();
 
-    // 删除所有现有收藏
+    // delete all existing favorites
     await collection.deleteMany({ userId });
 
     if (productIds.length === 0) {
         return [];
     }
 
-    // 批量插入新收藏
+    // Bulk insert new favorites
     const favorites: UserFavorite[] = productIds.map(productId => ({
         userId,
         productId,

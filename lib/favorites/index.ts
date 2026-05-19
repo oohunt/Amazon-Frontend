@@ -1,16 +1,16 @@
 /**
- * 收藏功能模块入口文件
- * 导出所有收藏相关的功能
+ * Favorites module entry file
+ * Export all favorites-related functionality
  */
 
-// 导出上下文和Provider
+// export context and Provider
 export {
     default as FavoritesContext,
     FavoritesProvider,
     useFavoritesContext
 } from './context';
 
-// 导出自定义hooks
+// export custom hooks
 export {
     useFavorites,
     useProductFavorite,
@@ -19,10 +19,10 @@ export {
     useBatchFavorites
 } from './hooks';
 
-// 导出API
+// ExportAPI
 export { favoritesApi } from './api';
 
-// 导出本地存储工具
+// export local storage utilities
 export {
     getClientId,
     getLocalFavorites,

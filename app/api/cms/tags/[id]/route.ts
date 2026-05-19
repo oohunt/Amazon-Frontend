@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import type { ContentTagUpdateRequest } from '@/types/cms';
 
-// 获取单个标签
+// Get a single tag
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -16,32 +16,32 @@ export async function GET(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的标签ID'
+                    message: 'Invalid tag ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_tags');
 
-        // 查询标签
+        // Query the tag
         const tag = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!tag) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到标签'
+                    message: 'Tag not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 转换格式
+        // Format data
         const formattedTag = {
             ...tag,
             _id: tag._id.toString(),
@@ -58,15 +58,15 @@ export async function GET(
         return NextResponse.json(
             {
                 status: false,
-                message: '获取标签失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get tag, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 更新标签
+// Update tag
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -79,32 +79,32 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的标签ID'
+                    message: 'Invalid tag ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_tags');
 
-        // 检查标签是否存在
+        // Check if the tag exists
         const existingTag = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!existingTag) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到标签'
+                    message: 'Tag not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 如果更新了slug，检查它是否与其他标签冲突
+        // If the slug was updated, check for conflicts with other tags
         if (body.slug && body.slug !== existingTag.slug) {
             const slugExists = await collection.findOne({
                 slug: body.slug,
@@ -115,20 +115,20 @@ export async function PUT(
                 return NextResponse.json(
                     {
                         status: false,
-                        message: '该URL路径已被使用，请选择其他路径'
+                        message: 'This URL path is already in use, please choose a different one'
                     },
                     { status: 400 }
                 );
             }
         }
 
-        // 构建更新数据
+        // Build update data
         const updateData = {
             ...body,
             updatedAt: new Date()
         };
 
-        // 更新数据
+        // Update data
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             { $set: updateData }
@@ -138,16 +138,16 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到标签'
+                    message: 'Tag not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 获取更新后的标签
+        // Get the updated tag
         const updatedTag = await collection.findOne({ _id: new ObjectId(id) });
 
-        // 转换格式
+        // Format data
         const formattedTag = {
             ...updatedTag,
             _id: updatedTag?._id.toString(),
@@ -157,22 +157,22 @@ export async function PUT(
 
         return NextResponse.json({
             status: true,
-            message: '标签更新成功',
+            message: 'Tag updated successfully',
             data: formattedTag
         });
     } catch (error) {
         return NextResponse.json(
             {
                 status: false,
-                message: '更新标签失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to update tag, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 删除标签
+// Delete tag
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -184,20 +184,20 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的标签ID'
+                    message: 'Invalid tag ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_tags');
         const pagesCollection = db.collection('cms_pages');
 
-        // 检查是否有页面使用此标签
+        // Check if any pages are using this tag
         const pagesUsingTag = await pagesCollection.countDocuments({
             tags: id
         });
@@ -206,20 +206,20 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: `无法删除标签，有${pagesUsingTag}个页面正在使用该标签`
+                    message: `Cannot delete tag, ${pagesUsingTag} page(s) are currently using it`
                 },
                 { status: 400 }
             );
         }
 
-        // 删除标签
+        // Delete the tag
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到标签或删除失败'
+                    message: 'Tag not found or deletion failed'
                 },
                 { status: 404 }
             );
@@ -227,15 +227,15 @@ export async function DELETE(
 
         return NextResponse.json({
             status: true,
-            message: '标签删除成功'
+            message: 'Tag deleted successfully'
         });
     } catch (error) {
 
         return NextResponse.json(
             {
                 status: false,
-                message: '删除标签失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to delete tag, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

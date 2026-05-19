@@ -23,7 +23,7 @@ const Header = () => {
     const { data: categoryStats } = useCategoryStats();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // 从browse_nodes中提取分类列表
+    // Extract category list from browse_nodes
     const categories: Category[] = categoryStats?.browse_nodes ?
         Object.entries(categoryStats.browse_nodes).map(([id, data]: [string, BrowseNode]) => ({
             id,
@@ -31,7 +31,7 @@ const Header = () => {
             count: data.count || 0
         })) : [];
 
-    // 监听滚动
+    // Listen for scroll
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -57,10 +57,10 @@ const Header = () => {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
                         <Link href="/deals" className="nav-link">
-                            限时特惠
+                            Limited-time Deals
                         </Link>
                         <div className="relative group">
-                            <button className="nav-link">分类</button>
+                            <button className="nav-link">Categories</button>
                             <div className="absolute top-full left-0 hidden group-hover:block">
                                 <div className="bg-background shadow-xl rounded-lg p-4 mt-2 min-w-[200px]">
                                     {categories?.map((category: Category) => (
@@ -76,10 +76,10 @@ const Header = () => {
                             </div>
                         </div>
                         <Link href="/favorites" className="nav-link">
-                            收藏夹
+                            Favorites
                         </Link>
                         <Link href="/about-us" className="nav-link">
-                            关于我们
+                            About Us
                         </Link>
                     </div>
 
@@ -118,16 +118,16 @@ const Header = () => {
                         >
                             <div className="flex flex-col space-y-4 py-4">
                                 <Link href="/deals" className="nav-link">
-                                    限时特惠
+                                    Limited-time Deals
                                 </Link>
                                 <Link href="/favorites" className="nav-link">
-                                    收藏夹
+                                    Favorites
                                 </Link>
                                 <Link href="/about-us" className="nav-link">
-                                    关于我们
+                                    About Us
                                 </Link>
                                 <div className="border-t border-text/10 pt-4">
-                                    <div className="font-medium mb-2">分类</div>
+                                    <div className="font-medium mb-2">Categories</div>
                                     <div className="space-y-2">
                                         {categories?.map((category: Category) => (
                                             <Link

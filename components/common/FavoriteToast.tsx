@@ -1,6 +1,6 @@
 /**
- * 收藏操作结果提示组件
- * 用于在收藏/取消收藏操作后显示一个短暂的提示信息
+ * Favorites operation result toast component
+ * Display a brief toast after a favorite/unfavorite action
  */
 
 import { AlertTriangle, Heart } from 'lucide-react';
@@ -19,15 +19,15 @@ interface FavoriteToastProps {
 }
 
 /**
- * 收藏操作结果提示组件
- * @param action 操作类型：'add'表示添加收藏，'remove'表示移除收藏
- * @param show 是否显示提示
- * @param onHide 提示隐藏后的回调函数
- * @param duration 提示显示时长（毫秒），默认为3000ms
- * @param className 自定义类名
- * @param type 提示类型：'success'表示成功，'error'表示错误。默认为'success'
- * @param message 自定义提示消息，如果不提供则使用默认消息
- * @param productTitle 产品标题，用于在提示中显示
+ * Favorites operation result toast component
+ * @param action Action type: 'add' to add to favorites, 'remove' to remove from favorites
+ * @param show Whether to show the toast
+ * @param onHide Callback fired after the toast is hidden
+ * @param duration Toast display duration in milliseconds, defaults to 3000ms
+ * @param className Custom CSS class name
+ * @param type Toast type: 'success' or 'error'. Defaults to 'success'
+ * @param message Custom toast message; uses default message if not provided
+ * @param productTitle Product title displayed in the toast
  */
 const FavoriteToast: React.FC<FavoriteToastProps> = ({
     action,
@@ -58,7 +58,7 @@ const FavoriteToast: React.FC<FavoriteToastProps> = ({
     const isError = type === 'error';
     const isAdding = action === 'add';
 
-    // 创建包含产品名称的默认消息
+    // create default message containing product name
     const getDefaultMessage = () => {
         if (isError) {
             return 'Operation failed, please try again later';
@@ -73,10 +73,10 @@ const FavoriteToast: React.FC<FavoriteToastProps> = ({
             : `${productName} removed from favorites`;
     };
 
-    // 使用自定义消息或默认消息
+    // Use custom message or default message
     const displayMessage = message || getDefaultMessage();
 
-    // 样式设置 - 增强视觉效果
+    // Style settings — enhance visual effect
     const bgColor = isError
         ? 'bg-red-50 dark:bg-red-900/50'
         : (isAdding ? 'bg-red-50 dark:bg-red-900/30' : 'bg-gray-50 dark:bg-gray-700/50');
@@ -89,7 +89,7 @@ const FavoriteToast: React.FC<FavoriteToastProps> = ({
         ? 'border-red-300 dark:border-red-700'
         : (isAdding ? 'border-red-200 dark:border-red-700/50' : 'border-gray-200 dark:border-gray-600');
 
-    // 创建Toast内容
+    // create toast content
     const toastContent = (
         <div
             className={`fixed bottom-20 right-6 z-[999]
@@ -111,13 +111,13 @@ const FavoriteToast: React.FC<FavoriteToastProps> = ({
         </div>
     );
 
-    // 使用Portal将Toast渲染到body，确保它位于所有元素之上
-    // 仅在客户端渲染时使用Portal
+    // Use Portal to render Toast into body, ensuring it is above all elements
+    // Use Portal only when rendering on client side
     if (typeof document !== 'undefined') {
         return createPortal(toastContent, document.body);
     }
 
-    // 服务器端渲染时直接返回内容
+    // Return content directly during SSR
     return toastContent;
 };
 

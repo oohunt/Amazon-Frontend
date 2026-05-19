@@ -8,7 +8,7 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { ComponentProduct } from '@/types';
 
-// 水平列表风格产品组件
+// Horizontal list style product component
 const HorizontalProductElement = ({ product }: { product: ComponentProduct }) => {
     const { id, title, price, image, url, cj_url } = product;
     const effectiveUrl = cj_url || url || '';
@@ -21,7 +21,7 @@ const HorizontalProductElement = ({ product }: { product: ComponentProduct }) =>
             transition={{ duration: 0.2 }}
         >
             <span className="flex flex-col sm:flex-row w-full">
-                {/* 图片容器 - 调整大小并固定宽高比 */}
+                {/* Image container - resize and fix aspect ratio */}
                 <span className="flex-shrink-0 flex justify-center sm:justify-start mb-3 sm:mb-0">
                     <Link href={productUrl} className="relative w-28 h-28 sm:w-24 sm:h-24 sm:mr-4 rounded-lg overflow-hidden no-underline" target="_blank" rel="noopener noreferrer">
                         <Image
@@ -35,16 +35,16 @@ const HorizontalProductElement = ({ product }: { product: ComponentProduct }) =>
                     </Link>
                 </span>
 
-                {/* 内容容器 - 在所有布局中显示标题 */}
+                {/* Content container - show title in all layouts */}
                 <span className="flex flex-col flex-grow">
-                    {/* 标题 - 在所有布局中显示，移动端和桌面端有不同样式 */}
+                    {/* Title — shown in all layouts with different styles for mobile and desktop */}
                     <span className="text-sm sm:text-base font-medium line-clamp-2 sm:line-clamp-1 mb-2">
                         <Link href={productUrl} className="text-black dark:text-white no-underline" target="_blank" rel="noopener noreferrer">
                             {title}
                         </Link>
                     </span>
 
-                    {/* 价格与操作区 - 移动端垂直排列，桌面端水平排列 */}
+                    {/* Price and action area - vertical on mobile, horizontal on desktop */}
                     <span className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mt-auto">
                         <span className="text-primary-button dark:text-primary-light font-bold text-xl">{formatPrice(price)}</span>
 

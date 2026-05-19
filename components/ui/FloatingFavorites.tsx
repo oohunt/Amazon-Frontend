@@ -11,7 +11,7 @@ export function FloatingFavorites() {
 
     useEffect(() => {
         const handleScroll = () => {
-            // 显示/隐藏按钮的逻辑
+            // show/hide button logic
             const scrollY = window.scrollY;
 
             setShow(scrollY > 200);

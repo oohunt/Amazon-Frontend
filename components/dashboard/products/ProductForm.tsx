@@ -15,14 +15,14 @@ import { showSuccessToast, showErrorToast } from '@/lib/toast';
 import { getCurrentUTCTimeString } from '@/lib/utils';
 import type { ProductInfo, ProductOffer } from '@/types/api';
 
-// 定义支持的国际化日期类型
+// Define supported internationalized date types
 type InternationalizedDateValue = CalendarDate | CalendarDateTime | ZonedDateTime | null;
 
-// 日期转换函数：将ISO字符串转换为CalendarDateTime对象
+// Date conversion function: convert ISO string to CalendarDateTime object
 const parseISOStringToCalendarDateTime = (isoString: string | null | undefined): CalendarDateTime | null => {
     if (!isoString || typeof isoString !== 'string') return null;
     try {
-        // 解析UTC时间的ISO字符串，然后转换为用户本地时区的CalendarDateTime用于显示
+        // Parse UTC ISO string and convert to user's local timezone CalendarDateTime for display
         const zonedDateTime = parseAbsolute(isoString, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
         return toCalendarDateTime(zonedDateTime);
@@ -31,11 +31,11 @@ const parseISOStringToCalendarDateTime = (isoString: string | null | undefined):
     }
 };
 
-// 将国际化日期对象转换为UTC时间的ISO字符串
+// Convert internationalized date object to UTC ISO string
 const formatInternationalizedDateToISO = (dateValue: InternationalizedDateValue): string | undefined => {
     if (!dateValue) return undefined;
     try {
-        // 确保转换为UTC时间进行存储
+        // Ensure conversion to UTC time for storage
         const jsDate = dateValue.toDate('UTC');
 
         return jsDate.toISOString();
@@ -44,7 +44,7 @@ const formatInternationalizedDateToISO = (dateValue: InternationalizedDateValue)
     }
 };
 
-// 定义 Offer 的 Zod Schema
+// Define Zod schema for Offer
 const productOfferSchema = z.object({
     condition: z.string().min(1, { message: 'Condition is required' }).default('New'),
     price: z.preprocess(
@@ -75,7 +75,7 @@ const productOfferSchema = z.object({
     commission: z.string().optional(),
 });
 
-// 定义基础的 ProductInfo Zod Schema
+// Define base ProductInfo Zod schema
 const baseProductInfoSchema = z.object({
     asin: z.string().optional(),
     title: z.string().min(1, { message: 'Title is required' }),
@@ -84,7 +84,7 @@ const baseProductInfoSchema = z.object({
     brand: z.string().optional(),
     main_image: z.preprocess(
         (val: unknown) => {
-            // 如果值为空字符串、null、undefined，返回undefined表示没有提供值
+            // If value is empty string, null, or undefined, return undefined to indicate no value provided
             if (typeof val === 'string' && val.trim() === '') return undefined;
             if (val === null || val === undefined) return undefined;
 
@@ -115,7 +115,7 @@ const baseProductInfoSchema = z.object({
     ),
     cj_url: z.preprocess(
         (val: unknown) => {
-            // 如果值为空字符串、null、undefined，返回undefined表示没有提供值
+            // If value is empty string, null, or undefined, return undefined to indicate no value provided
             if (typeof val === 'string' && val.trim() === '') return undefined;
             if (val === null || val === undefined) return undefined;
 
@@ -139,9 +139,9 @@ const baseProductInfoSchema = z.object({
     ),
 });
 
-// 基于模式创建动态schema的函数
+// Function to create dynamic schema based on mode
 const createProductInfoSchema = (mode: 'add' | 'edit') => {
-    // ASIN格式验证：10位字符，字母和数字组合
+    // ASIN format validation: 10-character alphanumeric string
     const asinValidation = z.string()
         .regex(/^[A-Z0-9]{10}$/, { message: 'ASIN must be exactly 10 characters (letters and numbers only)' });
 
@@ -152,7 +152,7 @@ const createProductInfoSchema = (mode: 'add' | 'edit') => {
     });
 };
 
-// 从 Zod Schema 推断 TypeScript 类型
+// Infer TypeScript types from Zod schema
 type ProductFormData = z.infer<typeof baseProductInfoSchema>;
 
 // Helper type for offer mapping
@@ -176,11 +176,11 @@ type _FormattedData = Partial<ProductFormData> & {
     raw_data?: string;
 };
 
-// 产品表单组件的属性接口
+// Product form component props interface
 interface ProductFormProps {
     mode: 'add' | 'edit';
-    initialData?: Partial<ProductFormData>; // 使用更具体的类型而不是any
-    asin?: string; // 编辑模式下的ASIN
+    initialData?: Partial<ProductFormData>; // Use more specific type instead of any
+    asin?: string; // ASIN in edit mode
     onSuccess?: () => void;
     onCancel?: () => void;
 }
@@ -195,7 +195,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
-    // 生成类似亚马逊格式的ASIN（10位字符：字母和数字组合）
+    // Generate Amazon-format ASIN (10-character alphanumeric)
     const generateASIN = () => {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbers = '0123456789';
@@ -203,16 +203,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         let result = '';
 
-        // 亚马逊ASIN通常以B开头（约75%的概率），偶尔以其他字母开头
+        // Amazon ASINs typically start with B (~75% of cases), occasionally start with other letters
         if (Math.random() < 0.75) {
             result = 'B';
         } else {
             result = letters.charAt(Math.floor(Math.random() * letters.length));
         }
 
-        // 生成剩余9位字符，混合字母和数字
+        // Generate remaining 9 characters, mixing letters and numbers
         for (let i = 0; i < 9; i++) {
-            // 前几位倾向于使用数字，后几位混合使用
+            // First few positions tend to use numbers, last few mix characters
             if (i < 3 && Math.random() < 0.6) {
                 result += numbers.charAt(Math.floor(Math.random() * numbers.length));
             } else {
@@ -223,29 +223,29 @@ const ProductForm: React.FC<ProductFormProps> = ({
         return result;
     };
 
-    // 处理生成ASIN按钮点击
+    // Handle generate ASIN button click
     const handleGenerateASIN = () => {
-        if (mode === 'edit') return; // 编辑模式下不允许生成新ASIN
+        if (mode === 'edit') return; // Do not allow generating new ASIN in edit mode
 
         const newASIN = generateASIN();
-        // 使用setValue来更新表单字段的值
+        // Use setValue to update form field value
 
         setValue('asin', newASIN);
     };
 
-    // 处理初始数据的格式化
+    // Handle initial data formatting
     const formatInitialData = (data?: Partial<ProductFormData>): Record<string, unknown> => {
         if (!data) return {};
 
         return {
             ...data,
-            // 确保数组字段被正确格式化为逗号分隔的字符串
+            // Ensure array fields are correctly formatted as comma-separated strings
             categories: Array.isArray(data.categories) ? data.categories.join(', ') : (data.categories || ''),
             features: Array.isArray(data.features) ? data.features.join(', ') : (data.features || ''),
-            // 确保JSON字段被正确序列化
+            // Ensure JSON fields are correctly serialized
             browse_nodes: data.browse_nodes ? (typeof data.browse_nodes === 'string' ? data.browse_nodes : JSON.stringify(data.browse_nodes)) : '',
             raw_data: data.raw_data ? (typeof data.raw_data === 'string' ? data.raw_data : JSON.stringify(data.raw_data)) : '',
-            // 正确处理日期字段：将ISO字符串转换为Date对象
+            // Correctly handle date fields: convert ISO string to Date object
             coupon_expiration_date: parseISOStringToCalendarDateTime(data.coupon_expiration_date as string) || null,
         };
     };
@@ -288,7 +288,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         },
     });
 
-    // 当初始数据变化时重置表单
+    // Reset form when initial data changes
     useEffect(() => {
         if (initialData) {
             const formattedData = formatInitialData(initialData);
@@ -297,28 +297,28 @@ const ProductForm: React.FC<ProductFormProps> = ({
         }
     }, [initialData, reset]);
 
-    // useFieldArray 用于管理 offers 动态数组
+    // useFieldArray for managing dynamic offers array
     const { fields: offerFields, append: appendOffer, remove: removeOffer } = useFieldArray({
         control,
         name: "offers",
     });
 
-    // 表单提交处理函数
+    // Form submit handler function
     const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
         setIsLoading(true);
         setServerErrors({});
 
-        // 获取当前UTC时间戳字符串 - 统一使用UTC时间存储
+        // Get current UTC timestamp string — always use UTC for storage
         const currentTimestamp = getCurrentUTCTimeString();
 
-        // 格式化数据以匹配 API 期望的 ProductInfo 结构
+        // Format data to match API expected ProductInfo structure
         const formattedData: ProductInfo = {
             ...data,
             asin: mode === 'edit' && asin ? asin : (data.asin ?? ''),
             browse_nodes: data.browse_nodes || undefined,
             raw_data: data.raw_data || undefined,
             timestamp: currentTimestamp,
-            // 将用户输入的日期转换为UTC时间的ISO字符串进行存储
+            // Convert user-input date to UTC ISO string for storage
             coupon_expiration_date: formatInternationalizedDateToISO(data.coupon_expiration_date as InternationalizedDateValue),
             offers: data.offers.map((offer: ProductFormData['offers'][number]) => ({
                 ...offer,
@@ -340,7 +340,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 response = await productsApi.updateProduct(asin, formattedData);
             }
 
-            // 后端可能返回 200 OK 或 201 Created
+            // Backend may return 200 OK or 201 Created
             if (response.status === 201 || response.status === 200) {
                 showSuccessToast({
                     title: 'Success!',
@@ -348,10 +348,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 });
 
                 if (mode === 'add') {
-                    reset(); // 添加模式下重置表单
+                    reset(); // Reset form in add mode
                 }
 
-                // 触发缓存重新验证
+                // Trigger cache revalidation
                 try {
                     await revalidateProductsList();
                 } catch {
@@ -361,7 +361,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     });
                 }
 
-                // 调用成功回调
+                // Call success callback
                 onSuccess?.();
             } else {
                 const errorMessage = (response.data as { message?: string; detail?: string })?.message ||
@@ -376,7 +376,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         } catch (error: unknown) {
             let errorMessage = 'An unexpected error occurred.';
 
-            // 处理Axios错误
+            // Handle Axios error
             const axiosError = error as {
                 response?: {
                     data?: { detail?: string | Array<{ loc: string[]; msg: string; type: string }> };
@@ -442,11 +442,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
             validationBehavior="aria"
             validationErrors={serverErrors}
         >
-            {/* 区域 A: 基础信息 */}
+            {/* Section A: Basic info */}
             <div id="basic-information" className="border rounded-md p-4 space-y-4 md:col-span-1 lg:col-span-2">
                 <h3 className="text-lg font-semibold mb-2">Basic Information</h3>
                 <div className="grid grid-cols-1 gap-6">
-                    {/* ASIN字段 - 添加生成按钮 */}
+                    {/* ASIN field - Add generate button */}
                     <div className="flex flex-col space-y-2">
                         <label className="text-sm font-medium">
                             ASIN {mode === 'add' && <span className="text-red-500">*</span>}
@@ -460,7 +460,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                         {...field}
                                         placeholder="Enter 10-character ASIN (e.g., B08N5WRWNW)"
                                         isRequired={mode === 'add'}
-                                        isDisabled={mode === 'edit'} // 编辑模式下禁用ASIN字段
+                                        isDisabled={mode === 'edit'} // Disable ASIN field in edit mode
                                         isInvalid={!!errors.asin}
                                         errorMessage={errors.asin?.message}
                                         variant="bordered"
@@ -528,7 +528,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
             </div>
 
-            {/* 区域 C: 更多产品信息 */}
+            {/* Section C: More product info */}
             <div id="additional-information" className="border rounded-md p-4 space-y-4 md:col-span-1 lg:col-span-2">
                 <h3 className="text-lg font-semibold mb-2">Additional Information</h3>
                 <div className="grid grid-cols-1 gap-6">
@@ -618,7 +618,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
             </div>
 
-            {/* 区域 B: 图片上传 */}
+            {/* Section B: Image upload */}
             <div className="border rounded-md p-4 space-y-4 md:col-span-1 lg:col-span-2">
                 <h3 className="text-lg font-semibold mb-2">Cover Image</h3>
                 <Controller
@@ -636,7 +636,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 )}
             </div>
 
-            {/* 区域 D: 分类与特性 */}
+            {/* Section D: Category and features */}
             <div className="border rounded-md p-4 space-y-4 md:col-span-2 lg:col-span-6">
                 <h3 className="text-lg font-semibold mb-2">Categories & Features</h3>
                 <div className="space-y-4">
@@ -677,7 +677,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
             </div>
 
-            {/* 区域 E: 优惠券信息 */}
+            {/* Section E: Coupon info */}
             <div className="border rounded-md p-4 space-y-4 md:col-span-1 lg:col-span-2">
                 <h3 className="text-lg font-semibold mb-2">Coupon Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -713,7 +713,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
             </div>
 
-            {/* 区域 F: Offers 列表 */}
+            {/* Section F: Offers list */}
             <div id="offers-information" className="border rounded-md space-y-4 md:col-span-2 lg:col-span-4 p-4">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">Offers (at least one required)</h3>
@@ -977,7 +977,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 ))}
             </div>
 
-            {/* 提交按钮区域 */}
+            {/* Submit button area */}
             <div className="md:col-span-2 lg:col-span-6 pt-4 flex justify-center sm:justify-end gap-4">
                 {onCancel && (
                     <Button

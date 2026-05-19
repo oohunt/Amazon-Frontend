@@ -8,14 +8,14 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { ComponentProduct } from '@/types';
 
-// 紧凑网格项样式
+// Compact grid item styles
 const CompactGridItemElement = ({ product }: { product: ComponentProduct }) => {
     const { id, title, price, image, url, cj_url } = product;
     const effectiveUrl = cj_url || url || '';
     const productUrl = `/product/${id}`; // Use ID for internal link
 
     return (
-        // 使用 span 作为根元素以兼容 Tiptap inline 节点
+        // Use span as root element for Tiptap inline node compatibility
         <span className="inline-block align-middle w-full max-w-[200px] relative">
             <Link href={productUrl} className="no-underline group" target="_blank" rel="noopener noreferrer">
                 <motion.span
@@ -23,7 +23,7 @@ const CompactGridItemElement = ({ product }: { product: ComponentProduct }) => {
                     whileHover={{ y: -4 }}
                     transition={{ duration: 0.2 }}
                 >
-                    {/* 图片区域 */}
+                    {/* Image area */}
                     <span className="relative w-full aspect-square bg-white block">
                         <Image
                             src={image || '/placeholder-product.jpg'}
@@ -36,7 +36,7 @@ const CompactGridItemElement = ({ product }: { product: ComponentProduct }) => {
                         />
                     </span>
 
-                    {/* 信息区域 */}
+                    {/* Info area */}
                     <span className="p-2 flex flex-col flex-grow">
                         <span
                             className="text-sm font-medium text-gray-800 dark:text-gray-100 line-clamp-2 mb-1 flex-grow min-h-[40px] group-hover:text-primary-button dark:group-hover:text-primary transition-colors"

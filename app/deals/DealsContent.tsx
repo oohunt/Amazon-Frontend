@@ -12,7 +12,7 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types/api';
 
-// 定义API参数接口
+// Define API parameter interface
 interface GetDealsParams {
     active?: boolean;
     page?: number;
@@ -21,7 +21,7 @@ interface GetDealsParams {
     is_prime_only?: boolean;
 }
 
-// 定义筛选器选项接口
+// Define filter options interface
 interface FilterOptions {
     minPrice?: number;
     maxPrice?: number;
@@ -29,14 +29,14 @@ interface FilterOptions {
     isPrimeOnly?: boolean;
 }
 
-// 定义分页接口
+// Define pagination interface
 interface PaginationState {
     page: number;
     page_size: number;
     total?: number;
 }
 
-// 预定义骨架ID数组
+// Predefined skeleton ID array
 const SKELETON_IDS = [
     'sk1', 'sk2', 'sk3', 'sk4', 'sk5', 'sk6', 'sk7', 'sk8',
     'sk9', 'sk10', 'sk11', 'sk12', 'sk13', 'sk14', 'sk15', 'sk16',
@@ -44,24 +44,24 @@ const SKELETON_IDS = [
 ];
 
 const DealsPage = () => {
-    // 状态管理
+    // State management
     const [deals, setDeals] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filters, setFilters] = useState<FilterOptions>({
-        minDiscount: 50, // 默认最低折扣50%
+        minDiscount: 50, // Default minimum discount 50%
     });
     const [pagination, setPagination] = useState<PaginationState>({
         page: 1,
         page_size: 25,
     });
 
-    // 获取优惠商品数据
+    // Get discounted product data
     const fetchDeals = useCallback(async () => {
         try {
             setLoading(true);
 
-            // 获取商品数据
+            // Get product data
             const response = await productsApi.getDeals({
                 active: true,
                 page: pagination.page,
@@ -70,7 +70,7 @@ const DealsPage = () => {
                 is_prime_only: filters.isPrimeOnly,
             } as GetDealsParams);
 
-            // 适配响应结构
+            // Adapt response structure
             let itemsData: Product[] = [];
 
             if (response.data?.data) {
@@ -82,11 +82,11 @@ const DealsPage = () => {
                 };
 
                 if (listData.items && Array.isArray(listData.items)) {
-                    // 对每一页的商品都进行随机排序
+                    // Randomly sort products on each page
                     itemsData = [...listData.items].sort(() => Math.random() - 0.5);
                 }
 
-                // 使用API返回的分页信息
+                // Use pagination info returned by API
                 setPagination(prev => ({
                     ...prev,
                     page: listData.page,
@@ -97,34 +97,34 @@ const DealsPage = () => {
 
             setDeals(itemsData);
         } catch {
-            setError("获取特价商品失败，请稍后再试。");
+            setError("Failed to fetch deals, please try again later.");
         } finally {
             setLoading(false);
         }
     }, [pagination.page, pagination.page_size, filters.minDiscount, filters.isPrimeOnly]);
 
-    // 监听分页和筛选器变化
+    // Listen for pagination and filter changes
     useEffect(() => {
         fetchDeals();
     }, [fetchDeals]);
 
-    // 处理分页变化
+    // Handle pagination change
     const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
-    // 渲染商品卡片
+    // Render product card
     const renderDealCard = (product: Product) => {
-        // 获取主要优惠信息
+        // Get main offer info
         const mainOffer = product.offers && product.offers.length > 0 ? product.offers[0] : null;
 
-        // 如果没有offers数据，使用其他可用的价格数据
+        // If no offers data, use other available price data
         const currentPrice = mainOffer?.price || product.price || 0;
         const originalPrice = mainOffer && mainOffer.savings
             ? currentPrice + mainOffer.savings
             : product.original_price || currentPrice;
 
-        // 计算折扣百分比
+        // Calculate discount percentage
         const discountPercentage = mainOffer?.savings_percentage ||
             product.discount_rate ||
             (originalPrice > 0 ? Math.round((1 - currentPrice / originalPrice) * 100) : 0);
@@ -144,7 +144,7 @@ const DealsPage = () => {
                 whileHover={{ y: -8, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.03)' }}
                 transition={{ duration: 0.3 }}
             >
-                {/* 收藏按钮 */}
+                {/* Favorite button */}
                 <div
                     className="absolute top-5 right-5 sm:top-4 sm:right-4 md:top-3 md:right-3 z-20 m-0 p-0"
                     style={{ margin: 0, padding: 0 }}
@@ -161,7 +161,7 @@ const DealsPage = () => {
                     />
                 </div>
 
-                {/* Prime badge - 移到与收藏按钮相同的层级 */}
+                {/* Prime badge - moved to same level as Favorite button */}
                 {isPrime && (
                     <div
                         className="absolute top-5 left-6 sm:top-4 sm:left-5 md:top-3 md:left-4 z-20 m-0 p-0"
@@ -181,7 +181,7 @@ const DealsPage = () => {
                     <motion.div
                         className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden h-full flex flex-col max-w-[320px] mx-auto w-full"
                     >
-                        {/* 商品图片 */}
+                        {/* Product images */}
                         <div className="relative w-full aspect-[4/3] bg-white dark:bg-gray-800">
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
@@ -199,16 +199,16 @@ const DealsPage = () => {
                             </motion.div>
                         </div>
 
-                        {/* 商品信息 */}
+                        {/* Product information */}
                         <div className="p-3 flex-grow flex flex-col">
-                            {/* 品牌信息和StoreIdentifier */}
+                            {/* Brand info and StoreIdentifier */}
                             <div className="flex items-center justify-between mb-1.5">
                                 {product.brand ? (
                                     <span className="text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded inline-block">
                                         {product.brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                                     </span>
                                 ) : (
-                                    <div /> /* 占位空元素 */
+                                    <div /> /* Placeholder empty element */
                                 )}
                                 <StoreIdentifier
                                     url={productUrl}
@@ -217,12 +217,12 @@ const DealsPage = () => {
                                 />
                             </div>
 
-                            {/* 商品标题 */}
+                            {/* Product title */}
                             <h3 className="text-base font-medium line-clamp-2 mb-2 flex-grow text-primary-dark dark:text-white">
                                 {product.title.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                             </h3>
 
-                            {/* 价格和折扣 */}
+                            {/* Price and discount */}
                             <div className="flex items-center justify-between mt-1 mb-2">
                                 <div className="flex items-baseline min-w-0 overflow-hidden mr-2">
                                     <span className="text-lg font-semibold text-primary dark:text-primary-light whitespace-nowrap">
@@ -245,7 +245,7 @@ const DealsPage = () => {
                             </div>
                         </div>
 
-                        {/* 查看详情按钮 */}
+                        {/* View details button */}
                         <div className="px-3 pb-3">
                             <motion.div
                                 whileHover={{ scale: 1.03 }}
@@ -263,14 +263,14 @@ const DealsPage = () => {
 
     return (
         <div className="w-full max-w-[2000px] mx-auto px-6 py-8 relative">
-            {/* 页面顶部加载指示器 */}
+            {/* Page top loading indicator */}
             {loading && (
                 <div className="absolute top-0 left-0 w-full h-1">
                     <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse" />
                 </div>
             )}
 
-            {/* 页面标题 */}
+            {/* Page title */}
             <div className="text-center mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
                     Limited Time Deals
@@ -280,7 +280,7 @@ const DealsPage = () => {
                 </p>
             </div>
 
-            {/* 筛选器区域 */}
+            {/* Filter area */}
             <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-sm mb-6 border border-gray-100">
                 <div className="flex items-start gap-3 flex-wrap">
                     <div className="relative flex-1 min-w-[180px] max-w-[250px]">
@@ -337,36 +337,36 @@ const DealsPage = () => {
                 </div>
             </div>
 
-            {/* 错误提示 */}
+            {/* Error hint */}
             {error && (
                 <div className="text-red-500 text-center mb-4">
                     {error}
                 </div>
             )}
 
-            {/* 商品网格 */}
+            {/* Product grid */}
             <Suspense fallback={<div>Loading deals...</div>}>
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                         {[...Array(pagination.page_size)].map((_, i) => (
                             <div key={SKELETON_IDS[i]} className="relative group h-full">
                                 <div className="relative h-full flex flex-col overflow-hidden rounded-lg shadow-md bg-white animate-pulse">
-                                    {/* 图片骨架 */}
+                                    {/* Image skeleton */}
                                     <div className="relative w-full pt-[100%] bg-gray-200" />
 
-                                    {/* 内容区域骨架 */}
+                                    {/* Content area skeleton */}
                                     <div className="p-3 sm:p-4 flex-grow flex flex-col">
-                                        {/* 品牌和优惠信息 */}
+                                        {/* Brand and offer info */}
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="h-4 bg-gray-200 rounded w-1/4" />
                                             <div className="h-4 bg-gray-200 rounded w-1/5" />
                                         </div>
 
-                                        {/* 标题 */}
+                                        {/* Title */}
                                         <div className="h-5 bg-gray-200 rounded w-full mb-2" />
                                         <div className="h-5 bg-gray-200 rounded w-4/5 mb-4" />
 
-                                        {/* 价格区域 */}
+                                        {/* Price area */}
                                         <div className="mt-auto flex items-center justify-between">
                                             <div className="flex items-center gap-1">
                                                 <div className="h-6 bg-gray-200 rounded w-16" />
@@ -392,7 +392,7 @@ const DealsPage = () => {
                 )}
             </Suspense>
 
-            {/* 分页控件 - 修改条件判断 */}
+            {/* Pagination control - modify condition */}
             {!loading && deals.length > 0 && pagination.total && (
                 <Pagination
                     currentPage={pagination.page}

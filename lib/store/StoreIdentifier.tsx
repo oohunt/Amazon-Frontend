@@ -11,7 +11,7 @@ interface StoreIdentifierProps {
 }
 
 /**
- * 商店标识组件，用于显示商店图标和名称
+ * Store identifier component for displaying store icon and name
  */
 export const StoreIdentifier: React.FC<StoreIdentifierProps> = ({
     url,

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-// 导入Swiper样式
+// import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -25,7 +25,7 @@ type FeaturedDealsProps = {
     useListApi?: boolean;
 };
 
-// 工具函数：Fisher-Yates 洗牌算法
+// Utility function: Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
 
@@ -49,46 +49,46 @@ export function FeaturedDeals({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
-    // 添加一个静态变量用于存储已展示的商品ID，避免重复
+    // Adda static variable to store displayed product IDs to avoid duplicates
     const [shownProductIds] = useState(new Set<string>());
 
-    // 根据屏幕宽度动态设置商品数量
+    // Dynamically set product count based on screen width
     const [dynamicPageSize, setDynamicPageSize] = useState(pageSize);
 
     useEffect(() => {
         const handleResize = () => {
             const width = window.innerWidth;
-            const defaultPageSize = pageSize || 4; // 使用传入的pageSize或默认值4
+            const defaultPageSize = pageSize || 4; // Use passed pageSize or default value 4
 
             if (width >= 1280) { // xl
-                setDynamicPageSize(defaultPageSize); // 使用传入的pageSize或默认值
+                setDynamicPageSize(defaultPageSize); // Use passed pageSize or default
                 setIsMobile(false);
             } else if (width >= 768) { // md
-                setDynamicPageSize(3); // 平板端固定显示3个商品
+                setDynamicPageSize(3); // Fixed 3 products on tablet
                 setIsMobile(false);
-            } else { // sm及以下使用轮播
-                setDynamicPageSize(Math.min(defaultPageSize, 9)); // 移动端最多显示9个
+            } else { // Use carousel on sm and below
+                setDynamicPageSize(Math.min(defaultPageSize, 9)); // Show at most 9 on mobile
                 setIsMobile(true);
             }
         };
 
-        // 初始化
+        // Initialize
         handleResize();
 
-        // 监听窗口大小变化
+        // Listen for window size changes
         window.addEventListener('resize', handleResize);
 
         return () => window.removeEventListener('resize', handleResize);
-    }, [pageSize]); // 添加 pageSize 到依赖数组
+    }, [pageSize]); // Add pageSize to dependency array
 
-    // 使用动态pageSize获取商品数据
+    // Use dynamic pageSize to fetch product data
     useEffect(() => {
         const fetchDeals = async () => {
             try {
                 setLoading(true);
 
                 if (useListApi) {
-                    // 第一步：使用新的计数 API 获取总商品数
+                    // Step 1: Use new count API to get total product count
                     const countParams = new URLSearchParams();
 
                     if (productGroups) {
@@ -108,13 +108,13 @@ export function FeaturedDeals({
                     }
 
                     const total = countResult.data.total;
-                    const pageSize = 20; // 使用适中的页面大小
+                    const pageSize = 20; // Use moderate page size
                     const maxPage = Math.ceil(total / pageSize);
 
-                    // 生成1到maxPage之间的随机页码
+                    // Generate random page number between 1 and maxPage
                     const randomPage = Math.max(1, Math.floor(Math.random() * maxPage));
 
-                    // 第二步：使用随机页码获取商品
+                    // Step 2: Use random page number to fetch products
                     const params = new URLSearchParams({
                         page: randomPage.toString(),
                         page_size: dynamicPageSize.toString()
@@ -136,44 +136,44 @@ export function FeaturedDeals({
                         let products = result.data.items;
 
                         if (Array.isArray(products) && products.length > 0) {
-                            // 随机打乱商品数组
+                            // Randomly shuffle product array
                             products = shuffleArray(products);
 
-                            // 实现去重逻辑
+                            // Implement deduplication logic
                             if (!hideTitle) { // Today's Best Deals
-                                // 将当前商品ID存入静态集合中
+                                // Store current product ID in static set
                                 products.forEach((product: Product) => {
                                     const productId = product.asin || product.id || '';
 
                                     if (productId) shownProductIds.add(productId);
                                 });
                             } else { // Similar Products
-                                // 过滤掉已经显示过的商品
+                                // Filter out already-shown products
                                 products = products.filter((product: Product) => {
                                     const productId = product.asin || product.id || '';
 
                                     return productId && !shownProductIds.has(productId);
                                 });
 
-                                // 如果过滤后没有商品，则走兜底逻辑
+                                // If no products after filtering, use fallback logic
                                 if (products.length === 0 && productGroups) {
-                                    // 向下执行兜底逻辑
+                                    // Fall through to fallback logic
                                 } else {
-                                    // 只取需要的数量
+                                    // Take only the required count
                                     products = products.slice(0, dynamicPageSize);
                                     setDeals(products);
 
-                                    return; // 提前返回，不执行兜底逻辑
+                                    return; // Return early, skip fallback logic
                                 }
                             }
 
-                            // 只取需要的数量
+                            // Take only the required count
                             products = products.slice(0, dynamicPageSize);
                             setDeals(products);
                         } else if (productGroups) {
-                            // 兜底方案：当指定分类没有数据时，移除分类限制重新请求
+                            // Fallback: when specified category has no data, remove category restriction and re-request
 
-                            // 重新获取总数，但不指定分类
+                            // Re-fetch total count without specifying category
                             const fallbackCountResponse = await fetch('/api/products/count');
 
                             if (fallbackCountResponse.ok) {
@@ -184,13 +184,13 @@ export function FeaturedDeals({
                                     const fallbackMaxPage = Math.ceil(fallbackTotal / pageSize);
                                     const fallbackRandomPage = Math.max(1, Math.floor(Math.random() * fallbackMaxPage));
 
-                                    // 不带分类的请求参数
+                                    // Request parameters without category
                                     const fallbackParams = new URLSearchParams({
                                         page: fallbackRandomPage.toString(),
                                         page_size: dynamicPageSize.toString()
                                     });
 
-                                    // 获取兜底商品数据
+                                    // Get fallback product data
                                     const fallbackResponse = await fetch(`/api/products/list?${fallbackParams.toString()}`);
 
                                     if (fallbackResponse.ok) {
@@ -199,16 +199,16 @@ export function FeaturedDeals({
                                         if (fallbackResult.success && fallbackResult.data.items.length > 0) {
                                             let fallbackProducts = shuffleArray(fallbackResult.data.items) as Product[];
 
-                                            // 过滤掉已经在Today's Best Deals中显示的商品
-                                            if (!hideTitle) { // hideTitle=false表示是Today's Best Deals
-                                                // 将当前商品ID存入静态集合中
+                                            // Filter out products already shown in Today's Best Deals
+                                            if (!hideTitle) { // hideTitle=false indicates Today's Best Deals
+                                                // Store current product ID in static set
                                                 fallbackProducts.forEach((product: Product) => {
                                                     const productId = product.asin || product.id || '';
 
                                                     if (productId) shownProductIds.add(productId);
                                                 });
-                                            } else { // hideTitle=true表示是Similar Products
-                                                // 过滤掉已经显示过的商品
+                                            } else { // hideTitle=true indicates Similar Products
+                                                // Filter out already-shown products
                                                 fallbackProducts = fallbackProducts.filter((product: Product) => {
                                                     const productId = product.asin || product.id || '';
 
@@ -216,34 +216,34 @@ export function FeaturedDeals({
                                                 });
                                             }
 
-                                            // 固定显示4个商品的兜底数据，无论父组件传入的pageSize是多少
+                                            // Fixed fallback data showing 4 products regardless of parent's pageSize
                                             setDeals(fallbackProducts.slice(0, 4));
                                         } else {
                                             setDeals([]);
-                                            setError('没有找到商品数据');
+                                            setError('No product data found');
                                         }
                                     } else {
                                         setDeals([]);
-                                        setError('获取兜底商品数据失败');
+                                        setError('Failed to get fallback product data');
                                     }
                                 } else {
                                     setDeals([]);
-                                    setError('获取兜底商品总数失败');
+                                    setError('Failed to get fallback product count');
                                 }
                             } else {
                                 setDeals([]);
-                                setError('兜底请求失败');
+                                setError('Fallback request failed');
                             }
                         } else {
                             setDeals([]);
-                            setError(result.error || '当前无可用商品');
+                            setError(result.error || 'No products currently available');
                         }
                     } else {
                         setDeals([]);
                         setError(result.error || 'No deals available at the moment');
                     }
                 } else {
-                    // 原有的 featured API 逻辑
+                    // Original featured API logic
                     const params = new URLSearchParams({
                         page_size: dynamicPageSize.toString()
                     });
@@ -293,7 +293,7 @@ export function FeaturedDeals({
         visible: { y: 0, opacity: 1 }
     };
 
-    // 渲染单个商品卡片的函数
+    // Function to render individual product card
     const renderProductCard = (deal: Product, index: number) => {
         try {
             // Get main offer information
@@ -319,7 +319,7 @@ export function FeaturedDeals({
             const isPrime = mainOffer?.is_prime || false;
             const title = deal.title || 'Product title not available';
 
-            // 获取产品链接URL
+            // Get product linkURL
             const productUrl = deal.url || deal.cj_url || '';
 
             return (
@@ -329,7 +329,7 @@ export function FeaturedDeals({
                     custom={index}
                     className="relative w-full"
                 >
-                    {/* 收藏按钮 - 添加在商品卡片外部，确保它可以接收单独的点击事件 */}
+                    {/* Favorite button — added outside the product card to receive independent click events */}
                     <div
                         className="absolute top-3 right-3 z-20"
                         onClick={(e) => e.stopPropagation()}
@@ -363,7 +363,7 @@ export function FeaturedDeals({
                                     </motion.div>
                                 </div>
                             )}
-                            {/* 优惠券标签 - 显示在右上角 
+                            {/* Coupon label - displayed in top right 
                                <div className="absolute top-3 right-12 z-10">
                                 {hasCoupon && (
                                     <motion.div
@@ -405,14 +405,14 @@ export function FeaturedDeals({
 
                             {/* Product information */}
                             <div className="p-3 flex-grow flex flex-col">
-                                {/* 品牌信息和StoreIdentifier放在同一行 */}
+                                {/* Brand info and StoreIdentifier on same line */}
                                 <div className="flex items-center justify-between mb-1.5">
                                     {deal.brand ? (
                                         <span className="text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded inline-block">
                                             {deal.brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                                         </span>
                                     ) : (
-                                        <div /> /* 占位空元素，确保右对齐 */
+                                        <div /> /* Placeholder empty element to ensure right alignment */
                                     )}
                                     <StoreIdentifier
                                         url={productUrl}
@@ -502,7 +502,7 @@ export function FeaturedDeals({
             initial="hidden"
             animate="visible"
         >
-            {/* 标题区域：标题左对齐，右侧添加"See All"链接 */}
+            {/* Title area: title left-aligned, 'See All' link on the right */}
             {!hideTitle && (
                 <div className="flex items-center justify-between mb-3">
                     <motion.h2
@@ -537,13 +537,13 @@ export function FeaturedDeals({
                 </div>
             )}
 
-            {/* 移动端使用Swiper轮播 */}
+            {/* Use Swiper carousel on mobile */}
             {isMobile ? (
                 <div className="-mx-2 sm:-mx-3">
                     <ProductSwiper products={deals} />
                 </div>
             ) : (
-                // 大屏幕使用网格布局
+                // Use grid layout on large screens
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {deals.slice(0, dynamicPageSize).map((deal, index) => renderProductCard(deal, index)).filter(Boolean)}
                 </div>

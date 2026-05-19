@@ -164,37 +164,6 @@ const HARAM_KEYWORDS: Record<string, string[]> = {
     "god figurine", "goddess figurine", "religious icon",
   ],
 
-  // ── 10. Haram clothing & immodest apparel ────────────────────────────────
-  clothing: [
-    // Revealing swimwear
-    "bikini", "bikini top", "bikini bottom", "bikini set",
-    "thong swimsuit", "micro bikini", "string bikini", "bandeau bikini",
-    "monokini", "tankini", "trikini",
-    // Immodest underwear
-    "thong underwear", "g-string", "g string underwear", "tanga",
-    "crotchless", "see-through underwear", "sheer underwear",
-    "barely there", "micro thong",
-    // Lingerie & nightwear (immodest)
-    "lingerie", "babydoll lingerie", "corset lingerie", "chemise lingerie",
-    "negligee", "camisole set sexy", "teddy lingerie", "bustier",
-    "sexy nightgown", "sheer nightwear", "lace teddy",
-    // Revealing tops & dresses
-    "crop top", "belly shirt", "tube top", "boob tube",
-    "backless dress", "strapless mini", "mini skirt", "micro skirt",
-    "micro mini", "bodycon dress", "see-through dress", "sheer dress",
-    "cutout dress", "plunge neckline", "deep v dress", "low cut dress",
-    "off shoulder mini",
-    // Cross-dressing
-    "crossdresser", "cross-dresser", "drag queen", "sissy dress",
-    "men's lingerie", "men's skirt", "male corset",
-    // Immodest costumes
-    "sexy costume", "sexy halloween", "sexy nurse", "sexy cop",
-    "sexy devil", "sexy angel", "sexy schoolgirl", "sexy maid",
-    "playboy bunny costume", "bunny costume adult",
-    // Silk for men (forbidden in Islam)
-    "men's silk robe", "mens silk pajamas", "men silk shirt",
-    "men's silk underwear", "men silk kimono",
-  ],
 
   // ── 11. Statues & figurines of living beings ─────────────────────────────
   statues: [

@@ -18,7 +18,7 @@ async function getPages(): Promise<PageData[]> {
 
         const json = await res.json();
 
-        // 添加这行来在服务器终端打印数据
+        // Add this line to print data in the server terminal
 
         if (json.status && json.data) {
             return json.data as PageData[];
@@ -107,7 +107,7 @@ export default async function BlogList() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {pages.map((page) => {
-                            // 确保优先使用featuredImage字段作为封面图片
+                            // Prefer the featuredImage field as the cover image
                             const imageUrl = page.featuredImage || page.seoData?.ogImage;
 
                             return (

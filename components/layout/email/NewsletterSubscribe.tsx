@@ -52,7 +52,7 @@ export function NewsletterSubscribe({ compact = false }: NewsletterSubscribeProp
         try {
             setStatus('loading');
 
-            // 发送到我们的API端点
+            // Send to our API endpoint
             const response = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: {
@@ -67,17 +67,17 @@ export function NewsletterSubscribe({ compact = false }: NewsletterSubscribeProp
                 throw new Error(data.message || 'Subscription failed');
             }
 
-            // 成功处理
+            // SuccessHandle
             setStatus('success');
-            setEmail(''); // 清空输入
+            setEmail(''); // Clear input
         } catch (error) {
-            // 错误处理
+            // Error handling
             setStatus('error');
             setErrorMessage(error instanceof Error ? error.message : 'Subscription failed, please try again later');
         }
     };
 
-    // 紧凑版本的组件，用于产品页面
+    // Compact version of component for product pages
     if (compact) {
         return (
             <div className="bg-transparent">
@@ -147,7 +147,7 @@ export function NewsletterSubscribe({ compact = false }: NewsletterSubscribeProp
         );
     }
 
-    // 原始完整版，用于其他页面
+    // Original full version, used for other pages
     return (
         <div className="bg-gradient-to-br from-[#1A5276] to-[#154360] rounded-xl shadow-lg overflow-hidden">
             {/* Inner content container with semi-transparent overlay */}

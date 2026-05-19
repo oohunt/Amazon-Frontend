@@ -9,7 +9,7 @@ interface ErrorMessageProps {
 }
 
 export default function ErrorMessage({
-    message = "加载数据时出错",
+    message = "Error loading data",
     details,
     onRetry
 }: ErrorMessageProps) {
@@ -45,11 +45,11 @@ export default function ErrorMessage({
                     onClick={onRetry}
                     className="px-6 py-3 bg-primary text-white rounded-full shadow-md hover:shadow-lg transition-all"
                 >
-                    重试
+                    Retry
                 </motion.button>
             )}
             <p className="mt-6 text-sm text-gray-400">
-                如果问题持续，请检查网络连接或稍后再试
+                If the problem persists, check your network connection or try again later
             </p>
         </motion.div>
     );

@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import type { ContentPageUpdateRequest } from '@/types/cms';
 
-// 获取单个内容页面
+// Get a single content page
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -16,32 +16,32 @@ export async function GET(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的页面ID'
+                    message: 'Invalid page ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_pages');
 
-        // 查询页面
+        // Query the page
         const page = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!page) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到页面'
+                    message: 'Page not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 转换格式
+        // Format data
         const formattedPage = {
             ...page,
             _id: page._id.toString(),
@@ -60,15 +60,15 @@ export async function GET(
         return NextResponse.json(
             {
                 status: false,
-                message: '获取页面失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get page, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 更新内容页面
+// Update content page
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -81,32 +81,32 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的页面ID'
+                    message: 'Invalid page ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_pages');
 
-        // 检查页面是否存在
+        // Check if the page exists
         const existingPage = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!existingPage) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到页面'
+                    message: 'Page not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 如果更新了slug，检查它是否与其他页面冲突
+        // If the slug was updated, check for conflicts with other pages
         if (body.slug && body.slug !== existingPage.slug) {
             const slugExists = await collection.findOne({
                 slug: body.slug,
@@ -117,25 +117,25 @@ export async function PUT(
                 return NextResponse.json(
                     {
                         status: false,
-                        message: '该URL路径已被使用，请选择其他路径'
+                        message: 'This URL path is already in use, please choose a different one'
                     },
                     { status: 400 }
                 );
             }
         }
 
-        // 构建更新数据
+        // Build update data
         const updateData = {
             ...body,
             updatedAt: new Date()
         };
 
-        // 如果状态变为已发布且未指定发布日期，则添加当前时间作为发布日期
+        // If status changes to published and no publish date is specified, add the current time as the publish date
         if (body.status === 'published' && body.publishedAt === undefined && existingPage.status !== 'published') {
             updateData.publishedAt = new Date();
         }
 
-        // 更新数据
+        // Update data
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             { $set: updateData }
@@ -145,16 +145,16 @@ export async function PUT(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到页面'
+                    message: 'Page not found'
                 },
                 { status: 404 }
             );
         }
 
-        // 获取更新后的页面
+        // Get the updated page
         const updatedPage = await collection.findOne({ _id: new ObjectId(id) });
 
-        // 转换格式
+        // Format data
         const formattedPage = {
             ...updatedPage,
             _id: updatedPage?._id.toString(),
@@ -166,7 +166,7 @@ export async function PUT(
         return NextResponse.json({
             status: 200,
             success: true,
-            message: '页面更新成功',
+            message: 'Page updated successfully',
             data: formattedPage
         });
     } catch (error) {
@@ -174,15 +174,15 @@ export async function PUT(
         return NextResponse.json(
             {
                 status: false,
-                message: '更新页面失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to update page, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 删除内容页面
+// Delete content page
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -194,26 +194,26 @@ export async function DELETE(
             return NextResponse.json(
                 {
                     status: false,
-                    message: '无效的页面ID'
+                    message: 'Invalid page ID'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_pages');
 
-        // 删除页面
+        // Delete the page
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到页面或删除失败'
+                    message: 'Page not found or deletion failed'
                 },
                 { status: 404 }
             );
@@ -222,15 +222,15 @@ export async function DELETE(
         return NextResponse.json({
             status: 200,
             success: true,
-            message: '页面删除成功'
+            message: 'Page deleted successfully'
         });
     } catch (error) {
 
         return NextResponse.json(
             {
                 status: false,
-                message: '删除页面失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to delete page, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

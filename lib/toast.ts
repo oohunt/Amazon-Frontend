@@ -1,6 +1,6 @@
 import { addToast, type ToastProps } from "@heroui/react";
 /**
- * 成功提示样式
+ * Success toast style
  */
 const successToastStyles = {
     base: 'bg-green-500 rounded-lg shadow-md',
@@ -11,7 +11,7 @@ const successToastStyles = {
 };
 
 /**
- * 错误提示样式
+ * Error hint styles
  */
 const errorToastStyles = {
     base: 'bg-red-500 rounded-lg shadow-md',
@@ -22,7 +22,7 @@ const errorToastStyles = {
 };
 
 /**
- * 警告提示样式
+ * Warning toast style
  */
 const warningToastStyles = {
     base: 'bg-yellow-500 rounded-lg shadow-md',
@@ -33,7 +33,7 @@ const warningToastStyles = {
 };
 
 /**
- * 信息提示样式
+ * Info toast style
  */
 const infoToastStyles = {
     base: 'bg-blue-500 rounded-lg shadow-md',
@@ -44,7 +44,7 @@ const infoToastStyles = {
 };
 
 /**
- * 默认超时设置
+ * Default timeout setting
  */
 const DEFAULT_TIMEOUT = {
     success: 5000,
@@ -54,7 +54,7 @@ const DEFAULT_TIMEOUT = {
 };
 
 /**
- * Toast配置类型
+ * Toast configuration type
  */
 type ToastConfig = {
     title: string;
@@ -65,8 +65,8 @@ type ToastConfig = {
 };
 
 /**
- * 显示成功提示
- * @param config Toast配置
+ * Show success toast
+ * @param config ToastConfigure
  */
 export const showSuccessToast = (config: ToastConfig) => {
     addToast({
@@ -80,8 +80,8 @@ export const showSuccessToast = (config: ToastConfig) => {
 };
 
 /**
- * 显示错误提示
- * @param config Toast配置
+ * Show error toast
+ * @param config ToastConfigure
  */
 export const showErrorToast = (config: ToastConfig) => {
     addToast({
@@ -95,8 +95,8 @@ export const showErrorToast = (config: ToastConfig) => {
 };
 
 /**
- * 显示警告提示
- * @param config Toast配置
+ * Show warning toast
+ * @param config ToastConfigure
  */
 export const showWarningToast = (config: ToastConfig) => {
     addToast({
@@ -110,8 +110,8 @@ export const showWarningToast = (config: ToastConfig) => {
 };
 
 /**
- * 显示信息提示
- * @param config Toast配置
+ * Show info toast
+ * @param config ToastConfigure
  */
 export const showInfoToast = (config: ToastConfig) => {
     addToast({
@@ -125,9 +125,9 @@ export const showInfoToast = (config: ToastConfig) => {
 };
 
 /**
- * 根据类型显示提示
- * @param config Toast配置
- * @param type 提示类型
+ * Show toast based on type
+ * @param config ToastConfigure
+ * @param type Toast type
  */
 export const showToast = (
     config: ToastConfig,

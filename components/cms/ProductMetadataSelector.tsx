@@ -35,7 +35,7 @@ export function ProductMetadataSelector({
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTab, setSelectedTab] = useState('basic');
 
-    // 过滤字段
+    // Filter fields
     const filteredFields = useMemo(() => {
         const query = searchQuery.toLowerCase();
 
@@ -60,13 +60,13 @@ export function ProductMetadataSelector({
         return result;
     }, [searchQuery]);
 
-    // 处理字段选择
+    // Handle field selection
     const handleFieldSelect = (fieldId: string) => {
         onSelect(fieldId);
         onClose();
     };
 
-    // 修改渲染部分，使用类型安全的字段访问
+    // Modify rendering to use type-safe field access
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const renderFieldValue = (field: { id: string; render: (value: any) => string }, value: any) => {
         try {
@@ -76,7 +76,7 @@ export function ProductMetadataSelector({
         }
     };
 
-    // 如果没有产品，显示提示信息
+    // If no products, show toast message
     if (!product) {
         return (
             <Modal
@@ -127,7 +127,7 @@ export function ProductMetadataSelector({
                 </ModalHeader>
 
                 <ModalBody>
-                    {/* 搜索框 */}
+                    {/* Search box */}
                     <div className="relative mb-4">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <Input
@@ -138,7 +138,7 @@ export function ProductMetadataSelector({
                         />
                     </div>
 
-                    {/* 选项卡 */}
+                    {/* Tabs */}
                     <Tabs selectedKey={selectedTab} onSelectionChange={key => setSelectedTab(key as string)}>
                         <Tab key="basic" title="Basic Info">
                             <ScrollShadow className="h-[300px]">

@@ -7,10 +7,10 @@ import type { ComponentProduct } from '@/types';
 import type { Product } from '@/types/api';
 
 /**
- * 格式化价格为货币显示格式
- * @param price 价格数值
- * @param currency 货币代码，默认USD
- * @returns 格式化后的价格字符串
+ * Format price as currency display
+ * @param price Price value
+ * @param currency Currency code, defaults to USD
+ * @returns Formatted price string
  */
 export function formatPrice(price: number, currency: string = 'USD'): string {
     return new Intl.NumberFormat('en-US', {
@@ -21,10 +21,10 @@ export function formatPrice(price: number, currency: string = 'USD'): string {
 }
 
 /**
- * 计算折扣百分比
- * @param originalPrice 原价
- * @param currentPrice 现价
- * @returns 折扣百分比
+ * Calculate discount percentage
+ * @param originalPrice Original price
+ * @param currentPrice Current price
+ * @returns Discount percentage
  */
 export function calculateDiscount(originalPrice: number, currentPrice: number): number {
     if (originalPrice <= 0 || currentPrice >= originalPrice) return 0;
@@ -33,10 +33,10 @@ export function calculateDiscount(originalPrice: number, currentPrice: number): 
 }
 
 /**
- * 截断文本
- * @param text 原文本
- * @param maxLength 最大长度
- * @returns 截断后的文本
+ * Truncate text
+ * @param text Original text
+ * @param maxLength Maximum length
+ * @returns Truncated text
  */
 export function truncateText(text: string, maxLength: number): string {
     if (text.length <= maxLength) return text;
@@ -45,9 +45,9 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 /**
- * 格式化日期
- * @param date 日期对象或时间戳
- * @returns 格式化后的日期字符串
+ * Format date
+ * @param date Date object or timestamp
+ * @returns Formatted date string
  */
 export function formatDate(date: Date | number): string {
     return new Intl.DateTimeFormat('zh-CN', {
@@ -60,10 +60,10 @@ export function formatDate(date: Date | number): string {
 }
 
 /**
- * 格式化UTC时间字符串为用户本地时区显示
- * @param utcDateString UTC时间的ISO字符串
- * @param options 格式化选项
- * @returns 格式化后的本地时间字符串
+ * Format UTC time string for display in user's local timezone
+ * @param utcDateString ISO string in UTC time
+ * @param options Formatting options
+ * @returns Formatted local time string
  */
 export function formatUTCDateToLocal(
     utcDateString: string | null | undefined,
@@ -93,27 +93,27 @@ export function formatUTCDateToLocal(
 }
 
 /**
- * 获取当前UTC时间的ISO字符串
- * @returns UTC时间的ISO字符串
+ * Get current UTC time as ISO string
+ * @returns ISO string in UTC time
  */
 export function getCurrentUTCTimeString(): string {
     return new Date().toISOString();
 }
 
 /**
- * 生成随机ID
- * @param length ID长度
- * @returns 随机ID字符串
+ * Generate random ID
+ * @param length ID length
+ * @returns Random ID string
  */
 export function generateId(length: number = 8): string {
     return Math.random().toString(36).substring(2, length + 2);
 }
 
 /**
- * 防抖函数
- * @param func 要执行的函数
- * @param wait 等待时间
- * @returns 防抖后的函数
+ * Debounce function
+ * @param func Function to execute
+ * @param wait Wait time
+ * @returns Debounced function
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
     func: T,
@@ -133,10 +133,10 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * 节流函数
- * @param func 要执行的函数
- * @param limit 时间限制
- * @returns 节流后的函数
+ * Throttle function
+ * @param func Function to execute
+ * @param limit Time limit
+ * @returns Throttled function
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
     func: T,
@@ -154,9 +154,9 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * 适配API产品数据为前端组件格式
- * @param apiProducts API返回的产品数据
- * @returns 适配后的产品数据
+ * Adapt API product data to frontend component format
+ * @param apiProducts Product data returned from the API
+ * @returns Adapted product data
  */
 export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
     if (!apiProducts) {
@@ -164,7 +164,7 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
     }
 
     if (!Array.isArray(apiProducts)) {
-        // 如果是单个对象，尝试包装为数组
+        // If single object, try wrapping in array
         if (apiProducts && typeof apiProducts === 'object') {
             return adaptProducts([apiProducts as unknown as Product]);
         }
@@ -176,7 +176,7 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
         if (!p) {
             return {
                 id: 'unknown',
-                title: '未知商品',
+                title: 'Unknown product',
                 price: 0,
                 originalPrice: 0,
                 discount: 0,
@@ -186,50 +186,50 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
         }
 
         try {
-            // 获取主要优惠信息
+            // Get main offer info
             const mainOffer = p.offers && p.offers.length > 0 ? p.offers[0] : null;
 
-            // 获取价格信息
+            // Get price info
             const price = mainOffer ? mainOffer.price : (p.price || 0);
 
-            // 直接使用API返回的original_price字段
+            // Use original_price field returned by API directly
             let originalPrice = p.original_price || price;
             let discount = 0;
 
-            // 优先使用API返回的savings_percentage作为折扣率
+            // Prefer savings_percentage returned by API as discount rate
             if (mainOffer && mainOffer.savings_percentage) {
                 discount = mainOffer.savings_percentage;
-                // 如果没有原价但有折扣率，根据折扣率计算原价
+                // If no original price but has discount rate, calculate original price from discount rate
                 if (originalPrice === price && discount > 0) {
                     originalPrice = Math.round(price / (1 - discount / 100) * 100) / 100;
                 }
             }
-            // 如果有original_price，计算折扣
+            // If original_price exists, calculate discount
             else if (p.original_price && p.original_price > price) {
                 discount = calculateDiscount(p.original_price, price);
             }
-            // 如果没有original_price但有discount_rate，使用discount_rate
+            // If no original_price but has discount_rate, use discount_rate
             else if (p.discount_rate) {
                 discount = p.discount_rate;
-                // 如果原价和当前价格相同，根据折扣率计算原价
+                // If original price equals current price, calculate original price from discount rate
                 if (originalPrice === price && discount > 0) {
                     originalPrice = Math.round(price / (1 - discount / 100) * 100) / 100;
                 }
             }
-            // 如果有优惠信息，但没有原价和折扣率
+            // If offer info exists but no original price or discount rate
             else if (mainOffer) {
                 if (mainOffer.savings) {
                     originalPrice = price + mainOffer.savings;
-                    // 计算折扣百分比
+                    // Calculate discount percentage
                     discount = Math.round((mainOffer.savings / originalPrice) * 100);
                 }
             }
 
-            // 获取优惠券信息
+            // Get coupon info
             const couponValue = mainOffer?.coupon_value || 0;
             const couponType = mainOffer?.coupon_type || null;
 
-            // 获取图片URL，处理不同的字段名
+            // Get image URL, handle different field names
             const imageUrl = p.main_image || p.image_url || (p as { image?: string }).image || '/placeholder-product.jpg';
 
             return {
@@ -249,7 +249,7 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
                 isPrime: mainOffer?.is_prime || false,
                 isFreeShipping: mainOffer?.is_free_shipping_eligible || false,
                 isAmazonFulfilled: mainOffer?.is_amazon_fulfilled || false,
-                availability: mainOffer?.availability || '无库存',
+                availability: mainOffer?.availability || 'Out of stock',
                 couponValue: couponValue,
                 couponType: couponType,
                 apiProvider: p.api_provider,
@@ -258,10 +258,10 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
                 source: p.source || null
             };
         } catch {
-            // 返回基本信息
+            // return basic information
             return {
                 id: p.asin || p.id || 'error',
-                title: p.title || '数据处理错误',
+                title: p.title || 'Data processing error',
                 price: p.price || 0,
                 originalPrice: p.original_price || p.price || 0,
                 discount: 0,
@@ -273,17 +273,17 @@ export function adaptProducts(apiProducts: Product[]): ComponentProduct[] {
 }
 
 /**
- * 根据文本生成URL slug
- * @param text 要转换的文本
- * @returns 生成的slug
+ * Generate URL slug from text
+ * @param text Text to convert
+ * @returns Generated slug
  */
 export function generateSlug(text: string): string {
     return text
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s-]/g, '') // 移除非单词/空格/连字符的字符
-        .replace(/[\s_-]+/g, '-') // 将空格、下划线和连字符替换为单个连字符
-        .replace(/^-+|-+$/g, ''); // 移除开头和结尾的连字符
+        .replace(/[^\w\s-]/g, '') // Remove non-word/non-space/non-hyphen characters
+        .replace(/[\s_-]+/g, '-') // Replace spaces, underscores, and hyphens with a single hyphen
+        .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
 }
 
 export function cn(...inputs: ClassValue[]) {

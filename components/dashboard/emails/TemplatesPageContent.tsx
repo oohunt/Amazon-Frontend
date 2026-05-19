@@ -9,26 +9,26 @@ import { EMAIL_TEMPLATE_TYPES, type EmailTemplateType } from '@/lib/email/email-
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 
-// 引入CSS - 确保在编辑和预览中都能正确显示样式
+// Import CSS — ensure styles display correctly in both edit and preview
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 
-// 内联样式 - 确保只显示一个工具栏
+// Inline styles — ensure only one toolbar is shown
 const inlineStyles = `
 .ql-toolbar.ql-snow + .ql-toolbar.ql-snow {
   display: none !important;
 }
 `;
 
-// 动态导入QuillEditor组件，避免服务器端渲染错误
+// Dynamically import QuillEditor component to avoid SSR errors
 const QuillEditor = dynamic(
     async () => {
         const { default: Quill } = await import('quill');
 
-        // 创建一个用于清理ID的辅助函数，确保生成的ID可用于CSS选择器
+        // create a helper function to clean IDs, ensuring they can be used as CSS selectors
         const sanitizeId = (id: string): string => {
-            // 移除ID中所有特殊字符，仅保留字母、数字和连字符
+            // remove all special characters from ID, keep only letters, numbers, and hyphens
             return `quill-${id.replace(/[^a-zA-Z0-9-]/g, "")}`;
         };
 
@@ -55,15 +55,15 @@ const QuillEditor = dynamic(
         }) => {
             const editorRef = useRef<HTMLDivElement>(null);
             const quillInstance = useRef<Quill | null>(null);
-            // 确保ID是安全的CSS选择器
+            // Ensure ID is a safe CSS selector
             const safeId = sanitizeId(id);
-            // 添加初始化标记，确保只初始化一次
+            // Addinitialization flag to ensure only initialized once
             const isInitialized = useRef(false);
 
             useEffect(() => {
-                // 检查编辑器是否已经初始化，避免重复创建实例
+                // Check if editor is already initialized to avoid creating duplicate instances
                 if (editorRef.current && !isInitialized.current) {
-                    // 检查DOM元素是否已经有Quill类，避免重复初始化
+                    // Check if DOM element already has Quill class to avoid re-initialization
                     if (editorRef.current.classList.contains('ql-container')) {
                         return;
                     }
@@ -71,7 +71,7 @@ const QuillEditor = dynamic(
                     isInitialized.current = true;
 
                     try {
-                        // 直接使用传入的modules配置，不做额外处理
+                        // Use passed modules configuration directly without extra processing
                         quillInstance.current = new Quill(editorRef.current, {
                             modules,
                             placeholder,
@@ -79,19 +79,19 @@ const QuillEditor = dynamic(
                             formats
                         });
 
-                        // 设置初始内容
+                        // Set initial content
                         if (value) {
                             quillInstance.current.clipboard.dangerouslyPasteHTML(value);
                         }
 
-                        // 监听内容变化事件
+                        // Listen for content change events
                         quillInstance.current.on('text-change', () => {
                             const html = editorRef.current?.querySelector('.ql-editor')?.innerHTML || '';
 
                             onChange(html);
                         });
 
-                        // 向父组件提供Quill实例
+                        // Provide Quill instance to parent component
                         if (onEditorReady) {
                             onEditorReady(quillInstance.current);
                         }
@@ -100,7 +100,7 @@ const QuillEditor = dynamic(
                     }
                 }
 
-                // 清理函数
+                // Cleanup function
                 return () => {
                     if (quillInstance.current) {
                         try {
@@ -115,7 +115,7 @@ const QuillEditor = dynamic(
                 // eslint-disable-next-line react-hooks/exhaustive-deps
             }, []);
 
-            // 当value通过props更新时同步内容
+            // Sync content when value updates via props
             useEffect(() => {
                 if (quillInstance.current && value) {
                     const currentContent = editorRef.current?.querySelector('.ql-editor')?.innerHTML;
@@ -143,7 +143,7 @@ const QuillEditor = dynamic(
     }
 );
 
-// 模板类型定义
+// Template type definition
 interface EmailTemplate {
     id: string;
     templateId: string;
@@ -158,7 +158,7 @@ interface EmailTemplate {
     createdAt: string;
 }
 
-// 空白模板
+// Blank template
 const EMPTY_TEMPLATE: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'> = {
     templateId: '',
     name: '',
@@ -170,49 +170,49 @@ const EMPTY_TEMPLATE: Omit<EmailTemplate, 'id' | 'createdAt' | 'updatedAt'> = {
     isActive: true,
 };
 
-// 富文本编辑器支持的格式
+// Formats supported by rich text editor
 const EDITOR_FORMATS = [
-    // 内联格式
+    // Inline formatting
     'background', 'bold', 'color', 'font', 'code', 'italic', 'link',
     'size', 'strike', 'script', 'underline',
 
-    // 块级格式
+    // Block formatting
     'blockquote', 'header', 'indent', 'list', 'align', 'direction', 'code-block',
 
-    // 嵌入格式
+    // Embed format
     'formula', 'image', 'video'
 ];
 
-// 编辑器的默认配置
+// editor default configuration
 const DEFAULT_QUILL_MODULES = {
     toolbar: [
-        // 字体相关
+        // Font-related
         [{ 'font': [] }],
         [{ 'size': ['small', false, 'large', 'huge'] }],
 
-        // 文本格式化
+        // Text formatting
         ['bold', 'italic', 'underline', 'strike'],
         [{ 'script': 'sub' }, { 'script': 'super' }],
         ['blockquote', 'code-block'],
 
-        // 颜色相关
+        // Color-related
         [{ 'color': [] }, { 'background': [] }],
 
-        // 文本对齐和方向
+        // Text alignment and direction
         [{ 'align': [] }],
         [{ 'direction': 'rtl' }],
 
-        // 列表和缩进
+        // Lists and indentation
         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
         [{ 'indent': '-1' }, { 'indent': '+1' }],
 
-        // 标题
+        // Title
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
 
-        // 链接、图片、视频和公式
+        // Links, images, videos and formulas
         ['link', 'image', 'video', 'formula'],
 
-        // 清除格式
+        // Clear formatting
         ['clean']
     ],
     history: {
@@ -222,9 +222,9 @@ const DEFAULT_QUILL_MODULES = {
     }
 };
 
-// 主组件
+// Main component
 const TemplatesPageContent = () => {
-    // 状态管理
+    // State management
     const [templates, setTemplates] = useState<EmailTemplate[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -237,21 +237,21 @@ const TemplatesPageContent = () => {
     const activeQuillInstance = useRef<Quill | null>(null);
     const [uploadLoading, setUploadLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    // 添加HTML代码编辑模式状态变量
+    // AddHTML code edit mode status variable
     const [isHtmlMode, setIsHtmlMode] = useState(false);
-    // 删除功能的状态管理
+    // status management for delete functionality
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [templateToDelete, setTemplateToDelete] = useState<EmailTemplate | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // 变量选择器选项
+    // Variable selector options
     const availableVariables = [
         { label: 'Email Address', value: '{{email}}' },
         { label: 'Date', value: '{{date}}' },
         { label: 'Name', value: '{{name}}' },
     ];
 
-    // 模板类型选项
+    // Template type options
     const templateTypeOptions = [
         { value: EMAIL_TEMPLATE_TYPES.SUBSCRIPTION_CONFIRMATION, label: 'Subscription Confirmation Email' },
         { value: EMAIL_TEMPLATE_TYPES.USER_REGISTRATION, label: 'User Registration Email' },
@@ -259,12 +259,12 @@ const TemplatesPageContent = () => {
         { value: EMAIL_TEMPLATE_TYPES.ORDER_CONFIRMATION, label: 'Order Confirmation Email' },
     ];
 
-    // 加载模板列表
+    // Load template list
     useEffect(() => {
         fetchTemplates();
     }, []);
 
-    // 获取模板数据
+    // Get template data
     const fetchTemplates = async () => {
         try {
             setIsLoading(true);
@@ -285,7 +285,7 @@ const TemplatesPageContent = () => {
         }
     };
 
-    // 获取单个模板详情
+    // Get single template details
     const fetchTemplateDetails = async (id: string) => {
         try {
             setIsLoading(true);
@@ -321,36 +321,36 @@ const TemplatesPageContent = () => {
         }
     };
 
-    // 保存模板
+    // save template
     const saveTemplate = async () => {
         try {
             setIsLoading(true);
 
-            // 根据当前编辑模式获取内容
+            // Get content based on current edit mode
             let htmlContent = editorContent;
 
-            // 如果是富文本模式，从Quill实例获取内容
+            // If in rich text mode, get content from Quill instance
             if (!isHtmlMode && activeQuillInstance.current) {
                 htmlContent = activeQuillInstance.current.root.innerHTML;
             }
-            // 如果是HTML代码模式，直接使用editorContent
+            // If in HTML code mode, use editorContent directly
 
-            // 验证编辑器内容是否为空
+            // Validate if editor content is empty
             if (!htmlContent || htmlContent.trim() === '') {
                 throw new Error('Email content cannot be empty');
             }
 
-            // 确保表单数据完整
+            // Ensure form data is complete
             if (!formData.name || !formData.templateId || !formData.subject || !formData.fromName || !formData.fromEmail) {
                 throw new Error('Please fill in all required fields');
             }
 
-            // 验证类型字段是否是有效的枚举值
+            // Validate if type field is a valid enum value
             if (!Object.values(EMAIL_TEMPLATE_TYPES).includes(formData.type as EmailTemplateType)) {
                 throw new Error('Please select a valid template type');
             }
 
-            // 更新完整表单数据 - 使用最终的HTML内容
+            // update complete form data — use final HTML content
             const updatedData = {
                 ...formData,
                 htmlContent: htmlContent
@@ -360,7 +360,7 @@ const TemplatesPageContent = () => {
             let successMessage;
 
             if (isCreatingNew) {
-                // 创建新模板
+                // create new template
                 response = await fetch('/api/email-templates', {
                     method: 'POST',
                     headers: {
@@ -370,7 +370,7 @@ const TemplatesPageContent = () => {
                 });
                 successMessage = "Email template has been created successfully";
             } else {
-                // 更新现有模板
+                // update existing template
                 if (!selectedTemplate) return;
 
                 response = await fetch(`/api/email-templates/${selectedTemplate.id}`, {
@@ -389,31 +389,31 @@ const TemplatesPageContent = () => {
                 throw new Error(data.message || 'Failed to save template');
             }
 
-            // 更新成功提示
+            // update success notification
             showSuccessToast({
                 title: "Save Successful",
                 description: successMessage,
             });
 
-            // 刷新数据
+            // refresh data
             await fetchTemplates();
 
-            // 如果是新创建的模板，则获取其ID并加载详情
+            // If newly created template, get its ID and load details
             if (isCreatingNew && data.data && data.data.id) {
-                // 添加短暂延迟以确保API端完成数据更新
+                // Addbrief delay to ensure API completes data update
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 await fetchTemplateDetails(data.data.id);
                 setIsCreatingNew(false);
             } else if (selectedTemplate) {
-                // 添加短暂延迟以确保API端完成数据更新
+                // Addbrief delay to ensure API completes data update
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 await fetchTemplateDetails(selectedTemplate.id);
             }
 
-            // 退出编辑模式
+            // Exit edit mode
             setIsEditing(false);
         } catch (error) {
-            // 获取更详细的错误信息
+            // Get more detailed error message
             let errorMessage = 'Failed to save template, please try again later';
 
             if (error instanceof Error) {
@@ -430,19 +430,19 @@ const TemplatesPageContent = () => {
         }
     };
 
-    // 处理删除模板
+    // Handle delete template
     const handleDeleteClick = (template: EmailTemplate, e?: React.MouseEvent) => {
-        // 如果是从列表点击，防止冒泡触发选中模板
+        // If clicked from list, prevent bubbling to trigger template selection
         if (e) {
             e.stopPropagation();
         }
 
-        // 设置要删除的模板并打开确认对话框
+        // Set template to delete and open confirm dialog
         setTemplateToDelete(template);
         setIsDeleteDialogOpen(true);
     };
 
-    // 确认删除模板
+    // confirm delete template
     const confirmDelete = async () => {
         if (!templateToDelete) return;
 
@@ -459,23 +459,23 @@ const TemplatesPageContent = () => {
                 throw new Error(data.message || 'Failed to delete template');
             }
 
-            // 删除成功提示
+            // deleted successfully notification
             showSuccessToast({
                 title: "Delete Successful",
                 description: "Email template has been deleted successfully",
             });
 
-            // 刷新模板列表
+            // refresh template list
             await fetchTemplates();
 
-            // 如果删除的是当前选中的模板，重置选中状态
+            // If deleted template is currently selected, reset selection status
             if (selectedTemplate && selectedTemplate.id === templateToDelete.id) {
                 setSelectedTemplate(null);
                 setFormData(EMPTY_TEMPLATE);
                 setEditorContent('');
             }
 
-            // 关闭对话框
+            // close dialog
             setIsDeleteDialogOpen(false);
             setTemplateToDelete(null);
         } catch (error) {
@@ -491,13 +491,13 @@ const TemplatesPageContent = () => {
         }
     };
 
-    // 取消删除
+    // CancelDelete
     const cancelDelete = () => {
         setIsDeleteDialogOpen(false);
         setTemplateToDelete(null);
     };
 
-    // 处理表单输入
+    // Handle form input
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
 
@@ -507,28 +507,28 @@ const TemplatesPageContent = () => {
         }));
     };
 
-    // 处理编辑器内容变化
+    // Handle editor content change
     const handleEditorChange = (content: string) => {
         setEditorContent(content);
-        // 同时更新formData中的htmlContent字段
+        // Also update htmlContent field in formData
         setFormData(prev => ({
             ...prev,
             htmlContent: content
         }));
     };
 
-    // 处理编辑器实例就绪事件
+    // Handle editor instance ready event
     const handleEditorReady = (quill: Quill) => {
         activeQuillInstance.current = quill;
     };
 
-    // 插入变量到编辑器
+    // Insert variable into editor
     const insertVariable = async (variable: string) => {
-        // 确保只在客户端执行
+        // Ensure execute on client side only
         if (typeof window === 'undefined') return;
 
         try {
-            // 使用保存的Quill实例直接操作
+            // Operate directly using the saved Quill instance
             if (!activeQuillInstance.current) {
                 showErrorToast({
                     title: "Operation Failed",
@@ -538,22 +538,22 @@ const TemplatesPageContent = () => {
                 return;
             }
 
-            // 获取当前选区
+            // Get current selection
             const range = activeQuillInstance.current.getSelection(true);
 
             if (range) {
-                // 在当前选区插入变量文本
+                // Insert variable text at current selection
                 activeQuillInstance.current.insertText(range.index, variable);
-                // 更新选区位置
+                // update selection position
                 activeQuillInstance.current.setSelection(range.index + variable.length);
 
-                // 给用户反馈
+                // Give user feedback
                 showSuccessToast({
                     title: "Variable Inserted",
                     description: `${variable} has been inserted into the editor`,
                 });
             } else {
-                // 如果没有选区，则在编辑器末尾插入
+                // If no selection, insert at end of editor
                 const length = activeQuillInstance.current.getLength();
 
                 activeQuillInstance.current.insertText(length - 1, variable);
@@ -572,12 +572,12 @@ const TemplatesPageContent = () => {
         }
     };
 
-    // 移除手动同步按钮，替换为自动同步功能
+    // remove manual sync button, replace with auto-sync
     const syncEditorContent = () => {
         if (activeQuillInstance.current) {
             const content = activeQuillInstance.current.root.innerHTML;
 
-            // 更新状态和表单数据
+            // update status and form data
             setEditorContent(content);
             setFormData(prev => ({
                 ...prev,
@@ -590,31 +590,31 @@ const TemplatesPageContent = () => {
         return false;
     };
 
-    // 保存前确保内容同步
+    // ensure content is synced before saving
     const handleSave = () => {
-        // 先同步编辑器内容
+        // Sync editor content first
         syncEditorContent();
-        // 然后保存模板
+        // Then save template
         saveTemplate();
     };
 
-    // 处理添加新模板
+    // Handle adding new template
     const handleAddTemplate = () => {
-        // 重置表单数据为空白模板
+        // Reset form to blank template
         setFormData(EMPTY_TEMPLATE);
-        // 重置编辑器内容
+        // reset editor content
         setEditorContent('');
-        // 标记为创建新模板
+        // Mark as create new template
         setIsCreatingNew(true);
-        // 取消选中当前模板
+        // cancel current template selection
         setSelectedTemplate(null);
-        // 进入编辑模式
+        // Enter edit mode
         setIsEditing(true);
-        // 退出预览模式
+        // Exit preview mode
         setPreviewMode(false);
     };
 
-    // 处理文件上传
+    // Handle file upload
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
 
@@ -622,7 +622,7 @@ const TemplatesPageContent = () => {
 
         const file = files[0];
 
-        // 检查文件类型
+        // Check file type
         if (file.type !== 'text/html' && !file.name.endsWith('.html')) {
             showErrorToast({
                 title: 'just upload html file',
@@ -649,7 +649,7 @@ const TemplatesPageContent = () => {
                 throw new Error(result.message || 'Upload HTML file failed');
             }
 
-            // 更新编辑器内容和表单数据
+            // update editor content and form data
             setEditorContent(result.data.htmlContent);
             setFormData(prev => ({
                 ...prev,
@@ -667,21 +667,21 @@ const TemplatesPageContent = () => {
             });
         } finally {
             setUploadLoading(false);
-            // 重置文件输入，允许再次上传相同文件
+            // reset file input to allow uploading the same file again
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
         }
     };
 
-    // 触发文件选择对话框
+    // Trigger file selection dialog
     const triggerFileUpload = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
 
-    // 渲染模板列表
+    // Render template list
     const renderTemplateList = () => {
         if (templates.length === 0) {
             return (
@@ -763,7 +763,7 @@ const TemplatesPageContent = () => {
         );
     };
 
-    // 渲染编辑表单
+    // Render edit form
     const renderEditForm = () => {
         return (
             <div className="h-full flex flex-col">
@@ -783,7 +783,7 @@ const TemplatesPageContent = () => {
                             onClick={() => {
                                 setIsEditing(false);
                                 setIsCreatingNew(false);
-                                // 仅当有selectedTemplate时才重置为原始数据
+                                // Reset to original data only when selectedTemplate exists
                                 if (selectedTemplate) {
                                     setFormData({
                                         templateId: selectedTemplate.templateId,
@@ -918,13 +918,13 @@ const TemplatesPageContent = () => {
                                 HTML Content
                             </label>
                             <div className="flex items-center space-x-2">
-                                {/* 变量选择器 */}
+                                {/* Variable selector */}
                                 <select
                                     className="text-sm border border-gray-300 rounded-md p-1.5 bg-white dark:bg-gray-800 dark:border-gray-600"
                                     onChange={(e) => {
                                         if (e.target.value) {
                                             insertVariable(e.target.value);
-                                            e.target.value = ''; // 重置选择
+                                            e.target.value = ''; // Reset selection
                                         }
                                     }}
                                     disabled={!activeQuillInstance.current}
@@ -937,7 +937,7 @@ const TemplatesPageContent = () => {
                                     ))}
                                 </select>
 
-                                {/* HTML文件上传按钮 */}
+                                {/* HTML file upload button */}
                                 <input
                                     type="file"
                                     ref={fileInputRef}
@@ -959,7 +959,7 @@ const TemplatesPageContent = () => {
                                     <span className="ml-1.5">{uploadLoading ? 'Uploading...' : 'Upload HTML'}</span>
                                 </button>
 
-                                {/* HTML代码模式切换按钮 */}
+                                {/* HTML code mode toggle button */}
                                 <button
                                     type="button"
                                     onClick={handleModeToggle}
@@ -973,13 +973,13 @@ const TemplatesPageContent = () => {
                                     <span className="ml-1.5">{isHtmlMode ? "Rich Text" : "HTML Code"}</span>
                                 </button>
 
-                                {/* 预览切换按钮 */}
+                                {/* Preview toggle button */}
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        // 先同步内容
+                                        // Sync content first
                                         if (!isHtmlMode && activeQuillInstance.current) {
-                                            // 从富文本编辑器获取内容
+                                            // Get content from rich text editor
                                             const newContent = activeQuillInstance.current.root.innerHTML;
 
                                             setEditorContent(newContent);
@@ -988,7 +988,7 @@ const TemplatesPageContent = () => {
                                                 htmlContent: newContent
                                             }));
                                         }
-                                        // 切换预览模式
+                                        // Toggle preview mode
                                         setPreviewMode(!previewMode);
                                     }}
                                     className={`flex items-center p-1.5 text-sm rounded-md ${previewMode
@@ -1005,7 +1005,7 @@ const TemplatesPageContent = () => {
 
                         <div className="border rounded-md">
                             {!isHtmlMode ? (
-                                // 富文本编辑器模式
+                                // Rich text editor mode
                                 <QuillEditor
                                     theme="snow"
                                     value={editorContent}
@@ -1018,7 +1018,7 @@ const TemplatesPageContent = () => {
                                     id={`editor-${selectedTemplate?.id || 'new-template'}`}
                                 />
                             ) : (
-                                // HTML代码编辑模式
+                                // HTML code edit mode
                                 <textarea
                                     value={editorContent}
                                     onChange={(e) => handleEditorChange(e.target.value)}
@@ -1046,14 +1046,14 @@ const TemplatesPageContent = () => {
         );
     };
 
-    // 渲染模板详情
+    // Render template details
     const renderTemplateDetails = () => {
-        // 如果是创建新模板或正在编辑，显示编辑表单
+        // If creating new template or editing, show edit form
         if (isEditing) {
             return renderEditForm();
         }
 
-        // 如果没有选中模板且不是创建新模板模式，显示提示信息
+        // If no template selected and not in create new template mode, show toast
         if (!selectedTemplate) {
             return (
                 <div className="flex items-center justify-center h-full">
@@ -1102,7 +1102,7 @@ const TemplatesPageContent = () => {
             );
         }
 
-        // 正常查看模式
+        // Normal view mode
         return (
             <div className="h-full flex flex-col">
                 <div className="flex items-center justify-between p-4 border-b">
@@ -1174,34 +1174,34 @@ const TemplatesPageContent = () => {
         );
     };
 
-    // 确保编辑器实例在编辑模式改变时重置
+    // Ensure editor instance resets when edit mode changes
     useEffect(() => {
-        // 当退出编辑模式时，清理编辑器实例
+        // Clean up editor instance when exiting edit mode
         if (!isEditing) {
             activeQuillInstance.current = null;
         }
     }, [isEditing]);
 
-    // 组件卸载时清理
+    // Clean up when component unmounts
     useEffect(() => {
         return () => {
             activeQuillInstance.current = null;
         };
     }, []);
 
-    // 添加编辑器全局变更事件监听
+    // Add editor global change event listener
     useEffect(() => {
-        // 确保编辑器实例存在并且处于编辑模式
+        // Ensure editor instance exists and is in edit mode
         const quillInstance = activeQuillInstance.current;
 
         if (!quillInstance || !isEditing) return;
 
-        // 监听所有编辑器变化事件
+        // Listen for all editor change events
         quillInstance.on('editor-change', (eventName) => {
             if (eventName === 'text-change' && quillInstance) {
                 const html = quillInstance.root.innerHTML;
 
-                // 同步更新状态和表单数据
+                // Synchronously update status and form data
                 setEditorContent(html);
                 setFormData(prev => ({
                     ...prev,
@@ -1210,17 +1210,17 @@ const TemplatesPageContent = () => {
             }
         });
 
-        // 清理函数
+        // Cleanup function
         return () => {
             quillInstance.off('editor-change');
         };
-    }, [isEditing]); // 仅依赖编辑状态，避免使用引用类型导致频繁重新订阅
+    }, [isEditing]); // Depend only on edit state — avoid frequent re-subscriptions caused by reference types
 
-    // 添加模式切换处理函数
+    // Addmode switch handler
     const handleModeToggle = () => {
-        // 如果当前是富文本模式，切换到HTML模式前需要同步内容
+        // If in rich text mode, sync content before switching to HTML mode
         if (!isHtmlMode && activeQuillInstance.current) {
-            // 获取最新的富文本内容
+            // Get latest rich text content
             const htmlContent = activeQuillInstance.current.root.innerHTML;
 
             setEditorContent(htmlContent);
@@ -1230,14 +1230,14 @@ const TemplatesPageContent = () => {
             }));
         }
 
-        // 切换模式
+        // Toggle mode
         setIsHtmlMode(!isHtmlMode);
     };
 
-    // 主要渲染
+    // Main rendering
     return (
         <div className="space-y-6 max-w-full">
-            {/* 添加内联样式 */}
+            {/* Add inline styles */}
             <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
 
             <div className="flex items-center justify-between mb-6">
@@ -1252,7 +1252,7 @@ const TemplatesPageContent = () => {
 
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="flex flex-col lg:flex-row min-h-[600px]">
-                    {/* 左侧模板列表 */}
+                    {/* Left template list */}
                     <div className="w-full lg:w-1/3 border-r border-gray-200">
                         <div className="p-4 border-b flex items-center justify-between">
                             <h2 className="font-medium">Template List</h2>
@@ -1274,7 +1274,7 @@ const TemplatesPageContent = () => {
                         )}
                     </div>
 
-                    {/* 右侧模板详情/编辑 */}
+                    {/* Right-side template details/edit */}
                     <div className="w-full lg:w-2/3 min-h-[600px]">
                         {isLoading && selectedTemplate ? (
                             <div className="h-full flex items-center justify-center">
@@ -1288,7 +1288,7 @@ const TemplatesPageContent = () => {
                 </div>
             </div>
 
-            {/* 删除确认对话框 */}
+            {/* Delete confirmation dialog */}
             {isDeleteDialogOpen && templateToDelete && (
                 <div className="fixed inset-0 z-50 overflow-auto bg-black/50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">

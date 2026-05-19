@@ -8,13 +8,13 @@ import DynamicMetadataLoader from './DynamicMetadataLoader';
 import DynamicProductLoader from './DynamicProductLoader';
 import EmbeddedEmailForm from './Template/email/EmbeddedEmailForm';
 
-// 内容渲染器的props接口
+// Props interface for content renderer
 interface ContentRendererProps {
     content: string;
     className?: string;
 }
 
-// 检查节点是否在p标签内
+// Check if node is inside p tag
 function checkIfInsideParagraph(node: Element): boolean {
     let parent = node.parent as Element | null;
 
@@ -22,7 +22,7 @@ function checkIfInsideParagraph(node: Element): boolean {
         if (parent.name === 'p') {
             return true;
         }
-        // 已经到达了根元素或者其他块级元素，不再继续向上检查
+        // Reached root element or other block element, stop checking upward
         if (!parent.parent || ['div', 'section', 'article'].includes(parent.name)) {
             break;
         }
@@ -32,7 +32,7 @@ function checkIfInsideParagraph(node: Element): boolean {
     return false;
 }
 
-// 内容渲染器组件
+// Content renderer component
 const ContentRenderer = ({ content, className = '' }: ContentRendererProps) => {
     const [isMounted, setIsMounted] = useState(false);
 
@@ -40,7 +40,7 @@ const ContentRenderer = ({ content, className = '' }: ContentRendererProps) => {
         setIsMounted(true);
     }, []);
 
-    // 解析选项
+    // Parse options
     const parseOptions: HTMLReactParserOptions = {
         replace: (domNode) => {
             if (!(domNode instanceof Element)) {
@@ -51,17 +51,17 @@ const ContentRenderer = ({ content, className = '' }: ContentRendererProps) => {
             if (domNode.attribs && domNode.attribs['data-node-type'] === 'product') {
                 const productId = domNode.attribs['data-product-id'];
                 const productStyle = domNode.attribs['data-style'] || 'simple';
-                // 读取 alignment 属性
+                // Read alignment attribute
                 const alignment = (domNode.attribs['data-alignment'] || 'left') as 'left' | 'center' | 'right';
 
                 if (!productId) {
                     return <span className="text-red-500 text-xs p-2 border border-red-200 rounded align-middle">Product ID missing</span>;
                 }
 
-                // 检查是否在p标签内部，以决定使用哪种容器元素
+                // Check if inside p tag to determine which container element to use
                 const isInsideParagraph = checkIfInsideParagraph(domNode);
 
-                // 在p标签内使用span，否则使用div
+                // Use span inside p tag, otherwise use div
                 return <DynamicProductLoader
                     productId={productId}
                     style={productStyle}
@@ -70,21 +70,21 @@ const ContentRenderer = ({ content, className = '' }: ContentRendererProps) => {
                 />;
             }
 
-            // 新增: 处理 productMetadata 节点
+            // New: handle productMetadata node
             else if (domNode.attribs && domNode.attribs['data-type'] === 'product-metadata') {
                 const productId = domNode.attribs['data-product-id'];
                 const fieldId = domNode.attribs['data-field-id'];
 
                 if (!productId || !fieldId) {
-                    // 返回一个提示信息，说明数据不完整
+                    // return a hint message indicating incomplete data
                     return <span className="text-orange-500 text-xs">[Metadata information incomplete]</span>;
                 }
 
-                // 渲染动态元数据加载器，确保使用正确的布局元素
+                // Render dynamic metadata loader, ensure correct layout element is used
                 return <DynamicMetadataLoader productId={productId} fieldId={fieldId} />;
             }
 
-            // 新增: 处理电子邮件收集表单节点
+            // New: handle email collection form node
             else if (domNode.attribs && domNode.attribs['data-type'] === 'email-collection-form') {
                 const formId = domNode.attribs['data-form-id'] || `form-${Date.now()}`;
                 const sourceType = (domNode.attribs['data-source-type'] || 'general') as 'general' | 'blog';

@@ -1,5 +1,5 @@
 /**
- * 邮件模板类型常量
+ * Email template type constants
  */
 export const EMAIL_TEMPLATE_TYPES = {
     SUBSCRIPTION_CONFIRMATION: 'subscription_confirmation',
@@ -11,7 +11,7 @@ export const EMAIL_TEMPLATE_TYPES = {
 export type EmailTemplateType = typeof EMAIL_TEMPLATE_TYPES[keyof typeof EMAIL_TEMPLATE_TYPES];
 
 /**
- * 邮件模板接口定义
+ * Email template interface definition
  */
 export interface EmailTemplate {
     id: string;
@@ -28,6 +28,6 @@ export interface EmailTemplate {
 }
 
 /**
- * 模板变量类型
+ * Template variable type
  */
 export type TemplateVariables = Record<string, string | number | Date>; 

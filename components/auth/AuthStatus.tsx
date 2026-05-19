@@ -27,9 +27,9 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
     const [error, setError] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // 关闭下拉菜单的点击外部监听器
+    // Click outside listener for closing dropdown
     useEffect(() => {
-        // 只有在非移动菜单模式下才需要点击外部关闭
+        // Only need click-outside-close in non-mobile-menu mode
         if (isMobileMenu) return;
 
         function handleClickOutside(event: MouseEvent) {
@@ -38,28 +38,28 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
             }
         }
 
-        // 添加事件监听器
+        // Add event listener
         document.addEventListener('mousedown', handleClickOutside);
 
         return () => {
-            // 移除事件监听器
+            // Remove event listener
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [isMobileMenu]);
 
     const handleSignOut = async () => {
         try {
-            // 关闭下拉菜单
+            // Close dropdown
             setIsDropdownOpen(false);
             onNavigate?.();
 
-            // 直接调用signOut并指定回调URL
+            // Call signOut directly with callback URL
             await signOut({
                 redirect: true,
                 callbackUrl: '/'
             });
         } catch {
-            setError("退出失败，请重试");
+            setError("Sign out failed, please try again");
         }
     };
 
@@ -79,12 +79,12 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
     if (error) {
         return (
             <div className="text-sm text-red-500">
-                {error} <button onClick={() => window.location.reload()} className="text-blue-500 underline">重试</button>
+                {error} <button onClick={() => window.location.reload()} className="text-blue-500 underline">Retry</button>
             </div>
         );
     }
 
-    // 移动端菜单保持不变
+    // Mobile menu stays the same
     if (isMobileMenu) {
         if (status === 'unauthenticated' || !session?.user) {
             return (
@@ -190,11 +190,11 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
         );
     }
 
-    // 桌面端新设计 - 使用图标代替按钮
+    // Desktop new design - use icons instead of buttons
     if (status === 'unauthenticated' || !session?.user) {
         return (
             <div className="flex items-center gap-2">
-                {/* 心愿单图标 */}
+                {/* Favorites icon */}
                 <Link
                     href="/favorites"
                     className="relative group"
@@ -208,7 +208,7 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
                     </div>
                 </Link>
 
-                {/* 用户登录/注册下拉菜单 */}
+                {/* User sign in/sign up dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={toggleDropdown}
@@ -262,12 +262,12 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
         );
     }
 
-    // 已登录用户的桌面端显示
+    // Desktop display for logged-in users
     const user: User = session.user;
 
     return (
         <div className="flex items-center gap-2">
-            {/* 心愿单图标 */}
+            {/* Favorites icon */}
             <Link
                 href="/favorites"
                 className="relative group"
@@ -281,7 +281,7 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
                 </div>
             </Link>
 
-            {/* 已登录用户下拉菜单 */}
+            {/* Logged-in user dropdown */}
             <div className="relative" ref={dropdownRef}>
                 <button
                     onClick={toggleDropdown}
@@ -293,7 +293,7 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
                         <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-transparent hover:border-gray-200 transition-colors">
                             <Image
                                 src={user.image}
-                                alt={`${user.name || '用户'}'s avatar`}
+                                alt={`${user.name || 'User'}'s avatar`}
                                 className="rounded-full object-cover"
                                 fill
                                 sizes="36px"
@@ -320,7 +320,7 @@ export default function AuthStatus({ isMobileMenu = false, onNavigate }: AuthSta
                             className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100 overflow-hidden"
                         >
                             <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-gray-100">
-                                <p className="font-medium text-gray-800">{user.name || '用户'}</p>
+                                <p className="font-medium text-gray-800">{user.name || 'User'}</p>
                                 <p className="text-xs text-gray-500 truncate mt-0.5">{user.email}</p>
                                 {session?.user?.role && (
                                     <span className="inline-flex items-center px-2 py-0.5 mt-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">

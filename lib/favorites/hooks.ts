@@ -1,6 +1,6 @@
 /**
- * 收藏功能自定义Hook模块
- * 提供便捷的自定义hooks，简化组件中的使用
+ * Favorites custom hook module
+ * Provide convenient custom hooks to simplify component usage
  */
 
 import { useCallback, useEffect, useState, useMemo } from 'react';
@@ -11,8 +11,8 @@ import type { Product } from '@/types/api';
 import { useFavoritesContext } from './context';
 
 /**
- * 用于在组件中使用收藏功能的Hook
- * 返回收藏状态和操作方法
+ * Hook for using favorites functionality in components
+ * Return favorites state and operations
  */
 export function useFavorites() {
     const {
@@ -41,21 +41,21 @@ export function useFavorites() {
 }
 
 /**
- * 用于管理单个商品收藏状态的Hook
- * @param productId 商品ID
- * @returns 收藏状态和切换方法
+ * Hook for managing the favorite state of a single product
+ * @param productId Product ID
+ * @returns Favorite state and toggle method
  */
 export function useProductFavorite(productId: string) {
     const { isFavorite, addFavorite, removeFavorite } = useFavoritesContext();
     const [isUpdating, setIsUpdating] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 使用本地存储检查收藏状态
+    // Use local storage to check favorites state
     const isProductFavorite = useMemo(() => {
         return isFavorite(productId);
     }, [isFavorite, productId]);
 
-    // 切换收藏状态
+    // Toggle favorite state
     const toggleFavorite = useCallback(async () => {
         setIsUpdating(true);
         setError(null);
@@ -90,8 +90,8 @@ export function useProductFavorite(productId: string) {
 }
 
 /**
- * 用于获取收藏商品列表的Hook
- * 返回收藏的商品列表和加载状态
+ * Hook for fetching the list of favorited products
+ * Return favorited product list and loading status
  */
 export function useFavoritesList() {
     const { favorites, isLoading, error, refreshFavorites } = useFavoritesContext();
@@ -105,8 +105,8 @@ export function useFavoritesList() {
 }
 
 /**
- * 获取带有完整商品信息的收藏列表
- * 基于收藏的ID列表，获取完整的商品信息
+ * Get favorites list with full product info
+ * Fetch full product information based on a list of favorited IDs
  */
 export function useEnrichedFavorites() {
     const { favoriteIds, refreshFavorites } = useFavoritesContext();
@@ -127,7 +127,7 @@ export function useEnrichedFavorites() {
             setError(null);
 
             try {
-                // 使用批量查询API获取商品信息
+                // Use batch query API to fetch product information
                 const response = await productsApi.queryProducts({
                     asins: favoriteIds,
                     include_metadata: false,
@@ -136,29 +136,29 @@ export function useEnrichedFavorites() {
 
                 let products: Product[] = [];
 
-                // 检查不同的响应结构
+                // Check different response structures
                 if (response?.data?.data) {
-                    // 标准API响应结构
+                    // Standard API response structure
                     products = response.data.data;
                 } else if (Array.isArray(response?.data)) {
-                    // 直接是数组的情况
+                    // Direct array case
                     products = response.data;
                 } else if (response?.data) {
-                    // 其他可能的响应结构
+                    // Other possible response structures
                     products = response.data as unknown as Product[];
                 }
 
-                // 确保products是数组
+                // Ensure products is an array
                 if (!Array.isArray(products)) {
                     products = [];
                 }
 
-                // 处理返回的商品数组，确保每个位置都有有效的商品数据
+                // Handle returned product array, ensure each position has valid product data
                 const matchedProducts = favoriteIds.map((id) => {
                     const product = products.find(p => p.asin === id || p.id === id);
 
                     if (!product) {
-                        // 如果某个商品不存在，返回基本信息对象
+                        // If product doesn't exist, return basic info object
                         return {
                             id,
                             asin: id,
@@ -174,7 +174,7 @@ export function useEnrichedFavorites() {
                 setEnrichedFavorites(matchedProducts);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to get favorite product details'));
-                // 在发生错误时，使用基本信息对象
+                // Use basic info object when error occurs
                 const fallbackProducts = favoriteIds.map(id => ({
                     id,
                     asin: id,
@@ -201,9 +201,9 @@ export function useEnrichedFavorites() {
 }
 
 /**
- * 用于获取指定商品ID是否被收藏的Hook
- * @param productIds 商品ID数组
- * @returns 包含收藏状态的对象，键为商品ID
+ * Hook for checking whether specific product IDs are favorited
+ * @param productIds Array of product IDs
+ * @returns Object containing favorite status keyed by product ID
  */
 export function useMultipleProductsFavoriteStatus(productIds: string[]) {
     const { isFavorite } = useFavoritesContext();
@@ -218,20 +218,20 @@ export function useMultipleProductsFavoriteStatus(productIds: string[]) {
 }
 
 /**
- * 用于批量操作收藏的Hook
- * 提供添加多个商品到收藏、从收藏中移除多个商品的方法
+ * Hook for bulk favorites operations
+ * Provide methods for bulk-adding and bulk-removing products from favorites
  */
 export function useBatchFavorites() {
     const { addFavorite, removeFavorite } = useFavoritesContext();
 
-    // 批量添加收藏
+    // Bulk add to favorites
     const addMultipleFavorites = useCallback(async (productIds: string[]) => {
         const promises = productIds.map(id => addFavorite(id));
 
         await Promise.all(promises);
     }, [addFavorite]);
 
-    // 批量移除收藏
+    // Bulk remove from favorites
     const removeMultipleFavorites = useCallback(async (productIds: string[]) => {
         const promises = productIds.map(id => removeFavorite(id));
 

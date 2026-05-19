@@ -6,14 +6,14 @@ interface LoadingStateProps {
 }
 
 /**
- * 加载状态组件
- * 显示一个加载动画和可选的加载消息
+ * Loading state component
+ * Display a loading animation and an optional loading message
  */
 const LoadingState: React.FC<LoadingStateProps> = ({
     message = 'Loading...',
     size = 'md',
 }) => {
-    // 根据尺寸确定样式
+    // Determine styles based on size
     const sizeClasses = {
         sm: 'h-4 w-4 border-2',
         md: 'h-8 w-8 border-2',
@@ -22,10 +22,10 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-center p-8 text-center">
-            {/* 加载动画 */}
+            {/* Loading animation */}
             <div className={`mb-4 animate-spin rounded-full border-t-transparent border-blue-500 ${sizeClasses[size]}`} />
 
-            {/* 加载消息 */}
+            {/* Loading message */}
             {message && <p className="text-gray-600">{message}</p>}
         </div>
     );

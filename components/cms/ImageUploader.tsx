@@ -9,8 +9,8 @@ interface ImageUploaderProps {
 }
 
 /**
- * 图片上传组件
- * 用于在Tiptap编辑器中上传图片到R2存储
+ * Image upload component
+ * For uploading images to R2 storage in the Tiptap editor
  */
 export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderProps) {
     const [file, setFile] = useState<File | null>(null);
@@ -18,13 +18,13 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 处理文件选择变更
+    // Handle file selection change
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
 
         if (!selectedFile) return;
 
-        // 验证文件类型
+        // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
         if (!validTypes.includes(selectedFile.type)) {
@@ -33,7 +33,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
             return;
         }
 
-        // 验证文件大小 (5MB)
+        // Validate file size (5MB)
         if (selectedFile.size > 5 * 1024 * 1024) {
             setError('Image size must be less than 5MB');
 
@@ -43,7 +43,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
         setFile(selectedFile);
         setError(null);
 
-        // 创建预览
+        // CreatePreview
         const reader = new FileReader();
 
         reader.onload = () => {
@@ -52,7 +52,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
         reader.readAsDataURL(selectedFile);
     }, []);
 
-    // 处理拖放图片
+    // Handle image drop
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -60,7 +60,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             const droppedFile = e.dataTransfer.files[0];
 
-            // 使用与handleFileChange相同的验证逻辑
+            // Use same validation logic as handleFileChange
             const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
             if (!validTypes.includes(droppedFile.type)) {
@@ -87,13 +87,13 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
         }
     }, []);
 
-    // 处理拖拽事件
+    // Handle drag event
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
     }, []);
 
-    // 上传图片到服务器
+    // upload image to server
     const uploadImage = useCallback(async () => {
         if (!file) return;
 
@@ -116,7 +116,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
                 throw new Error(data.error || 'Upload failed');
             }
 
-            // 调用回调函数，传递上传后的URL
+            // Call callback function with uploaded URL
             onImageUpload(data.url);
             onClose();
         } catch (err) {
@@ -126,7 +126,7 @@ export function ImageUploader({ isOpen, onClose, onImageUpload }: ImageUploaderP
         }
     }, [file, onImageUpload, onClose]);
 
-    // 重置表单
+    // reset form
     const resetForm = useCallback(() => {
         setFile(null);
         setPreview(null);

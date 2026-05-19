@@ -1,12 +1,12 @@
 /**
- * 统一动画配置文件
- * 定义项目中使用的所有动画变体和时间常量
- * 采用Notion/Linear风格的极简动画
+ * Unified animation configuration file
+ * Defines all animation variants and timing constants used in the project
+ * Minimal Notion/Linear-style animations
  */
 
 import type { Variants } from 'framer-motion';
 
-// 动画时间常量
+// Animation timing constants
 export const ANIMATION_DURATION = {
   fast: 0.15,
   normal: 0.3,
@@ -14,7 +14,7 @@ export const ANIMATION_DURATION = {
   page: 0.4,
 } as const;
 
-// 缓动函数
+// Easing functions
 export const EASING = {
   ease: [0.4, 0.0, 0.2, 1],
   easeIn: [0.4, 0.0, 1, 1],
@@ -22,7 +22,7 @@ export const EASING = {
   easeInOut: [0.4, 0.0, 0.2, 1],
 } as const;
 
-// 页面级动画
+// Page-level animations
 export const pageVariants: Variants = {
   initial: {
     opacity: 0,
@@ -47,7 +47,7 @@ export const pageVariants: Variants = {
   },
 };
 
-// 容器动画（用于列表项）
+// Container animations (for list items)
 export const containerVariants: Variants = {
   initial: {},
   animate: {
@@ -64,7 +64,7 @@ export const containerVariants: Variants = {
   },
 };
 
-// 列表项动画
+// List item animations
 export const itemVariants: Variants = {
   initial: {
     opacity: 0,
@@ -99,7 +99,7 @@ export const itemVariants: Variants = {
   },
 };
 
-// 卡片动画
+// Card animations
 export const cardVariants: Variants = {
   initial: {
     opacity: 0,
@@ -132,7 +132,7 @@ export const cardVariants: Variants = {
   },
 };
 
-// 按钮动画
+// Button animations
 export const buttonVariants: Variants = {
   initial: {
     scale: 1,
@@ -153,7 +153,7 @@ export const buttonVariants: Variants = {
   },
 };
 
-// 模态框动画
+// Modal animations
 export const modalVariants: Variants = {
   initial: {
     opacity: 0,
@@ -180,7 +180,7 @@ export const modalVariants: Variants = {
   },
 };
 
-// 背景遮罩动画
+// Backdrop overlay animations
 export const backdropVariants: Variants = {
   initial: {
     opacity: 0,
@@ -201,7 +201,7 @@ export const backdropVariants: Variants = {
   },
 };
 
-// 淡入动画
+// Fade-in animations
 export const fadeInVariants: Variants = {
   initial: {
     opacity: 0,
@@ -222,7 +222,7 @@ export const fadeInVariants: Variants = {
   },
 };
 
-// 滑入动画（从上方）
+// Slide-in animations (from top)
 export const slideInFromTopVariants: Variants = {
   initial: {
     opacity: 0,
@@ -246,7 +246,7 @@ export const slideInFromTopVariants: Variants = {
   },
 };
 
-// 加载动画
+// Loading animations
 export const loadingVariants: Variants = {
   initial: {
     opacity: 0.3,
@@ -263,7 +263,7 @@ export const loadingVariants: Variants = {
   },
 };
 
-// 骨架屏动画
+// Skeleton screen animations
 export const skeletonVariants: Variants = {
   initial: {
     opacity: 0.4,
@@ -278,7 +278,7 @@ export const skeletonVariants: Variants = {
   },
 };
 
-// 表格行动画
+// Table row animations
 export const tableRowVariants: Variants = {
   initial: {
     opacity: 0,

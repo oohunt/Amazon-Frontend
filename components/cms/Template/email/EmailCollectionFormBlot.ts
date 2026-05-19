@@ -3,7 +3,7 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 
 import { EmailCollectionFormView } from './EmailCollectionFormView';
 
-// 表单属性类型接口
+// Form attribute type interface
 export interface EmailFormAttributes {
     formTitle: string;
     formDescription: string;
@@ -14,28 +14,28 @@ export interface EmailFormAttributes {
     style: 'default' | 'compact' | 'blog' | 'deals';
 }
 
-// 扩展命令类型
+// Extend commands type
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
         emailCollectionForm: {
             /**
-             * 插入电子邮件收集表单
+             * Insert email collection form
              */
             insertEmailCollectionForm: (attributes?: Partial<EmailFormAttributes>) => ReturnType;
         };
     }
 }
 
-// 定义Email Collection Form 节点扩展
+// Define Email Collection Form node extension
 export const EmailCollectionFormBlot = Node.create<{
     HTMLAttributes: Record<string, string | number | boolean | null | undefined>;
 }>({
-    name: 'emailCollectionForm', // 节点名称
-    group: 'block',              // 块级节点
-    atom: true,                  // 作为不可分割的原子节点
-    isolating: true,             // 隔离内容
+    name: 'emailCollectionForm', // Node name
+    group: 'block',              // Block-level node
+    atom: true,                  // As an indivisible atomic node
+    isolating: true,             // Isolate content
 
-    // 定义属性及默认值
+    // Define attributes and default values
     addAttributes() {
         return {
             formTitle: {
@@ -60,7 +60,7 @@ export const EmailCollectionFormBlot = Node.create<{
                 },
             },
             formId: {
-                default: () => `form-${Date.now()}`, // 生成唯一ID
+                default: () => `form-${Date.now()}`, // Generate unique ID
                 parseHTML: (element) => element.getAttribute('data-form-id') || `form-${Date.now()}`,
                 renderHTML: (attributes) => {
                     return {
@@ -80,7 +80,7 @@ export const EmailCollectionFormBlot = Node.create<{
         };
     },
 
-    // 定义HTML解析规则
+    // Define HTML parsing rules
     parseHTML() {
         return [
             {
@@ -89,7 +89,7 @@ export const EmailCollectionFormBlot = Node.create<{
         ];
     },
 
-    // 定义HTML渲染规则
+    // Define HTML rendering rules
     renderHTML({ HTMLAttributes }) {
         return [
             'div',
@@ -106,16 +106,16 @@ export const EmailCollectionFormBlot = Node.create<{
                 },
                 HTMLAttributes
             ),
-            '', // 空内容，实际内容由React组件渲染
+            '', // Empty content, actual content rendered by React component
         ];
     },
 
-    // 添加节点视图渲染器
+    // Addnode view renderer
     addNodeView() {
         return ReactNodeViewRenderer(EmailCollectionFormView);
     },
 
-    // 添加命令
+    // Addcommands
     addCommands() {
         return {
             insertEmailCollectionForm: (attributes = {}) => ({ commands }) => {

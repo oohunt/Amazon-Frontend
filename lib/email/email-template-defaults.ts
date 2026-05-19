@@ -1,7 +1,7 @@
 import { type EmailTemplateType, EMAIL_TEMPLATE_TYPES } from './email-template-types';
 
 /**
- * 默认模板配置
+ * Default template configuration
  */
 export interface DefaultTemplateConfig {
     templateId: string;
@@ -15,11 +15,11 @@ export interface DefaultTemplateConfig {
 }
 
 /**
- * 订阅确认默认模板
+ * Default subscription confirmation template
  */
 const subscriptionConfirmationTemplate: DefaultTemplateConfig = {
     templateId: 'subscription_confirmation',
-    name: '订阅确认邮件',
+    name: 'Subscription Confirmation Email',
     subject: 'Welcome to Oohunt!',
     fromName: 'Oohunt Team',
     fromEmail: 'noreply@Oohunt.com',
@@ -61,11 +61,11 @@ const subscriptionConfirmationTemplate: DefaultTemplateConfig = {
 };
 
 /**
- * 用户注册默认模板
+ * Default user registration template
  */
 const userRegistrationTemplate: DefaultTemplateConfig = {
     templateId: 'user_registration',
-    name: '用户注册确认邮件',
+    name: 'User Registration Confirmation Email',
     subject: 'Welcome to Oohunt! Account Registration',
     fromName: 'Oohunt Team',
     fromEmail: 'noreply@Oohunt.com',
@@ -107,11 +107,11 @@ const userRegistrationTemplate: DefaultTemplateConfig = {
 };
 
 /**
- * 密码重置默认模板
+ * Default password reset template
  */
 const passwordResetTemplate: DefaultTemplateConfig = {
     templateId: 'password_reset',
-    name: '密码重置邮件',
+    name: 'Password Reset Email',
     subject: 'Reset Your Oohunt Password',
     fromName: 'Oohunt Team',
     fromEmail: 'noreply@Oohunt.com',
@@ -158,11 +158,11 @@ const passwordResetTemplate: DefaultTemplateConfig = {
 };
 
 /**
- * 订单确认默认模板
+ * Default order confirmation template
  */
 const orderConfirmationTemplate: DefaultTemplateConfig = {
     templateId: 'order_confirmation',
-    name: '订单确认邮件',
+    name: 'Order Confirmation Email',
     subject: 'Your Oohunt Order Confirmation',
     fromName: 'Oohunt Team',
     fromEmail: 'orders@Oohunt.com',
@@ -225,7 +225,7 @@ const orderConfirmationTemplate: DefaultTemplateConfig = {
 };
 
 /**
- * 导出所有默认模板
+ * Export all default templates
  */
 export const DEFAULT_TEMPLATES: DefaultTemplateConfig[] = [
     subscriptionConfirmationTemplate,
@@ -235,9 +235,9 @@ export const DEFAULT_TEMPLATES: DefaultTemplateConfig[] = [
 ];
 
 /**
- * 通过类型获取默认模板
- * @param type 模板类型
- * @returns 默认模板配置
+ * Get default template by type
+ * @param type Template type
+ * @returns Default template configuration
  */
 export function getDefaultTemplateByType(type: EmailTemplateType): DefaultTemplateConfig | undefined {
     return DEFAULT_TEMPLATES.find(template => template.type === type);

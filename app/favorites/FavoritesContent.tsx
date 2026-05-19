@@ -25,7 +25,7 @@ export default function FavoritesPage() {
     // Use custom hook to get favorites with complete information
     const { favorites, isLoading, error, refreshFavorites } = useEnrichedFavorites();
 
-    // 状态管理
+    // State management
     const [refreshing, setRefreshing] = useState(false);
     const [feedback, setFeedback] = useState<{
         show: boolean;
@@ -37,7 +37,7 @@ export default function FavoritesPage() {
         message: '',
     });
 
-    // 处理手动刷新
+    // Handle manual refresh
     const handleRefresh = async () => {
         setRefreshing(true);
         setFeedback({
@@ -61,7 +61,7 @@ export default function FavoritesPage() {
             });
         } finally {
             setRefreshing(false);
-            // 3秒后隐藏反馈信息
+            // Hide feedback message after 3 seconds
             setTimeout(() => {
                 setFeedback(prev => ({ ...prev, show: false }));
             }, 3000);
@@ -74,7 +74,7 @@ export default function FavoritesPage() {
     // Page title
     const pageTitle = 'My Favorites';
 
-    // 渲染产品卡片
+    // Render product card
     const renderProductCards = () => {
         if (!Array.isArray(adaptedProducts) || adaptedProducts.length === 0) {
             return (
@@ -117,7 +117,7 @@ export default function FavoritesPage() {
         );
     };
 
-    // 渲染内容区域
+    // Render content area
     const renderContent = () => {
         if (isLoading) {
             return <PageSkeleton productCount={8} />;
@@ -140,7 +140,7 @@ export default function FavoritesPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* 标题和操作按钮 */}
+            {/* Title and action buttons */}
             <motion.div
                 className="mb-8 flex items-center justify-between"
                 initial={{ opacity: 0, y: -10 }}
@@ -191,7 +191,7 @@ export default function FavoritesPage() {
                 </motion.button>
             </motion.div>
 
-            {/* 操作反馈显示 */}
+            {/* Action feedback display */}
             {feedback.show && (
                 <motion.div
                     className="mb-4"
@@ -206,7 +206,7 @@ export default function FavoritesPage() {
                 </motion.div>
             )}
 
-            {/* 收藏数量信息 */}
+            {/* Favorite count info */}
             {!isLoading && !error && Array.isArray(adaptedProducts) && (
                 <motion.p
                     className="mb-6 text-gray-600"
@@ -218,10 +218,10 @@ export default function FavoritesPage() {
                 </motion.p>
             )}
 
-            {/* 内容区域 */}
+            {/* Content area */}
             {renderContent()}
 
-            {/* 返回首页链接 */}
+            {/* Back to home link */}
             <motion.div
                 className="mt-8 text-center"
                 initial={{ opacity: 0 }}

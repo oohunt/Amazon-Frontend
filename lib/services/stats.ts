@@ -5,7 +5,7 @@ import type { UserFavorite } from "@/lib/models/UserFavorite";
 import clientPromise from "@/lib/mongodb";
 
 /**
- * 获取用户集合
+ * Get users collection
  */
 async function getUsersCollection(): Promise<Collection<User>> {
     const client = await clientPromise;
@@ -15,7 +15,7 @@ async function getUsersCollection(): Promise<Collection<User>> {
 }
 
 /**
- * 获取收藏集合
+ * Get favorites collection
  */
 async function getFavoritesCollection(): Promise<Collection<UserFavorite>> {
     const client = await clientPromise;
@@ -25,16 +25,16 @@ async function getFavoritesCollection(): Promise<Collection<UserFavorite>> {
 }
 
 /**
- * 获取用户统计数据
+ * Get user statistics
  */
 export async function getUserStats() {
     try {
         const collection = await getUsersCollection();
 
-        // 获取用户总数
+        // Get total user count
         const totalUsers = await collection.countDocuments();
 
-        // 获取过去30天内活跃的用户数量
+        // Get number of active users in the past 30 days
         const thirtyDaysAgo = new Date();
 
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -43,7 +43,7 @@ export async function getUserStats() {
             updatedAt: { $gte: thirtyDaysAgo }
         });
 
-        // 获取过去30天内新增的用户数量
+        // Get number of new users in the past 30 days
         const newUsersLastMonth = await collection.countDocuments({
             createdAt: { $gte: thirtyDaysAgo }
         });
@@ -66,19 +66,19 @@ export async function getUserStats() {
 }
 
 /**
- * 获取收藏统计数据
+ * Get favorites statistics
  */
 export async function getFavoriteStats() {
     try {
         const collection = await getFavoritesCollection();
 
-        // 获取收藏总数
+        // Get total favorites count
         const totalFavorites = await collection.countDocuments();
 
-        // 获取有收藏的唯一用户数
+        // Get unique user count with favorites
         const uniqueUsers = (await collection.distinct("userId")).length;
 
-        // 获取过去30天内的收藏数量
+        // Get number of favorites in the past 30 days
         const thirtyDaysAgo = new Date();
 
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

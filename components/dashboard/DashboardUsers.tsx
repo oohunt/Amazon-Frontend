@@ -31,7 +31,7 @@ interface UserFilterProps {
     setRoleFilter: (value: string) => void;
 }
 
-// 用户筛选组件 - 现代化极简设计
+// User filter component — modern minimalist design
 const UserFilter: React.FC<UserFilterProps> = ({
     searchTerm,
     setSearchTerm,
@@ -41,7 +41,7 @@ const UserFilter: React.FC<UserFilterProps> = ({
     return (
         <AnimatedItem className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 p-6 mb-6 shadow-sm">
             <div className="flex flex-col lg:flex-row lg:items-end gap-6">
-                {/* 搜索输入框 */}
+                {/* Search input */}
                 <div className="flex-1 space-y-2">
                     <label htmlFor="search" className="text-sm font-medium text-gray-700">
                         Search Users
@@ -65,7 +65,7 @@ const UserFilter: React.FC<UserFilterProps> = ({
                     </div>
                 </div>
 
-                {/* 角色筛选 */}
+                {/* Role filter */}
                 <div className="w-full lg:w-48 space-y-2">
                     <label htmlFor="role-filter" className="text-sm font-medium text-gray-700">
                         Filter by Role
@@ -85,7 +85,7 @@ const UserFilter: React.FC<UserFilterProps> = ({
                     </select>
                 </div>
 
-                {/* 重置按钮 */}
+                {/* Reset button */}
                 <div className="w-full lg:w-auto">
                     <ModernButton
                         variant="ghost"
@@ -101,7 +101,7 @@ const UserFilter: React.FC<UserFilterProps> = ({
                 </div>
             </div>
 
-            {/* 搜索结果提示 */}
+            {/* Search result hint */}
             {(searchTerm || roleFilter) && (
                 <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -134,7 +134,7 @@ interface UserActionsProps {
     onDeleteUser: (userId: string) => void;
 }
 
-// User actions component - 现代化设计
+// User actions component — modern design
 const UserActions: React.FC<UserActionsProps> = ({
     user,
     currentUserRole,
@@ -144,18 +144,18 @@ const UserActions: React.FC<UserActionsProps> = ({
 }) => {
     const isSelf = user.id === currentUserId;
 
-    // 修改权限检查逻辑
-    // 只有超级管理员可以修改角色，或者管理员可以修改普通用户的角色
+    // Modify permission check logic
+    // Only super admins can modify roles, or admins can modify regular user roles
     const canUpdateRole = (isSuperAdmin(currentUserRole) ||
         (currentUserRole === UserRole.ADMIN && user.role === UserRole.USER)) && !isSelf;
 
-    // 禁止管理员删除超级管理员，管理员只能删除普通用户
+    // Admins cannot delete super admins; admins can only delete regular users
     const canDelete = (isSuperAdmin(currentUserRole) ||
         (currentUserRole === UserRole.ADMIN && user.role === UserRole.USER)) && !isSelf;
 
     return (
         <div className="flex items-center gap-2">
-            {/* 查看按钮 */}
+            {/* View button */}
             <Link href={`/dashboard/users/${user.id}`}>
                 <ActionButton
                     variant="view"
@@ -165,7 +165,7 @@ const UserActions: React.FC<UserActionsProps> = ({
                 </ActionButton>
             </Link>
 
-            {/* 修改角色按钮 */}
+            {/* Change Role button */}
             {canUpdateRole && (
                 <ActionButton
                     variant="edit"
@@ -182,7 +182,7 @@ const UserActions: React.FC<UserActionsProps> = ({
                 </ActionButton>
             )}
 
-            {/* 删除按钮 */}
+            {/* Delete button */}
             {canDelete && (
                 <ActionButton
                     variant="delete"
@@ -193,7 +193,7 @@ const UserActions: React.FC<UserActionsProps> = ({
                 </ActionButton>
             )}
 
-            {/* 自己的标识 */}
+            {/* Self indicator */}
             {isSelf && (
                 <span className="px-2 py-1 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md">
                     Current User
@@ -211,9 +211,9 @@ const DashboardUsers: React.FC = () => {
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // 用户角色更新
+    // User role update
     const handleUpdateRole = async (userId: string, newRole: UserRole) => {
-        // 检查是否正在修改自己的角色
+        // Check if modifying own role
         if (userId === session?.user?.id) {
             showWarningToast({
                 title: "Cannot Modify",
@@ -223,10 +223,10 @@ const DashboardUsers: React.FC = () => {
             return;
         }
 
-        // 获取用户角色信息
+        // Get user role info
         const targetUser = userList.find(user => user.id === userId);
 
-        // 检查权限: 普通管理员不能修改超级管理员或其他管理员的角色
+        // Check permission: regular admins cannot modify super admin or other admin roles
         if (targetUser &&
             session?.user?.role === UserRole.ADMIN &&
             (targetUser.role === UserRole.SUPER_ADMIN || targetUser.role === UserRole.ADMIN)) {
@@ -253,15 +253,15 @@ const DashboardUsers: React.FC = () => {
                 throw new Error(errorData?.error || 'Failed to update user role');
             }
 
-            // 添加成功吐司提示
+            // Addsuccess toast notification
             showSuccessToast({
                 title: "Role Updated",
                 description: `User role has been changed to ${newRole}.`,
             });
 
-            mutate(); // 刷新用户列表
+            mutate(); // Refresh user list
         } catch (error) {
-            // 添加错误吐司提示
+            // Adderror toast notification
             showErrorToast({
                 title: "Error",
                 description: error instanceof Error ? error.message : 'Failed to update user role',
@@ -270,9 +270,9 @@ const DashboardUsers: React.FC = () => {
         }
     };
 
-    // 用户删除
+    // Delete user
     const handleDeleteUser = (userId: string) => {
-        // 检查是否尝试删除自己
+        // Check if trying to delete self
         if (userId === session?.user?.id) {
             showWarningToast({
                 title: "Cannot Delete",
@@ -282,10 +282,10 @@ const DashboardUsers: React.FC = () => {
             return;
         }
 
-        // 获取用户角色信息
+        // Get user role info
         const targetUser = userList.find(user => user.id === userId);
 
-        // 检查权限: 普通管理员不能删除超级管理员或其他管理员
+        // Check permission: regular admins cannot delete super admins or other admins
         if (targetUser &&
             session?.user?.role === UserRole.ADMIN &&
             (targetUser.role === UserRole.SUPER_ADMIN || targetUser.role === UserRole.ADMIN)) {
@@ -314,7 +314,7 @@ const DashboardUsers: React.FC = () => {
             if (!response.ok) {
                 setErrorMessage(data.error || 'Failed to delete user');
 
-                // 添加删除失败吐司提示
+                // add delete failed toast notification
                 showErrorToast({
                     title: "Error",
                     description: data.error || 'Failed to delete user',
@@ -323,18 +323,18 @@ const DashboardUsers: React.FC = () => {
                 return;
             }
 
-            // 添加删除成功吐司提示
+            // add deleted successfully toast notification
             showSuccessToast({
                 title: "User Deleted",
                 description: "User has been successfully deleted.",
             });
 
             setConfirmDelete(null);
-            mutate(); // 刷新用户列表
+            mutate(); // Refresh user list
         } catch {
             setErrorMessage('Failed to delete user. Please check your network connection.');
 
-            // 添加错误吐司提示
+            // Adderror toast notification
             showErrorToast({
                 title: "Error",
                 description: 'Failed to delete user. Please check your network connection.',
@@ -342,7 +342,7 @@ const DashboardUsers: React.FC = () => {
         }
     };
 
-    // 根据搜索和筛选条件过滤用户
+    // Filter users by search and filter conditions
     const filteredUsers = userList.filter((user: UserItem) => {
         const matchesSearch = searchTerm === '' ||
             user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -353,12 +353,12 @@ const DashboardUsers: React.FC = () => {
         return matchesSearch && matchesRole;
     });
 
-    // 在渲染移动设备列表时使用
+    // Used when rendering mobile device list
     const checkCanUpdateRole = (user: UserItem) => {
         if (user.id === session?.user?.id) return false;
 
-        // 只有超级管理员可以修改任何用户角色
-        // 普通管理员只能修改普通用户角色
+        // Only super admins can modify any user's role
+        // Regular admins can only modify regular user roles
         return isSuperAdmin(session?.user?.role as UserRole) ||
             (session?.user?.role === UserRole.ADMIN && user.role === UserRole.USER);
     };
@@ -366,8 +366,8 @@ const DashboardUsers: React.FC = () => {
     const checkCanDelete = (user: UserItem) => {
         if (user.id === session?.user?.id) return false;
 
-        // 超级管理员可以删除任何用户
-        // 普通管理员只能删除普通用户
+        // Super admin can delete any user
+        // Regular admins can only delete regular users
         return isSuperAdmin(session?.user?.role as UserRole) ||
             (session?.user?.role === UserRole.ADMIN && user.role === UserRole.USER);
     };
@@ -380,7 +380,7 @@ const DashboardUsers: React.FC = () => {
                 initial="initial"
                 animate="animate"
             >
-                {/* 页面标题骨架 */}
+                {/* Page title skeleton */}
                 <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between mb-6">
                     <motion.div
                         className="bg-gray-200 rounded h-8 w-48"
@@ -397,7 +397,7 @@ const DashboardUsers: React.FC = () => {
                     />
                 </div>
 
-                {/* 筛选器骨架 */}
+                {/* Filter skeleton */}
                 <motion.div
                     className="bg-white/70 backdrop-blur-sm rounded-xl border border-gray-100 p-6 mb-6"
                     variants={itemVariants}
@@ -420,7 +420,7 @@ const DashboardUsers: React.FC = () => {
                     </div>
                 </motion.div>
 
-                {/* 桌面端表格骨架 */}
+                {/* Desktop table skeleton */}
                 <motion.div
                     className="hidden md:block"
                     variants={itemVariants}
@@ -431,7 +431,7 @@ const DashboardUsers: React.FC = () => {
                     <UserTableSkeleton />
                 </motion.div>
 
-                {/* 移动端卡片骨架 */}
+                {/* Mobile card skeleton */}
                 <motion.div
                     className="md:hidden"
                     variants={itemVariants}
@@ -488,7 +488,7 @@ const DashboardUsers: React.FC = () => {
             initial="initial"
             animate="animate"
         >
-            {/* 页面标题 - 现代化设计 */}
+            {/* Page title — modern design */}
             <motion.div
                 className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between mb-8"
                 variants={itemVariants}
@@ -507,11 +507,11 @@ const DashboardUsers: React.FC = () => {
                     <div className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
                         {userList.length} {userList.length === 1 ? 'User' : 'Users'}
                     </div>
-                    {/* 可以添加导出或其他操作按钮 */}
+                    {/* Can add export or other action buttons */}
                 </motion.div>
             </motion.div>
 
-            {/* 筛选组件 */}
+            {/* Filter component */}
             <motion.div variants={itemVariants}>
                 <UserFilter
                     searchTerm={searchTerm}
@@ -521,7 +521,7 @@ const DashboardUsers: React.FC = () => {
                 />
             </motion.div>
 
-            {/* 用户列表 - 大屏幕表格版本 - Notion风格 */}
+            {/* User list — large screen table version — Notion style */}
             <AnimatedContainer className="hidden md:block">
                 <motion.div
                     className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 overflow-hidden shadow-sm"
@@ -529,7 +529,7 @@ const DashboardUsers: React.FC = () => {
                     initial="initial"
                     animate="animate"
                 >
-                    {/* 表头 */}
+                    {/* Table header */}
                     <div className="border-b border-gray-50 bg-gray-50/50">
                         <div className="grid grid-cols-12 gap-4 px-6 py-4">
                             <div className="col-span-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -553,7 +553,7 @@ const DashboardUsers: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 表格内容 */}
+                    {/* Table content */}
                     <motion.div
                         className="divide-y divide-gray-50"
                         variants={containerVariants}
@@ -580,7 +580,7 @@ const DashboardUsers: React.FC = () => {
                                     className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors duration-150 group"
                                     variants={itemVariants}
                                 >
-                                    {/* 用户信息 */}
+                                    {/* User info */}
                                     <div className="col-span-4 flex items-center gap-3">
                                         <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
                                             {user.image ? (
@@ -612,7 +612,7 @@ const DashboardUsers: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* 角色 */}
+                                    {/* Role */}
                                     <div className="col-span-2 flex items-center">
                                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium border
                                             ${user.role === UserRole.SUPER_ADMIN
@@ -625,7 +625,7 @@ const DashboardUsers: React.FC = () => {
                                         </span>
                                     </div>
 
-                                    {/* 注册时间 */}
+                                    {/* Registration time */}
                                     <div className="col-span-2 hidden lg:flex items-center">
                                         <span className="text-sm text-gray-500">
                                             {new Date(user.createdAt).toLocaleDateString('en-US', {
@@ -636,7 +636,7 @@ const DashboardUsers: React.FC = () => {
                                         </span>
                                     </div>
 
-                                    {/* 状态 */}
+                                    {/* Status */}
                                     <div className="col-span-1 flex items-center">
                                         <div className="flex items-center gap-1.5">
                                             <div className={`w-2 h-2 rounded-full 
@@ -650,7 +650,7 @@ const DashboardUsers: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* 登录方式 */}
+                                    {/* Login method */}
                                     <div className="col-span-1 hidden lg:flex items-center">
                                         {user.provider === 'google' ? (
                                             <div className="flex items-center gap-1.5">
@@ -662,7 +662,7 @@ const DashboardUsers: React.FC = () => {
                                         )}
                                     </div>
 
-                                    {/* 操作按钮 */}
+                                    {/* Action buttons */}
                                     <div className="col-span-2 lg:col-span-2 flex items-center justify-end">
                                         <UserActions
                                             user={user}
@@ -679,7 +679,7 @@ const DashboardUsers: React.FC = () => {
                 </motion.div>
             </AnimatedContainer>
 
-            {/* 用户列表 - 移动设备卡片版本 - 现代化设计 */}
+            {/* User list — mobile card version — modern design */}
             <AnimatedContainer className="md:hidden space-y-4">
                 {filteredUsers?.length === 0 ? (
                     <motion.div
@@ -701,7 +701,7 @@ const DashboardUsers: React.FC = () => {
                             className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-100 p-5 shadow-sm"
                             hover={true}
                         >
-                            {/* 用户头部信息 */}
+                            {/* User header info */}
                             <div className="flex items-start gap-4 mb-4">
                                 <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
                                     {user.image ? (
@@ -733,7 +733,7 @@ const DashboardUsers: React.FC = () => {
                                     </p>
                                 </div>
 
-                                {/* 状态指示器 */}
+                                {/* Status indicator */}
                                 <div className="flex items-center gap-1.5">
                                     <div className={`w-2.5 h-2.5 rounded-full 
                                         ${user.status === 'active' ? 'bg-green-400' :
@@ -746,7 +746,7 @@ const DashboardUsers: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* 详细信息网格 */}
+                            {/* Details grid */}
                             <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50/50 rounded-lg">
                                 <div>
                                     <p className="text-xs text-gray-500 mb-1">Role</p>
@@ -785,7 +785,7 @@ const DashboardUsers: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* 操作按钮区域 */}
+                            {/* Action buttons area */}
                             <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                                 <div className="flex items-center gap-2">
                                     {checkCanUpdateRole(user) && (
@@ -825,7 +825,7 @@ const DashboardUsers: React.FC = () => {
                                 </Link>
                             </div>
 
-                            {/* 当前用户标识 */}
+                            {/* Current user indicator */}
                             {user.id === session?.user?.id && (
                                 <div className="mt-3 pt-3 border-t border-gray-100">
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full">
@@ -841,7 +841,7 @@ const DashboardUsers: React.FC = () => {
                 )}
             </AnimatedContainer>
 
-            {/* 删除确认弹窗 - 现代化设计 */}
+            {/* Delete confirmation popup - modern design */}
             <AnimatedModal
                 isOpen={!!confirmDelete}
                 onClose={() => {
@@ -851,7 +851,7 @@ const DashboardUsers: React.FC = () => {
                 className="max-w-md"
             >
                 <div className="p-6">
-                    {/* 弹窗头部 */}
+                    {/* Modal header */}
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                             <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -865,7 +865,7 @@ const DashboardUsers: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 错误信息 */}
+                    {/* Error message */}
                     {errorMessage && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
@@ -881,7 +881,7 @@ const DashboardUsers: React.FC = () => {
                         </motion.div>
                     )}
 
-                    {/* 警告内容 */}
+                    {/* Warning content */}
                     <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                         <p className="text-gray-700 text-sm leading-relaxed">
                             Are you sure you want to delete this user? This action will permanently remove all user data, including:
@@ -902,7 +902,7 @@ const DashboardUsers: React.FC = () => {
                         </ul>
                     </div>
 
-                    {/* 操作按钮 */}
+                    {/* Action buttons */}
                     <div className="flex flex-col-reverse sm:flex-row gap-3">
                         <ModernButton
                             variant="ghost"
@@ -919,7 +919,7 @@ const DashboardUsers: React.FC = () => {
                             variant="danger"
                             onClick={confirmUserDelete}
                             className="flex-1 justify-center"
-                            loading={false} // 可以根据需要添加加载状态
+                            loading={false} // Can add loading status as needed
                         >
                             Delete User
                         </ModernButton>

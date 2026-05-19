@@ -14,7 +14,7 @@ export default function SignInForm() {
     const [successMessage, setSuccessMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // 检查用户是否刚完成注册
+    // Check if the user just completed registration
     useEffect(() => {
         const registered = searchParams?.get("registered");
         const provider = searchParams?.get("provider");
@@ -36,7 +36,7 @@ export default function SignInForm() {
             setError(errorMessages[errorType] || errorMessages.Default);
         }
 
-        // 如果指定了提供商参数，自动触发 OAuth 登录
+        // If a provider parameter is specified, automatically trigger OAuth sign-in
         if (provider) {
             handleProviderSignIn(provider);
         }
@@ -70,7 +70,7 @@ export default function SignInForm() {
                 router.refresh();
             }
         } catch {
-            // 保留一个通用错误处理，以防 signIn 抛出非 AuthError 的异常
+            // Generic error handler in case signIn throws a non-AuthError exception
             setError("An unexpected error occurred during sign in. Please try again.");
         } finally {
             setIsLoading(false);

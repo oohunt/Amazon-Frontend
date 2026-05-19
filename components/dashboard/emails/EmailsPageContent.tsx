@@ -202,7 +202,7 @@ const EmailsPageContent = () => {
         });
     };
 
-    // 更新订阅状态
+    // update subscription status
     const handleUpdateStatus = async (id: string, isActive: boolean) => {
         try {
             const response = await fetch(`/api/emails/${id}/status?collection=${activeTab === 'subscribers' ? 'email_subscription' : 'users'}`, {

@@ -2,10 +2,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 定义查询条件的接口
+// Define query conditions interface
 interface Query {
     $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
-    isProcessed?: boolean; // 可选属性
+    isProcessed?: boolean; // Optional property
 }
 
 export async function GET(request: NextRequest) {
@@ -14,17 +14,17 @@ export async function GET(request: NextRequest) {
         const search = searchParams.get('search') || '';
         const is_processed = searchParams.get('is_processed');
 
-        // 使用环境变量配置的数据库名
+        // Use database name from environment variable configuration
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
-        // 使用contact_messages集合
+        // Use contact_messages collection
         const collection = db.collection('contact_messages');
 
-        // 构建查询条件
+        // Build query conditions
         const query: Query = {};
 
-        // 如果有搜索词，则在多个字段中搜索
+        // If search term exists, search across multiple fields
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -34,21 +34,21 @@ export async function GET(request: NextRequest) {
             ];
         }
 
-        // 如果筛选处理状态
+        // If filter processing status
         if (is_processed !== null) {
             query.isProcessed = is_processed === 'true';
         }
 
-        // 获取数据
+        // Get data
         const items = await collection.find(query).toArray();
 
-        // 转换为CSV格式
+        // Convert to CSV format
         const csvHeader = 'Name,Email,Subject,Message,Date,Status,Phone,Notes\n';
         const csvRows = items.map(item => {
             const name = item.name || '';
             const email = item.email || '';
             const subject = item.subject || '';
-            // 净化消息文本，移除引号和换行
+            // Sanitize message text, remove quotes and newlines
             const message = (item.message || '').replace(/"/g, '""').replace(/\n/g, ' ');
             const createdAt = item.createdAt instanceof Date ?
                 new Date(item.createdAt).toISOString().split('T')[0] :
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
         const csvContent = csvHeader + csvRows.join('\n');
 
-        // 设置响应头为CSV下载
+        // Set response headers for CSV download
         const headers = new Headers();
 
         headers.set('Content-Type', 'text/csv; charset=utf-8');
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
             headers
         });
     } catch (error) {
-        // 设置响应头
+        // Set response headers
         const headers = new Headers();
 
         headers.append('Content-Type', 'application/json');

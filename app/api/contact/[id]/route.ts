@@ -3,10 +3,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 查看留言详情
+// View message details
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        // 从params获取ID
+        // Get ID from params
         const { id } = await params;
 
         if (!id) {
@@ -16,10 +16,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             );
         }
 
-        // 使用环境变量配置的数据库名
+        // Use database name from environment variable configuration
         const dbName = process.env.MONGODB_DB || 'oohunt';
 
-        // 验证ID格式
+        // Validate ID format
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: 'Invalid message ID' },
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const db = client.db(dbName);
         const collection = db.collection('contact_messages');
 
-        // 查询留言
+        // Query message
         const message = await collection.findOne({ _id: new ObjectId(id) });
 
         if (!message) {
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             );
         }
 
-        // 格式化留言数据
+        // Format message data
         const formattedMessage = {
             id: message._id.toString(),
             name: message.name,
@@ -71,10 +71,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
-// 删除留言
+// delete message
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        // 从params获取ID
+        // Get ID from params
         const { id } = await params;
 
         if (!id) {
@@ -84,10 +84,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             );
         }
 
-        // 使用环境变量配置的数据库名
+        // Use database name from environment variable configuration
         const dbName = process.env.MONGODB_DB || 'oohunt';
 
-        // 验证ID格式
+        // Validate ID format
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: 'Invalid message ID' },
@@ -99,7 +99,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         const db = client.db(dbName);
         const collection = db.collection('contact_messages');
 
-        // 删除留言
+        // delete message
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {

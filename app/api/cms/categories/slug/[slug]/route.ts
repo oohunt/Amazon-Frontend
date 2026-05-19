@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 通过slug获取分类
+// Get category by slug
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
 
-        // 首先等待params解析完成
+        // First await params resolution
         const resolvedParams = await params;
         const slug = resolvedParams.slug;
 
@@ -23,13 +23,13 @@ export async function GET(
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_categories');
 
-        // 查询分类
+        // Query the category
         const category = await collection.findOne({ slug });
 
 
@@ -43,7 +43,7 @@ export async function GET(
             );
         }
 
-        // 转换格式
+        // Format data
         const formattedCategory = {
             ...category,
             _id: category._id.toString(),

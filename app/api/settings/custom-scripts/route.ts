@@ -5,15 +5,15 @@ import { NextResponse } from 'next/server';
 import { ScriptLocation, type CustomScript, type CustomScriptRequest } from '@/lib/models/CustomScript';
 import clientPromise from '@/lib/mongodb';
 
-// 完全禁用路由段缓存
+// Completely disable route segment cache
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
- * 验证脚本请求数据
+ * Validate script request data
  */
 function validateScriptRequest(data: Partial<CustomScriptRequest>): CustomScriptRequest {
-    // 验证数据类型和必需字段
+    // Validate data types and required fields
     if (!data || typeof data !== 'object') {
         throw new Error('Invalid script data');
     }
@@ -26,56 +26,56 @@ function validateScriptRequest(data: Partial<CustomScriptRequest>): CustomScript
         throw new Error('Script content is required');
     }
 
-    // 验证location字段
+    // Validate location field
     if (!data.location || !Object.values(ScriptLocation).includes(data.location)) {
         throw new Error('Invalid script location');
     }
 
-    // 返回验证后的数据
+    // return validated data
     return {
         _id: data._id || undefined,
         name: data.name,
         content: data.content,
         location: data.location as ScriptLocation,
-        enabled: data.enabled === true, // 确保enabled为布尔值
+        enabled: data.enabled === true, // Ensure enabled is boolean
     };
 }
 
 /**
- * GET /api/settings/custom-scripts - 获取自定义脚本列表
+ * GET /api/settings/custom-scripts - Fetch custom scripts list
  */
 export async function GET(request: Request) {
     try {
-        // 获取URL查询参数
+        // Get URL query parameters
         const url = new URL(request.url);
         const enabledParam = url.searchParams.get('enabled');
         const locationParam = url.searchParams.get('location');
 
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB || 'oohunt');
         const collection = db.collection('custom_scripts');
 
-        // 构建查询条件
+        // Build query conditions
         const query: Record<string, boolean | string> = {};
 
-        // 如果指定了enabled参数，添加到查询条件
+        // If enabled parameter specified, add to query conditions
         if (enabledParam !== null) {
             query.enabled = enabledParam === 'true';
         }
 
-        // 如果指定了location参数，添加到查询条件
+        // If location parameter specified, add to query conditions
         if (locationParam && Object.values(ScriptLocation).includes(locationParam as ScriptLocation)) {
             query.location = locationParam;
         }
 
-        // 获取脚本列表
+        // Get script list
         const scripts = await collection.find(query).toArray();
 
-        // 转换为响应格式
+        // Convert to response format
         const formattedScripts = scripts.map(script => ({
             ...script,
-            _id: script._id.toString() // 转换ObjectId为字符串
+            _id: script._id.toString() // Convert ObjectId to string
         }));
 
         return NextResponse.json({
@@ -98,34 +98,34 @@ export async function GET(request: Request) {
 }
 
 /**
- * PUT /api/settings/custom-scripts - 更新自定义脚本
+ * PUT /api/settings/custom-scripts - Update custom script
  */
 export async function PUT(request: Request) {
     try {
-        // 解析请求体
+        // Parse request body
         const requestData = await request.json();
 
-        // 验证数据格式 - 单个脚本或脚本数组
+        // Validate data format - single script or script array
         let scriptsToUpdate: CustomScriptRequest[] = [];
 
         if (Array.isArray(requestData)) {
-            // 处理脚本数组
+            // Handle script array
             scriptsToUpdate = requestData.map(validateScriptRequest);
         } else {
-            // 处理单个脚本
+            // Handle individual script
             scriptsToUpdate = [validateScriptRequest(requestData)];
         }
 
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB || 'oohunt');
         const collection = db.collection('custom_scripts');
 
-        // 批量更新脚本
+        // Bulk update scripts
         const updateResults = await Promise.all(
             scriptsToUpdate.map(async script => {
                 if (script._id) {
-                    // 更新现有脚本
+                    // update existing script
                     const result = await collection.updateOne(
                         { _id: new ObjectId(script._id) },
                         {
@@ -141,7 +141,7 @@ export async function PUT(request: Request) {
 
                     return { ...script, updated: result.modifiedCount > 0 };
                 } else {
-                    // 创建新脚本
+                    // create new script
                     const newScript: Omit<CustomScript, '_id'> = {
                         name: script.name,
                         content: script.content,
@@ -162,10 +162,10 @@ export async function PUT(request: Request) {
             })
         );
 
-        // 使相关路径的缓存失效
+        // Invalidate cache for related paths
         revalidatePath('/api/settings/custom-scripts');
 
-        // 返回更新结果 - 不缓存PUT响应
+        // return update result — do not cache PUT response
         return NextResponse.json(updateResults, {
             headers: {
                 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -183,11 +183,11 @@ export async function PUT(request: Request) {
 }
 
 /**
- * DELETE /api/settings/custom-scripts - 删除自定义脚本
+ * DELETE /api/settings/custom-scripts - Delete custom script
  */
 export async function DELETE(request: Request) {
     try {
-        // 获取URL查询参数
+        // Get URL query parameters
         const url = new URL(request.url);
         const idParam = url.searchParams.get('id');
 
@@ -198,13 +198,13 @@ export async function DELETE(request: Request) {
             );
         }
 
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB || 'oohunt');
         const collection = db.collection('custom_scripts');
 
         try {
-            // 删除脚本
+            // delete script
             const result = await collection.deleteOne({ _id: new ObjectId(idParam) });
 
             if (result.deletedCount === 0) {
@@ -214,7 +214,7 @@ export async function DELETE(request: Request) {
                 );
             }
 
-            // 使相关路径的缓存失效
+            // Invalidate cache for related paths
             revalidatePath('/api/settings/custom-scripts');
 
             return NextResponse.json({
@@ -230,7 +230,7 @@ export async function DELETE(request: Request) {
         } catch (dbError) {
 
             return NextResponse.json(
-                { error: '数据库操作失败', details: dbError instanceof Error ? dbError.message : String(dbError) },
+                { error: 'Database operation failed', details: dbError instanceof Error ? dbError.message : String(dbError) },
                 { status: 500 }
             );
         }

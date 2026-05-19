@@ -14,7 +14,7 @@ interface SearchResult {
     }>;
 }
 
-// 搜索下拉菜单动画
+// Search dropdown animation
 const searchDropdownVariants = {
     hidden: { opacity: 0, y: -10 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
@@ -94,7 +94,7 @@ export const MobileSearch: React.FC<MobileSearchProps> = ({
                 </div>
             </form>
 
-            {/* 移动端搜索预览 */}
+            {/* Mobile search preview */}
             <AnimatePresence>
                 {showSearchPreview && searchKeyword.length > 0 && (
                     <motion.div

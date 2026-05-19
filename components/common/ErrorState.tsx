@@ -7,15 +7,15 @@ interface ErrorStateProps {
 }
 
 /**
- * 错误状态组件
- * 显示错误信息和重试按钮
+ * Error status component
+ * Show error message and retry button
  */
 const ErrorState: React.FC<ErrorStateProps> = ({
     message,
     error,
     retry
 }) => {
-    // 格式化错误信息
+    // Format error message
     const errorMessage = error
         ? typeof error === 'string'
             ? error
@@ -24,7 +24,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-center rounded-lg border border-red-100 bg-red-50 p-8 text-center">
-            {/* 错误图标 */}
+            {/* Error icon */}
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                 <svg
                     className="h-8 w-8 text-red-500"
@@ -42,13 +42,13 @@ const ErrorState: React.FC<ErrorStateProps> = ({
                 </svg>
             </div>
 
-            {/* 错误标题 */}
+            {/* Error title */}
             <h3 className="mb-2 text-lg font-medium text-red-800">{message}</h3>
 
-            {/* 错误详情 */}
+            {/* Error details */}
             <p className="mb-6 max-w-md text-red-600">{errorMessage}</p>
 
-            {/* 重试按钮 */}
+            {/* Retry button */}
             {retry && (
                 <button
                     onClick={retry}

@@ -6,7 +6,7 @@
   --navbar-height: 64px;
 }
 
-/* 移除输入框聚焦时的黑色边框 */
+/* Remove black border on input focus */
 input:focus, 
 select:focus, 
 textarea:focus, 
@@ -18,14 +18,14 @@ button:focus,
   border-color: var(--color-primary) !important;
 }
 
-/* 基础样式 */
+/* Base styles */
 body {
   padding-top: var(--navbar-height);
   @apply bg-background text-text antialiased min-h-screen relative;
   /* overflow-x handled by wrapper divs, not body — avoids scroll container issues */
 }
 
-/* 移除所有链接的下划线 */
+/* Remove underlines from all links */
 a, a:hover, a:focus, a:active, a:visited,
 Link, Link:hover, Link:focus, Link:active, Link:visited {
   text-decoration: none !important;
@@ -155,7 +155,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
 }
 
 /*
-  边框颜色默认设置
+  Default border color setting
 */
 @layer base {
   *,
@@ -171,7 +171,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* 移除全局 h1-h6 默认样式，让 prose 控制 */
+  /* Remove global h1-h6 default styles, let prose control them */
   /* h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-text;
   } */
@@ -181,12 +181,12 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     text-decoration: none;
   }
 
-  /* 清晰的 Prose 标题层级 */
+  /* Clear Prose heading hierarchy */
   .prose h1 {
-    @apply text-3xl font-bold mt-8 mb-4; /* 更大的 H1 */
+    @apply text-3xl font-bold mt-8 mb-4; /* Larger H1 */
   }
   .prose h2 {
-    @apply text-2xl font-semibold mt-7 mb-3; /* 稍大的 H2 */
+    @apply text-2xl font-semibold mt-7 mb-3; /* Slightly larger H2 */
   }
   .prose h3 {
     @apply text-xl font-semibold mt-6 mb-3; /* H3 */
@@ -201,7 +201,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     @apply text-sm font-semibold mt-4 mb-2; /* H6 */
   }
 
-  /* 自定义 Prose 样式 - 下面的部分将被上面的规则覆盖或不再需要 */
+  /* Custom Prose styles — following rules will be overridden by above or no longer needed */
   /*
   .prose h1, .prose-sm h1, .prose-base h1, .prose-lg h1 {
     font-size: 2rem;
@@ -227,36 +227,36 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
   */
   .prose p, .prose-sm p, .prose-base p, .prose-lg p {
      margin-bottom: 0.75rem;
-     /* 如果需要，可以添加 color 等 */
+     /* Add color etc. if needed */
   }
   .prose ul, .prose ol, .prose-sm ul, .prose-sm ol, .prose-base ul, .prose-base ol, .prose-lg ul, .prose-lg ol {
      padding-left: 1.5rem;
      margin-bottom: 0.75rem;
   }
 
-  /* 添加列表项样式 */
+  /* Add list item styles */
   .prose ul > li, .prose-sm ul > li, .prose-base ul > li, .prose-lg ul > li {
     list-style-type: disc;
-    /* 可选：添加 margin-bottom 或其他 li 样式 */
-    margin-bottom: 0.25rem; /* 示例：添加列表项间距 */
+    /* Optional: add margin-bottom or other li styles */
+    margin-bottom: 0.25rem; /* Example: add list item spacing */
   }
   .prose ol > li, .prose-sm ol > li, .prose-base ol > li, .prose-lg ol > li {
     list-style-type: decimal;
-    /* 可选：添加 margin-bottom 或其他 li 样式 */
-    margin-bottom: 0.25rem; /* 示例：添加列表项间距 */
+    /* Optional: add margin-bottom or other li styles */
+    margin-bottom: 0.25rem; /* Example: add list item spacing */
   }
 
-  /* 可选：调整 marker 颜色 */
+  /* Optional: adjust marker color */
   .prose ul > li::marker, .prose ol > li::marker,
   .prose-sm ul > li::marker, .prose-sm ol > li::marker,
   .prose-base ul > li::marker, .prose-base ol > li::marker,
   .prose-lg ul > li::marker, .prose-lg ol > li::marker {
-     color: var(--color-text-light, #7f8c8d); /* 示例：使用次要文本颜色 */
+     color: var(--color-text-light, #7f8c8d); /* Example: use secondary text color */
   }
 
- /* 暗色模式覆盖 (示例 - 请根据你的暗色主题颜色调整) */
+ /* Dark mode overrides (example — adjust to match your dark theme colors) */
  .dark .prose h1, .dark .prose-sm h1, .dark .prose-base h1, .dark .prose-lg h1 {
-    color: var(--color-gray-100, #f1f5f9); /* 使用你的暗色主题文本颜色 */
+    color: var(--color-gray-100, #f1f5f9); /* Use your dark theme text color */
  }
  .dark .prose h2, .dark .prose-sm h2, .dark .prose-base h2, .dark .prose-lg h2 {
     color: var(--color-gray-200, #e2e8f0);
@@ -267,19 +267,19 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
  .dark .prose p, .dark .prose-sm p, .dark .prose-base p, .dark .prose-lg p {
     color: var(--color-gray-300, #cbd5e1);
  }
- /* 如果需要，为列表、链接等添加暗色模式颜色 */
+ /* Add dark mode colors for lists, links, etc. if needed */
 
   .prose h3 {
-    @apply text-xl font-semibold mt-6 mb-3; /* 调整 H3 样式 */
+    @apply text-xl font-semibold mt-6 mb-3; /* Adjust H3 styles */
   }
   .prose h4 {
-    @apply text-lg font-semibold mt-5 mb-2; /* 定义 H4 样式 */
+    @apply text-lg font-semibold mt-5 mb-2; /* Define H4 styles */
   }
   .prose h5 {
-    @apply text-base font-semibold mt-4 mb-2; /* 定义 H5 样式 */
+    @apply text-base font-semibold mt-4 mb-2; /* Define H5 styles */
   }
   .prose h6 {
-    @apply text-sm font-semibold mt-4 mb-2; /* 定义 H6 样式 */
+    @apply text-sm font-semibold mt-4 mb-2; /* Define H6 styles */
   }
 }
 
@@ -410,21 +410,21 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
 }
 
 @layer utilities {
-  /* 暗色主题 */
+  /* Dark theme */
   [data-theme='dark'] {
-    --color-background: #1a202c; /* 深灰色背景 */
-    --color-text: #f7fafc; /* 浅色文本 */
-    --color-text-light: #a0aec0; /* 中灰色文本 */
+    --color-background: #1a202c; /* Dark gray background */
+    --color-text: #f7fafc; /* Light text */
+    --color-text-light: #a0aec0; /* Medium gray text */
     
-    --color-primary: #5a8a9f; /* 主色调整为中性蓝色 */
-    --color-primary-light: #7ba3b7; /* 淡蓝色 */
-    --color-primary-dark: #3d5a80; /* 深蓝色 */
+    --color-primary: #5a8a9f; /* Primary color adjusted to neutral blue */
+    --color-primary-light: #7ba3b7; /* Light blue */
+    --color-primary-dark: #3d5a80; /* Dark blue */
     
-    --color-secondary: #718096; /* 中性灰色 */
-    --color-secondary-light: #a0aec0; /* 淡灰色 */
+    --color-secondary: #718096; /* Neutral gray */
+    --color-secondary-light: #a0aec0; /* Light gray */
     
-    --color-accent: #f39c12; /* 柔和橙色 */
-    --color-accent-light: #f5b041; /* 淡橙色 */
+    --color-accent: #f39c12; /* Soft orange */
+    --color-accent-light: #f5b041; /* Light orange */
     
     --color-gray-50: #171923;
     --color-gray-100: #1a202c;
@@ -441,21 +441,21 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     --heroui-default-200: #334155;
   }
 
-  /* 商品卡片网格样式 - 确保高度一致性 */
+  /* Product card grid styles — ensure consistent height */
   .grid-item {
     height: 100%;
     display: flex;
     flex-direction: column;
   }
   
-  /* 确保在移动端和平板端商品卡片有合适的高度和间距 */
+  /* Ensure product cards have appropriate height and spacing on mobile and tablet */
   @media (max-width: 640px) {
     .grid-item {
       min-height: 250px;
     }
   }
   
-  /* 平板端布局优化 */
+  /* Tablet layout optimization */
   @media (min-width: 641px) and (max-width: 1023px) {
     .grid-item {
       min-height: 350px;
@@ -474,7 +474,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
 
-  /* 动画类 */
+  /* Animation classes */
   .animate-float {
     animation: var(--animate-float);
   }
@@ -487,7 +487,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     animation: var(--animate-bounce);
   }
 
-  /* 滚动条样式 */
+  /* Scrollbar styles */
   .scrollbar-hide {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
@@ -497,7 +497,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     }
   }
   
-  /* 文本颜色类，使用纯色替代渐变 */
+  /* Text color classes, using solid colors instead of gradients */
   .text-gradient-primary {
     color: var(--color-primary);
   }
@@ -506,7 +506,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     color: var(--color-secondary);
   }
 
-  /* 隐藏滚动条但保持滚动功能 */
+  /* Hide scrollbar while keeping scroll functionality */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -516,12 +516,12 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     scrollbar-width: none;  /* Firefox */
   }
 
-  /* 收藏按钮心跳动画 */
+  /* Favorite button heartbeat animation */
   .animate-heartbeat {
     animation: var(--animate-heartbeat);
   }
 
-  /* 收藏成功提示动画 */
+  /* Favorite success toast animation */
   .animate-favorite-success {
     animation: var(--animate-favorite-success);
   }
@@ -544,7 +544,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
   }
 }
 
-/* 过渡动画 */
+/* Transition animations */
 .fade-enter {
   opacity: 0;
   transform: translateY(20px);
@@ -567,7 +567,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
   transition: opacity var(--transition-normal), transform var(--transition-normal);
 }
 
-/* 移动端优化 */
+/* Mobile optimization */
 @media (max-width: 640px) {
   html, body {
     @apply touch-pan-y;
@@ -613,9 +613,9 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
 }
 
 .block-add-button {
-    left: -24px; /* 调整：尝试向右移动一点 */
-    top: 2px;    /* 调整：尝试向上移动一点 */
-    /* 如果垂直位置不对，尝试 transform: translateY(-50%); */
+    left: -24px; /* Adjustment: try moving slightly to the right */
+    top: 2px;    /* Adjustment: try moving slightly upward */
+    /* If vertical position is off, try transform: translateY(-50%); */
 }
 
 .block-drag-handle {
@@ -657,21 +657,21 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
 
 /* --- Start Tiptap Block Actions Extension Styles --- */
 
-/* 为 Tiptap 编辑器内的块级元素/行添加相对定位和左内边距 */
+/* Add relative positioning and left padding to block elements/lines inside the Tiptap editor */
 .tiptap .ProseMirror > * {
   position: relative;
-  padding-left: 30px; /* 为按钮留出空间，根据需要调整 */
-  min-height: 1.5em;  /* 防止空行按钮错位 */
+  padding-left: 30px; /* Leave space for button, adjust as needed */
+  min-height: 1.5em;  /* Prevent button misalignment on empty lines */
 }
 
-/* 覆盖 product-node-wrapper 的内联块，使其能正常应用 padding-left */
+/* Override product-node-wrapper inline-block so padding-left applies correctly */
 .product-node-wrapper {
-  display: block; /* 或者根据需要调整 */
+  display: block; /* Or adjust as needed */
 }
 
-/* 基本按钮样式 */
+/* Basic button styles */
 .block-action-button {
-    display: inline-flex; /* 默认隐藏，由JS控制或在hover时显示 */
+    display: inline-flex; /* Hidden by default, shown via JS or on hover */
     align-items: center;
     justify-content: center;
     width: 20px;
@@ -684,32 +684,32 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
     cursor: pointer;
     z-index: 50;
     transition: background-color 0.2s, opacity 0.2s;
-    opacity: 0; /* 默认隐藏 */
-    user-select: none; /* 防止文本选择 */
-    position: absolute; /* 定位按钮 */
-    top: 0; /* 靠近顶部对齐，或使用 50% + transform */
-    /* transform: translateY(2px); /* 微调垂直位置 */
+    opacity: 0; /* Hidden by default */
+    user-select: none; /* Prevent text selection */
+    position: absolute; /* Position button */
+    top: 0; /* Align near top, or use 50% + transform */
+    /* transform: translateY(2px); /* Fine-tune vertical position */
 }
 
-/* '添加' 按钮特定定位 */
+/* 'Add' button specific positioning */
 .block-add-button {
-  left: 5px; /* 在父元素的 padding-left 区域内 */
+  left: 5px; /* Within parent element's padding-left area */
 }
 
-/* 悬停时显示按钮 - 应用于父元素 */
+/* Show button on hover — apply to parent element */
 .tiptap .ProseMirror > *:hover > .block-action-button {
   opacity: 1;
 }
 
-/* 按钮悬停效果 */
+/* Button hover effect */
 .block-action-button:hover {
   background-color: #f0f0f0;
 }
 
-/* (可选) 拖拽手柄样式 */
+/* (Optional) Drag handle styles */
 /*
 .block-drag-handle {
-    left: -5px; // 如果添加按钮在5px, 拖拽可以在更左边
+    left: -5px; // If Add button is at 5px, drag handle can be further left
     cursor: grab;
 }
 
@@ -720,7 +720,7 @@ Link, Link:hover, Link:focus, Link:active, Link:visited {
 
 /* --- End Tiptap Block Actions Extension Styles --- */
 
-/* 确保Badge内的文本不会与关闭按钮重叠 */
+/* Ensure text inside Badge doesn't overlap the close button */
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;

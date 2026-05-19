@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 
 /**
- * 用于生成缓存键的类型
+ * Type used for generating cache keys
  */
 type CacheKeyParams = Record<string, string | number | boolean | undefined | null>;
 
 /**
- * 本地缓存项接口
+ * Local cache item interface
  */
 interface CacheItem<T> {
     data: T;
@@ -15,7 +15,7 @@ interface CacheItem<T> {
 }
 
 /**
- * 缓存命中结果接口
+ * Cache hit result interface
  */
 export interface CacheResult<T> {
     hit: boolean;
@@ -24,10 +24,10 @@ export interface CacheResult<T> {
 }
 
 /**
- * 基于参数生成缓存键
+ * Generate a cache key based on parameters
  */
 export function generateCacheKey(prefix: string, params: CacheKeyParams): string {
-    // 过滤掉undefined和null值
+    // Filter out undefined and null values
     const filteredParams = Object.entries(params)
         .filter(([_, value]) => value !== undefined && value !== null && value !== '')
         .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
@@ -38,7 +38,7 @@ export function generateCacheKey(prefix: string, params: CacheKeyParams): string
 }
 
 /**
- * 从本地存储中获取缓存数据
+ * Retrieve cached data from local storage
  */
 export function getFromCache<T>(key: string, maxAge = 300000): CacheResult<T> {
     if (typeof window === 'undefined') {
@@ -56,7 +56,7 @@ export function getFromCache<T>(key: string, maxAge = 300000): CacheResult<T> {
         const now = Date.now();
         const age = now - cache.timestamp;
 
-        // 检查缓存是否有效
+        // Check if the cache is still valid
         if (age < maxAge) {
             return {
                 hit: true,
@@ -65,7 +65,7 @@ export function getFromCache<T>(key: string, maxAge = 300000): CacheResult<T> {
             };
         }
 
-        // 缓存过期，清除它
+        // Cache expired, remove it
         localStorage.removeItem(`cache_${key}`);
 
         return { hit: false };
@@ -75,7 +75,7 @@ export function getFromCache<T>(key: string, maxAge = 300000): CacheResult<T> {
 }
 
 /**
- * 将数据写入本地存储缓存
+ * Write data to local storage cache
  */
 export function writeToCache<T>(key: string, data: T, maxAge = 300000): void {
     if (typeof window === 'undefined') {
@@ -91,13 +91,13 @@ export function writeToCache<T>(key: string, data: T, maxAge = 300000): void {
 
         localStorage.setItem(`cache_${key}`, JSON.stringify(cache));
     } catch {
-        // 缓存写入失败时，尝试清理部分缓存
+        // If cache write fails, try to clean up some cached entries
         cleanupCache();
     }
 }
 
 /**
- * 清理旧缓存以释放空间
+ * Clean up old cache entries to free space
  */
 export function cleanupCache(keepNewest = 50): void {
     if (typeof window === 'undefined') {
@@ -108,7 +108,7 @@ export function cleanupCache(keepNewest = 50): void {
         const cacheKeys = [];
         const now = Date.now();
 
-        // 收集所有缓存项
+        // Collect all cache entries
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
 
@@ -126,32 +126,32 @@ export function cleanupCache(keepNewest = 50): void {
                         });
                     }
                 } catch {
-                    // 移除无效的缓存项
+                    // Remove invalid cache entries
                     localStorage.removeItem(key);
                 }
             }
         }
 
-        // 先删除过期的缓存
+        // First delete expired cache entries
         const expiredKeys = cacheKeys.filter(item => item.expiry < now);
 
         for (const { key } of expiredKeys) {
             localStorage.removeItem(key);
         }
 
-        // 如果还需要更多空间，根据时间戳排序，保留最新的项
+        // If more space is needed, sort by timestamp and keep the newest entries
         if (cacheKeys.length - expiredKeys.length > keepNewest) {
             const validKeys = cacheKeys
                 .filter(item => item.expiry >= now)
                 .sort((a, b) => b.timestamp - a.timestamp);
 
-            // 删除旧的缓存项
+            // Delete old cache entries
             for (let i = keepNewest; i < validKeys.length; i++) {
                 localStorage.removeItem(validKeys[i].key);
             }
         }
     } catch {
-        // 如果清理失败，尝试清除所有缓存
+        // If cleanup fails, try to clear all cache entries
         try {
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
@@ -161,13 +161,13 @@ export function cleanupCache(keepNewest = 50): void {
                 }
             }
         } catch {
-            // 忽略错误
+            // Ignore errors
         }
     }
 }
 
 /**
- * 使用缓存的请求状态钩子
+ * Hook for fetch state with caching
  */
 export function useCachedFetch<T>(
     url: string | null,
@@ -193,7 +193,7 @@ export function useCachedFetch<T>(
     const [error, setError] = useState<Error | null>(null);
     const [fromCache, setFromCache] = useState<boolean>(false);
 
-    // 生成缓存键
+    // Generate cache key
     const cacheKey = url ? generateCacheKey(`${prefixKey}_${url}`, params) : null;
 
     const fetchData = useCallback(async () => {
@@ -207,7 +207,7 @@ export function useCachedFetch<T>(
         setFromCache(false);
 
         try {
-            // 尝试从缓存获取
+            // Try to get from cache
             if (cacheKey) {
                 const cached = getFromCache<T>(cacheKey, maxAge);
 
@@ -220,28 +220,28 @@ export function useCachedFetch<T>(
                 }
             }
 
-            // 构建查询参数
+            // Build query parameters
             const queryParams = new URLSearchParams();
 
-            // 添加所有查询参数
+            // Add all query parameters
             Object.entries(params).forEach(([key, value]) => {
                 if (value !== undefined && value !== null) {
                     queryParams.append(key, String(value));
                 }
             });
 
-            // 正确处理URL的查询字符串部分
+            // Correctly handle the query string portion of the URL
             const queryString = queryParams.toString();
             const urlWithQuery = url
                 ? url + (queryString ? (url.includes('?') ? '&' : '?') + queryString : '')
                 : '';
 
-            // 如果没有URL则退出
+            // Exit if no URL is provided
             if (!url) {
                 throw new Error('URL is required for fetch');
             }
 
-            // 发起网络请求
+            // Make the network request
             const response = await fetch(urlWithQuery);
 
             if (!response.ok) {
@@ -251,10 +251,10 @@ export function useCachedFetch<T>(
             const result = await response.json();
             const responseData = result.data as T;
 
-            // 更新状态
+            // Update state
             setData(responseData);
 
-            // 缓存结果
+            // Cache the result
             if (cacheKey) {
                 writeToCache(cacheKey, responseData, maxAge);
             }
@@ -266,12 +266,12 @@ export function useCachedFetch<T>(
         }
     }, [url, cacheKey, maxAge, params, requireUrl]);
 
-    // 首次加载和依赖项变化时获取数据
+    // Fetch data on initial load and when dependencies change
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    // 提供重新获取数据的方法
+    // Provide a method to re-fetch data
     const refetch = async () => {
         await fetchData();
     };
@@ -280,8 +280,8 @@ export function useCachedFetch<T>(
 }
 
 /**
- * 初始化缓存系统，清理过期缓存
- * 应在应用启动时调用
+ * Initialize the cache system and clean up expired cache entries
+ * Should be called when the application starts
  */
 export function initCacheSystem(): void {
     if (typeof window === 'undefined') {
@@ -289,18 +289,18 @@ export function initCacheSystem(): void {
     }
 
     try {
-        // 使用 requestIdleCallback 在浏览器空闲时清理缓存
+        // Use requestIdleCallback to clean up cache when the browser is idle
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(() => {
                 cleanupCache();
             });
         } else {
-            // 退回到 setTimeout
+            // Fall back to setTimeout
             setTimeout(() => {
                 cleanupCache();
             }, 2000);
         }
     } catch {
-        // 忽略错误
+        // Ignore errors
     }
 } 

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-// 导入Swiper样式
+// import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -18,11 +18,11 @@ import { formatPrice, calculateDiscount } from '@/lib/utils';
 import type { Product } from '@/types/api';
 
 interface CategoryProductsProps {
-    title: string;          // 分类标题
-    slug: string;           // 分类的slug，用于构建See All链接
-    page_size?: number;     // 要显示的商品数量限制
-    className?: string;     // 自定义CSS类
-    id?: string;            // HTML ID，用于锚点链接
+    title: string;          // Category title
+    slug: string;           // Category slug, used to build See All link
+    page_size?: number;     // Limit on number of products to show
+    className?: string;     // Custom CSS class
+    id?: string;            // HTML ID for anchor links
 }
 
 export function CategoryProducts({ title, slug, page_size = 4, className = '', id }: CategoryProductsProps) {
@@ -31,7 +31,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
     const [error, setError] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
 
-    // 根据屏幕宽度动态设置商品数量，使用 page_size 作为初始值
+    // Dynamically set product count based on screen width, using page_size as initial value
     const [dynamicLimit, setDynamicLimit] = useState(page_size);
 
     useEffect(() => {
@@ -39,32 +39,32 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
             const width = window.innerWidth;
 
             if (width >= 1280) { // xl
-                setDynamicLimit(4); // 桌面端显示4个商品
+                setDynamicLimit(4); // Show 4 products on desktop
                 setIsMobile(false);
             } else if (width >= 768) { // md
                 setDynamicLimit(3);
                 setIsMobile(false);
-            } else { // sm及以下使用轮播，显示9个商品
+            } else { // Use carousel on sm and below, showing 9 products
                 setDynamicLimit(9);
                 setIsMobile(true);
             }
         };
 
-        // 初始化
+        // Initialize
         handleResize();
 
-        // 监听窗口大小变化
+        // Listen for window size changes
         window.addEventListener('resize', handleResize);
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // 使用动态limit获取商品数据
+    // Use dynamic limit to fetch product data
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                // 使用page_size参数替代limit
+                // Use page_size parameter instead of limit
                 const response = await fetch(`/api/products/list?product_groups=${encodeURIComponent(slug)}&page_size=${dynamicLimit}`);
 
                 if (!response.ok) {
@@ -108,7 +108,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
         visible: { y: 0, opacity: 1 }
     };
 
-    // 渲染单个商品卡片的函数
+    // Function to render individual product card
     const renderProductCard = (product: Product, index: number) => {
         try {
             // Get main offer information
@@ -134,7 +134,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
             const isPrime = mainOffer?.is_prime || false;
             const title = product.title || 'Product title not available';
 
-            // 获取产品链接URL
+            // Get product linkURL
             const productUrl = product.url || product.cj_url || '';
 
             return (
@@ -144,7 +144,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
                     custom={index}
                     className="relative w-full"
                 >
-                    {/* 收藏按钮 - 添加在商品卡片外部，确保它可以接收单独的点击事件 */}
+                    {/* Favorite button — added outside the product card to receive independent click events */}
                     <div
                         className="absolute top-3 right-3 z-20"
                         onClick={(e) => e.stopPropagation()}
@@ -198,14 +198,14 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
 
                             {/* Product information */}
                             <div className="p-2 sm:p-3 flex-grow flex flex-col">
-                                {/* 品牌信息和StoreIdentifier放在同一行 */}
+                                {/* Brand info and StoreIdentifier on same line */}
                                 <div className="flex items-center justify-between mb-1.5">
                                     {product.brand ? (
                                         <span className="text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded inline-block">
                                             {product.brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                                         </span>
                                     ) : (
-                                        <div /> /* 占位空元素，确保右对齐 */
+                                        <div /> /* Placeholder empty element to ensure right alignment */
                                     )}
                                     <StoreIdentifier
                                         url={productUrl}
@@ -310,7 +310,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
             initial="hidden"
             animate="visible"
         >
-            {/* 标题区域：标题左对齐，右侧添加"See All"链接 */}
+            {/* Title area: title left-aligned, 'See All' link on the right */}
             <div className="flex items-center justify-between mb-3">
                 <motion.h2
                     className="text-lg sm:text-xl font-bold text-primary-dark dark:text-white"
@@ -343,13 +343,13 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
                 </motion.div>
             </div>
 
-            {/* 移动端使用Swiper轮播 */}
+            {/* Use Swiper carousel on mobile */}
             {isMobile ? (
                 <div className="-mx-2 sm:-mx-3">
                     <ProductSwiper products={products} />
                 </div>
             ) : (
-                // 修改网格布局列数
+                // Modify grid layout column count
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {products.map((product, index) => renderProductCard(product, index)).filter(Boolean)}
                 </div>

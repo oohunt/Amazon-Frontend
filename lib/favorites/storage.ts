@@ -1,33 +1,33 @@
 /**
- * 收藏功能本地存储模块
- * 处理与localStorage相关的操作，包括客户端ID和收藏列表
+ * Favorites local storage module
+ * Handle localStorage operations including client ID and favorites list
  */
 
-// 本地存储的键名
+// localStorage key name
 const CLIENT_ID_KEY = 'amazon_frontend_client_id';
 const FAVORITES_KEY = 'amazon_frontend_favorites';
 
 /**
- * 生成随机客户端ID
- * @returns 随机生成的客户端ID
+ * Generate random client ID
+ * @returns Randomly generated client ID
  */
 function generateClientId(): string {
     return `client_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
 }
 
 /**
- * 获取或创建客户端ID
- * @returns 客户端ID
+ * Get or create client ID
+ * @returns Client ID
  */
 export function getClientId(): string {
     if (typeof window === 'undefined') {
-        return ''; // 服务端渲染时返回空字符串
+        return ''; // Return empty string during SSR
     }
 
-    // 尝试从localStorage获取客户端ID
+    // Try to get client ID from localStorage
     let clientId = localStorage.getItem(CLIENT_ID_KEY);
 
-    // 如果不存在，则生成新的客户端ID并保存
+    // If not exists, generate new client ID and save
     if (!clientId) {
         clientId = generateClientId();
         localStorage.setItem(CLIENT_ID_KEY, clientId);
@@ -37,12 +37,12 @@ export function getClientId(): string {
 }
 
 /**
- * 获取本地存储的收藏列表
- * @returns 收藏的商品ID数组
+ * Get locally stored favorites list
+ * @returns Array of favorited product IDs
  */
 export function getLocalFavorites(): string[] {
     if (typeof window === 'undefined') {
-        return []; // 服务端渲染时返回空数组
+        return []; // Return empty array during SSR
     }
 
     try {
@@ -55,41 +55,41 @@ export function getLocalFavorites(): string[] {
 }
 
 /**
- * 添加商品到本地收藏列表
- * @param productId 商品ID
+ * Add product to local favorites list
+ * @param productId Product ID
  */
 export function addLocalFavorite(productId: string): void {
     if (typeof window === 'undefined') {
-        return; // 服务端渲染时直接返回
+        return; // Return directly during SSR
     }
 
     try {
         const favorites = getLocalFavorites();
 
-        // 如果商品ID不在列表中，则添加
+        // If product ID not in list, add it
         if (!favorites.includes(productId)) {
             favorites.push(productId);
             localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
         }
     } catch {
-        // 错误处理
+        // Error handling
         return;
     }
 }
 
 /**
- * 从本地收藏列表中移除商品
- * @param productId 商品ID
+ * Remove product from local favorites list
+ * @param productId Product ID
  */
 export function removeLocalFavorite(productId: string): void {
     if (typeof window === 'undefined') {
-        return; // 服务端渲染时直接返回
+        return; // Return directly during SSR
     }
 
     try {
         let favorites = getLocalFavorites();
 
-        // 过滤掉要移除的商品ID
+        // Filter out product IDs to be removed
         favorites = favorites.filter(id => id !== productId);
         localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
     } catch {
@@ -98,13 +98,13 @@ export function removeLocalFavorite(productId: string): void {
 }
 
 /**
- * 检查商品是否在本地收藏列表中
- * @param productId 商品ID
- * @returns 是否已收藏
+ * Check whether a product is in the local favorites list
+ * @param productId Product ID
+ * @returns Whether the item is favorited
  */
 export function isLocalFavorite(productId: string): boolean {
     if (typeof window === 'undefined') {
-        return false; // 服务端渲染时返回false
+        return false; // Return false during SSR
     }
 
     const favorites = getLocalFavorites();
@@ -113,23 +113,23 @@ export function isLocalFavorite(productId: string): boolean {
 }
 
 /**
- * 清空本地收藏列表
+ * Clear local favorites list
  */
 export function clearLocalFavorites(): void {
     if (typeof window === 'undefined') {
-        return; // 服务端渲染时直接返回
+        return; // Return directly during SSR
     }
 
     localStorage.removeItem(FAVORITES_KEY);
 }
 
 /**
- * 同步本地收藏和远程收藏
- * @param remoteIds 远程收藏的商品ID数组
+ * Sync local and remote favorites
+ * @param remoteIds Array of remotely favorited product IDs
  */
 export function syncLocalFavorites(remoteIds: string[]): void {
     if (typeof window === 'undefined') {
-        return; // 服务端渲染时直接返回
+        return; // Return directly during SSR
     }
 
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(remoteIds));

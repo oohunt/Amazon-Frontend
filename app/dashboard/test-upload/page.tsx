@@ -5,8 +5,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 /**
- * 图片上传测试页面
- * 用于测试R2图片上传API
+ * Image upload test page
+ * Used for testing the R2 image upload API
  */
 export default function TestUploadPage() {
     const [file, setFile] = useState<File | null>(null);
@@ -16,24 +16,24 @@ export default function TestUploadPage() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
 
-    // 处理文件选择
+    // Handle file selection
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
 
         if (!selectedFile) return;
 
-        // 验证文件类型
+        // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
         if (!validTypes.includes(selectedFile.type)) {
-            setError('请选择有效的图片文件 (JPEG, PNG, GIF, WebP)');
+            setError('Please select a valid image file (JPEG, PNG, GIF, WebP)');
 
             return;
         }
 
-        // 验证文件大小 (5MB)
+        // Validate file size (5MB)
         if (selectedFile.size > 5 * 1024 * 1024) {
-            setError('图片大小不能超过 5MB');
+            setError('Image size cannot exceed 5MB');
 
             return;
         }
@@ -43,7 +43,7 @@ export default function TestUploadPage() {
         setSuccess(false);
         setUploadedUrl(null);
 
-        // 创建预览
+        // Create preview
         const reader = new FileReader();
 
         reader.onload = () => {
@@ -52,10 +52,10 @@ export default function TestUploadPage() {
         reader.readAsDataURL(selectedFile);
     };
 
-    // 上传图片
+    // Upload image
     const handleUpload = async () => {
         if (!file) {
-            setError('请先选择图片');
+            setError('Please select an image first');
 
             return;
         }
@@ -77,13 +77,13 @@ export default function TestUploadPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || '上传失败');
+                throw new Error(data.error || 'Upload failed');
             }
 
             setUploadedUrl(data.url);
             setSuccess(true);
         } catch (err) {
-            setError(err instanceof Error ? err.message : '上传过程中发生错误');
+            setError(err instanceof Error ? err.message : 'An error occurred during upload');
         } finally {
             setUploading(false);
         }
@@ -91,11 +91,11 @@ export default function TestUploadPage() {
 
     return (
         <div className="max-w-xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">图片上传测试</h1>
+            <h1 className="text-2xl font-bold mb-6">Image Upload Test</h1>
 
             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
                 <p className="text-yellow-800">
-                    此页面用于测试图片上传API功能。确保已在环境变量中配置了Cloudflare R2。
+                    This page is for testing the image upload API. Make sure Cloudflare R2 has been configured in the environment variables.
                 </p>
             </div>
 
@@ -113,19 +113,19 @@ export default function TestUploadPage() {
                             <div className="relative">
                                 <Image
                                     src={preview}
-                                    alt="预览"
+                                    alt="Preview"
                                     width={256}
                                     height={256}
                                     className="max-h-64 mx-auto rounded-md object-contain"
                                 />
-                                <div className="mt-2 text-sm text-gray-600">点击更换图片</div>
+                                <div className="mt-2 text-sm text-gray-600">Click to change image</div>
                             </div>
                         ) : (
                             <div>
                                 <Upload className="mx-auto h-12 w-12 text-gray-400" />
                                 <div className="mt-2">
-                                    <p className="text-sm text-gray-600">点击选择图片</p>
-                                    <p className="text-xs text-gray-500 mt-1">支持 JPEG, PNG, GIF, WebP (最大 5MB)</p>
+                                    <p className="text-sm text-gray-600">Click to select an image</p>
+                                    <p className="text-xs text-gray-500 mt-1">Supports JPEG, PNG, GIF, WebP (max 5MB)</p>
                                 </div>
                             </div>
                         )}
@@ -143,7 +143,7 @@ export default function TestUploadPage() {
             {success && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md flex items-start">
                     <Check className="text-green-500 mr-2 flex-shrink-0 mt-0.5" size={16} />
-                    <p className="text-green-700 text-sm">图片上传成功！</p>
+                    <p className="text-green-700 text-sm">Image uploaded successfully!</p>
                 </div>
             )}
 
@@ -158,19 +158,19 @@ export default function TestUploadPage() {
                 {uploading ? (
                     <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                        正在上传...
+                        Uploading...
                     </>
                 ) : (
                     <>
                         <Upload className="mr-2" size={18} />
-                        上传图片
+                        Upload Image
                     </>
                 )}
             </button>
 
             {uploadedUrl && (
                 <div className="mt-6">
-                    <h3 className="font-medium mb-2">上传结果：</h3>
+                    <h3 className="font-medium mb-2">Upload Result:</h3>
                     <div className="bg-gray-50 p-3 rounded-md">
                         <p className="text-sm font-mono break-all">{uploadedUrl}</p>
                         <div className="mt-2">
@@ -180,7 +180,7 @@ export default function TestUploadPage() {
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:text-blue-800 text-sm"
                             >
-                                在新窗口打开图片
+                                Open image in new window
                             </a>
                         </div>
                     </div>

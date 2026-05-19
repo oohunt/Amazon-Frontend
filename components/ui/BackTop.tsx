@@ -13,26 +13,26 @@ export function BackTop() {
 
     useEffect(() => {
         const handleScroll = () => {
-            // 显示/隐藏按钮的逻辑
+            // show/hide button logic
             const scrollY = window.scrollY;
 
             setShow(scrollY > 200);
 
-            // 计算滚动进度
+            // Calculate scroll progress
             const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
             const progress = Math.round((scrollY / windowHeight) * 100);
 
             setScrollProgress(progress);
 
-            // 设置滚动状态
+            // Set scroll status
             setScrolling(true);
 
-            // 清除之前的定时器
+            // Clear previous timer
             if (scrollTimeout) {
                 clearTimeout(scrollTimeout);
             }
 
-            // 设置新的定时器
+            // Set new timer
             const timeout = setTimeout(() => {
                 setScrolling(false);
             }, 150);

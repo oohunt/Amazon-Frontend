@@ -21,10 +21,10 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
     const [isCompleted, setIsCompleted] = useState(false);
 
     useEffect(() => {
-        // 确保endTime是Date对象
+        // Ensure endTime is a Date object
         const targetDate = typeof endTime === 'string' ? new Date(endTime) : endTime;
 
-        // 每秒更新一次倒计时
+        // Update countdown every second
         const interval = setInterval(() => {
             const now = new Date();
             const difference = targetDate.getTime() - now.getTime();
@@ -37,7 +37,7 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
                 return;
             }
 
-            // 计算剩余时间
+            // Calculate remaining time
             const days = Math.floor(difference / (1000 * 60 * 60 * 24));
             const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
@@ -46,11 +46,11 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
             setTimeLeft({ days, hours, minutes, seconds });
         }, 1000);
 
-        // 组件卸载时清除interval
+        // Clear interval when component unmounts
         return () => clearInterval(interval);
     }, [endTime, onComplete]);
 
-    // 数字翻转动画变体
+    // Number flip animation variant
     const numberVariants = {
         initial: { y: 0 },
         changed: {
@@ -59,7 +59,7 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
         }
     };
 
-    // 霓虹灯脉冲动画变体
+    // Neon light pulse animation variant
     const pulseVariants = {
         pulse: {
             boxShadow: [
@@ -78,12 +78,12 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
     if (isCompleted) {
         return (
             <div className={`text-center ${className}`}>
-                <p className="text-primary font-bold">活动已结束!</p>
+                <p className="text-primary font-bold">Event has ended!</p>
             </div>
         );
     }
 
-    // 渲染倒计时时间块
+    // Render countdown time block
     const TimeBlock = ({ value, label }: { value: number, label: string }) => (
         <motion.div
             className="flex flex-col items-center mx-1 sm:mx-2"
@@ -111,16 +111,16 @@ export function CountdownTimer({ endTime, onComplete, className = '' }: Countdow
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                限时抢购，先到先得！
+                Limited time offer, first come first served!
             </motion.h3>
 
             <div className="flex justify-center items-center">
                 {timeLeft.days > 0 && (
-                    <TimeBlock value={timeLeft.days} label="天" />
+                    <TimeBlock value={timeLeft.days} label="Days" />
                 )}
-                <TimeBlock value={timeLeft.hours} label="时" />
-                <TimeBlock value={timeLeft.minutes} label="分" />
-                <TimeBlock value={timeLeft.seconds} label="秒" />
+                <TimeBlock value={timeLeft.hours} label="Hours" />
+                <TimeBlock value={timeLeft.minutes} label="Minutes" />
+                <TimeBlock value={timeLeft.seconds} label="Seconds" />
             </div>
         </div>
     );

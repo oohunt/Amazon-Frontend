@@ -1,62 +1,62 @@
 /**
- * CMS内容页面模型
+ * CMS content page model
  */
 export interface ContentPage {
     _id?: string;
-    title: string;          // 页面标题，用于H1和SEO
-    slug: string;           // SEO友好的URL路径
-    content: string;        // 富文本HTML内容
-    excerpt?: string;       // 内容摘要，用于SEO描述
-    featuredImage?: string; // 特色图片URL
-    categories: string[];   // 分类列表
-    tags: string[];         // 标签列表
-    author: string;         // 作者ID
-    status: 'draft' | 'published' | 'archived'; // 页面状态
-    publishedAt?: Date;     // 发布日期
-    createdAt: Date;        // 创建日期
-    updatedAt: Date;        // 更新日期
-    metaTitle?: string;     // SEO标题，优先于title
-    metaDescription?: string; // SEO描述，优先于excerpt
-    metaKeywords?: string;  // SEO关键词，逗号分隔
-    canonicalUrl?: string;  // 规范URL
-    ogImage?: string;       // Open Graph图片URL
-    seoData?: {             // 旧版SEO相关数据（保留向后兼容）
+    title: string;          // Page title, used for H1 and SEO
+    slug: string;           // SEO-friendly URL path
+    content: string;        // Rich text HTML content
+    excerpt?: string;       // Content summary for SEO description
+    featuredImage?: string; // Featured imageURL
+    categories: string[];   // Category list
+    tags: string[];         // Tag list
+    author: string;         // Author ID
+    status: 'draft' | 'published' | 'archived'; // Page status
+    publishedAt?: Date;     // Publish date
+    createdAt: Date;        // Created date
+    updatedAt: Date;        // Update date
+    metaTitle?: string;     // SEO title, takes precedence over title
+    metaDescription?: string; // SEO description, takes precedence over excerpt
+    metaKeywords?: string;  // SEO keywords, comma-separated
+    canonicalUrl?: string;  // Canonical URL
+    ogImage?: string;       // Open Graph image URL
+    seoData?: {             // Legacy SEO data (kept for backward compatibility)
         metaTitle?: string;
         metaDescription?: string;
         canonicalUrl?: string;
         ogImage?: string;
     };
-    productIds?: string[];  // 关联的产品ID列表
+    productIds?: string[];  // Associated product ID list
 }
 
 /**
- * 内容分类模型
+ * Content category model
  */
 export interface ContentCategory {
     _id?: string;
-    name: string;           // 分类名称
-    slug: string;           // SEO友好的URL路径
-    description?: string;   // 分类描述
-    parentId?: string | null; // 父分类ID，用于层级结构
+    name: string;           // Category name
+    slug: string;           // SEO-friendly URL path
+    description?: string;   // Category description
+    parentId?: string | null; // Parent category ID for hierarchy
     createdAt: Date;
     updatedAt: Date;
-    postCount?: number; // 添加 postCount 字段
+    postCount?: number; // Add postCount field
 }
 
 /**
- * 内容标签模型
+ * Content tag model
  */
 export interface ContentTag {
     _id?: string;
-    name: string;           // 标签名称
-    slug: string;           // SEO友好的URL路径
+    name: string;           // Tag name
+    slug: string;           // SEO-friendly URL path
     createdAt: Date;
     updatedAt: Date;
-    postCount?: number; // 添加 postCount 字段
+    postCount?: number; // Add postCount field
 }
 
 /**
- * 内容页面列表响应
+ * Content page list response
  */
 export interface ContentPageListResponse {
     pages: ContentPage[];
@@ -66,7 +66,7 @@ export interface ContentPageListResponse {
 }
 
 /**
- * 内容分类列表响应
+ * Content category list response
  */
 export interface ContentCategoryListResponse {
     categories: ContentCategory[];
@@ -76,7 +76,7 @@ export interface ContentCategoryListResponse {
 }
 
 /**
- * 内容标签列表响应
+ * Content tag list response
  */
 export interface ContentTagListResponse {
     tags: ContentTag[];
@@ -86,37 +86,37 @@ export interface ContentTagListResponse {
 }
 
 /**
- * 内容页面创建请求
+ * Content page create request
  */
 export type ContentPageCreateRequest = Omit<ContentPage, '_id' | 'createdAt' | 'updatedAt'>;
 
 /**
- * 内容页面更新请求
+ * Content page update request
  */
 export type ContentPageUpdateRequest = Partial<Omit<ContentPage, '_id' | 'createdAt' | 'updatedAt'>>;
 
 /**
- * 内容分类创建请求
+ * Content category create request
  */
 export type ContentCategoryCreateRequest = Omit<ContentCategory, '_id' | 'createdAt' | 'updatedAt'>;
 
 /**
- * 内容分类更新请求
+ * Content category update request
  */
 export type ContentCategoryUpdateRequest = Partial<Omit<ContentCategory, '_id' | 'createdAt' | 'updatedAt'>>;
 
 /**
- * 内容标签创建请求
+ * Content tag create request
  */
 export type ContentTagCreateRequest = Omit<ContentTag, '_id' | 'createdAt' | 'updatedAt'>;
 
 /**
- * 内容标签更新请求
+ * Content tag update request
  */
 export type ContentTagUpdateRequest = Partial<Omit<ContentTag, '_id' | 'createdAt' | 'updatedAt'>>;
 
 /**
- * 产品选择的响应
+ * Response for product selection
  */
 export interface ProductSelectionResponse {
     products: Array<{
@@ -133,6 +133,6 @@ export interface ProductSelectionResponse {
 }
 
 /**
- * 页面详情响应
+ * Page details response
  */
 export type PageResponse = ContentPage; 

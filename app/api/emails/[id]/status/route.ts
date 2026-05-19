@@ -5,7 +5,7 @@ import clientPromise from '@/lib/mongodb';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        // 使用Next.js提供的params获取ID，而不是从路径中解析
+        // Get ID from Next.js params instead of parsing from path
         const { id } = await params;
 
         if (!id) {
@@ -19,7 +19,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const searchParams = request.nextUrl.searchParams;
         const collection = searchParams.get('collection') || 'users';
 
-        // 记录使用的数据库名称
+        // Log the database name being used
         const dbName = process.env.MONGODB_DB || 'oohunt';
 
         // Validate ID format

@@ -18,13 +18,13 @@ import type {
     PageResponse
 } from '@/types/cms';
 
-// 服务器端环境下的BASE URL
+// BASE URL for the server-side environment
 const SERVER_API_URL = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api`
     : 'http://localhost:3004/api';
 const isServer = () => typeof window === 'undefined';
 
-// 为服务器端和客户端创建单独的API客户端
+// Create separate API clients for server-side and client-side
 const apiClient = axios.create({
     baseURL: isServer() ? SERVER_API_URL : '/api',
     timeout: 15000,
@@ -34,18 +34,18 @@ const apiClient = axios.create({
     }
 });
 
-// 添加请求拦截器，确保使用正确的URL
+// Add request interceptor to ensure the correct URL is used
 apiClient.interceptors.request.use((config) => {
-    // 强制使用正确的URL格式
+    // Force correct URL format
     if (isServer()) {
-        // 确保服务器端使用的是完整URL
+        // Ensure server-side uses a full URL
         if (!config.baseURL?.startsWith('http')) {
             config.baseURL = SERVER_API_URL;
         }
 
-        // 确保baseURL后面不要有多余的/api，因为URL路径已经包含/api
+        // Ensure the baseURL does not have a redundant /api since the URL path already includes /api
         if (config.baseURL.endsWith('/api') && config.url?.startsWith('/api')) {
-            // 去掉URL路径开头的/api，避免重复
+            // Remove the leading /api from the URL path to avoid duplication
             config.url = config.url.replace(/^\/api/, '');
         }
     }
@@ -55,9 +55,9 @@ apiClient.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
-// 从主API模块导出CMS相关API
+// Export CMS-related API from the main API module
 export const cmsApi = {
-    // 内容页面相关
+    // Content page-related
     getPages: (params?: {
         page?: number;
         limit?: number;
@@ -84,7 +84,7 @@ export const cmsApi = {
     deletePage: (id: string) =>
         apiClient.delete<ApiResponse<void>>(`/cms/pages/${id}`),
 
-    // 内容分类相关
+    // Content category-related
     getCategories: (params?: {
         page?: number;
         limit?: number;
@@ -109,7 +109,7 @@ export const cmsApi = {
     deleteCategory: (id: string) =>
         apiClient.delete<ApiResponse<void>>(`/cms/categories/${id}`),
 
-    // 内容标签相关
+    // Content tag-related
     getTags: (params?: {
         page?: number;
         limit?: number;
@@ -133,7 +133,7 @@ export const cmsApi = {
     deleteTag: (id: string) =>
         apiClient.delete<ApiResponse<void>>(`/cms/tags/${id}`),
 
-    // 产品选择相关
+    // Product selection-related
     getProductsForSelection: (params?: {
         page?: number;
         limit?: number;

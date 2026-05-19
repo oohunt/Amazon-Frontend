@@ -28,7 +28,7 @@ interface FilterState {
     setSortBy: (sort: 'price' | 'discount' | 'newest') => void;
 }
 
-// 用户状态
+// User state
 export const useUserStore = create(
     persist<UserState>(
         (set) => ({
@@ -53,7 +53,7 @@ export const useUserStore = create(
     )
 );
 
-// 筛选状态
+// Filter status
 export const useFilterStore = create<FilterState>((set) => ({
     category: null,
     priceRange: [0, 10000],

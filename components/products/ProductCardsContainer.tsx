@@ -4,22 +4,22 @@ import React from 'react';
 
 interface ProductCardsContainerProps {
     children: React.ReactNode;
-    gap?: number; // 卡片之间的间距
-    wrap?: boolean; // 是否允许换行
+    gap?: number; // Spacing between cards
+    wrap?: boolean; // Whether to allow line wrapping
 }
 
 /**
- * 商品卡片容器组件 - 用于在前端页面中横向显示多个商品卡片
+ * Product card container component — displays multiple product cards horizontally on frontend pages
  * 
- * 这个容器使用flex布局，确保商品卡片能够横向排列
+ * This container uses flex layout to ensure product cards are arranged horizontally
  * 
- * @param {ProductCardsContainerProps} props - 组件属性
- * @returns {JSX.Element} 商品卡片容器
+ * @param {ProductCardsContainerProps} props - Component props
+ * @returns {JSX.Element} Product card container
  */
 const ProductCardsContainer: React.FC<ProductCardsContainerProps> = ({
     children,
-    gap = 4, // 默认间距
-    wrap = true // 默认允许换行
+    gap = 4, // Default spacing
+    wrap = true // Default: allow line wrapping
 }) => {
     return (
         <div
@@ -32,7 +32,7 @@ const ProductCardsContainer: React.FC<ProductCardsContainerProps> = ({
                 w-full
             `}
             style={{
-                // 确保子元素不会因为flex布局而被压缩
+                // Ensure child elements are not compressed by flex layout
                 minWidth: 0
             }}
         >

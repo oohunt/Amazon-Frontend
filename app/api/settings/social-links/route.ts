@@ -3,25 +3,25 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import type { SocialLinks } from '@/types/api';
 
-// 配置路由段缓存 - 缓存10分钟
+// Configure route segment cache — cache for 10 minutes
 export const revalidate = 600;
 
 /**
- * GET /api/settings/social-links - 获取社交媒体链接设置
+ * GET /api/settings/social-links - Fetch social media link settings
  */
 export async function GET() {
     try {
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB || 'oohunt');
         const collection = db.collection('settings');
 
-        // 获取社交媒体链接设置
+        // Get social media link settings
         const settings = await collection.findOne(
             { id: 'social_links' }
         );
 
-        // 如果找不到设置，返回默认空设置
+        // If settings not found, return default empty settings
         if (!settings) {
             return NextResponse.json({
                 twitter: '',
@@ -37,7 +37,7 @@ export async function GET() {
             });
         }
 
-        // 确保返回的数据格式正确
+        // Ensure returned data format is correct
         const socialLinks: SocialLinks = {
             twitter: settings.twitter || '',
             facebook: settings.facebook || '',
@@ -61,14 +61,14 @@ export async function GET() {
 }
 
 /**
- * PUT /api/settings/social-links - 更新社交媒体链接设置
+ * PUT /api/settings/social-links - Update social media link settings
  */
 export async function PUT(request: Request) {
     try {
-        // 解析请求体
+        // Parse request body
         const data = await request.json() as SocialLinks;
 
-        // 验证数据
+        // Validate data
         const socialLinks: SocialLinks = {
             twitter: data.twitter || '',
             facebook: data.facebook || '',
@@ -78,25 +78,25 @@ export async function PUT(request: Request) {
             pinterest: data.pinterest || '',
         };
 
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB || 'oohunt');
         const collection = db.collection('settings');
 
-        // 更新或创建设置
+        // update or create settings
         await collection.updateOne(
             { id: 'social_links' },
             {
                 $set: {
                     ...socialLinks,
-                    id: 'social_links', // 确保id字段存在
+                    id: 'social_links', // Ensure id field exists
                     updatedAt: new Date()
                 }
             },
             { upsert: true }
         );
 
-        // 返回更新后的数据 - 不缓存PUT响应
+        // return updated data — do not cache PUT response
         return NextResponse.json(socialLinks, {
             headers: {
                 'Cache-Control': 'no-store, must-revalidate'

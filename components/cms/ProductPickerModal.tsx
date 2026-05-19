@@ -331,7 +331,7 @@ interface ApiResponse<T> {
     error?: string;
 }
 
-// 定义ProductCard组件接受的产品类型
+// Define product type accepted by ProductCard component
 type ProductCardProduct = {
     id?: string;
     title?: string;

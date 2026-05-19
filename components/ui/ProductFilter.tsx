@@ -18,7 +18,7 @@ interface ProductFilterProps {
     selectedSort: string;
 }
 
-// 添加分类骨架组件
+// Addcategory skeleton component
 const CategorySkeleton = () => (
     <div className="flex flex-wrap gap-2">
         <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
@@ -41,12 +41,12 @@ export function ProductFilter({
 
     const { data: categoryStats, isLoading: categoriesLoading } = useCategoryStats({
         page: 1,
-        page_size: 100, // 获取足够多的分类
+        page_size: 100, // Fetch enough categories
         sort_by: 'count',
         sort_order: 'desc'
     });
 
-    // 处理分类数据，将product_groups转换为简单数组
+    // Handle category data, convert product_groups to simple array
     useEffect(() => {
         if (categoryStats && categoryStats.product_groups) {
             const items: CategoryItem[] = [];
@@ -60,7 +60,7 @@ export function ProductFilter({
                     });
                 }
             });
-            // 后端已经排序，所以不需要再排序
+            // Backend already sorted, no need to sort again
             setCategoryItems(items);
         }
     }, [categoryStats]);
@@ -84,9 +84,9 @@ export function ProductFilter({
 
     return (
         <div className="mb-8 flex flex-col md:flex-row justify-between gap-6 bg-gray-50 p-4 rounded-xl">
-            {/* 分类选择器 */}
+            {/* Category selector */}
             <div className="space-y-2">
-                <h2 className="text-lg font-medium">商品分类</h2>
+                <h2 className="text-lg font-medium">Product Categories</h2>
                 <div className="flex flex-wrap gap-2">
                     <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -97,7 +97,7 @@ export function ProductFilter({
                             : 'bg-gray-100 hover:bg-gray-200'
                             }`}
                     >
-                        全部
+                        All
                     </motion.button>
 
                     {categoriesLoading ? (
@@ -121,18 +121,18 @@ export function ProductFilter({
                 </div>
             </div>
 
-            {/* 排序选择器 */}
+            {/* Sort selector */}
             <div className="space-y-2">
-                <h2 className="text-lg font-medium">排序方式</h2>
+                <h2 className="text-lg font-medium">Sort By</h2>
                 <select
                     value={localSort}
                     onChange={handleSortChange}
                     className="px-4 py-2 border rounded-lg focus:outline-hidden focus:ring-2 focus:ring-primary"
                 >
-                    <option value="created_desc">最新上架</option>
-                    <option value="price_asc">价格低到高</option>
-                    <option value="price_desc">价格高到低</option>
-                    <option value="discount_desc">最高折扣</option>
+                    <option value="created_desc">Newest Arrivals</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="discount_desc">Highest Discount</option>
                 </select>
             </div>
         </div>

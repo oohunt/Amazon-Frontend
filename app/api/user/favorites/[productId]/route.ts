@@ -1,7 +1,7 @@
 /**
- * 单个收藏操作API
- * POST: 添加商品到收藏
- * DELETE: 从收藏中移除商品
+ * Single favorite operation API
+ * POST: Add product to favorites
+ * DELETE: Remove product from favorites
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
@@ -13,48 +13,48 @@ import {
 } from '@/lib/server/favorites';
 
 /**
- * 处理POST请求，添加商品到收藏
+ * Handle POST request — add product to favorites
  */
 export async function POST(
     request: NextRequest,
     { params }: { params: Promise<{ productId: string }> }
 ): Promise<NextResponse> {
     try {
-        // 获取并验证客户端ID
+        // Get and validate client ID
         const clientId = request.headers.get('x-client-id');
 
         if (!clientId || !validateClientId(clientId)) {
             return NextResponse.json(
                 {
                     code: 401,
-                    message: '未提供有效的客户端ID',
+                    message: 'No valid client ID provided',
                     data: null
                 },
                 { status: 401 }
             );
         }
 
-        // 获取商品ID
+        // Get product ID
         const { productId } = await params;
 
         if (!productId || typeof productId !== 'string') {
             return NextResponse.json(
                 {
                     code: 400,
-                    message: '无效的商品ID',
+                    message: 'Invalid product ID',
                     data: null
                 },
                 { status: 400 }
             );
         }
 
-        // 添加收藏
+        // Add to favorites
         const _updatedIds = addToClientFavorites(clientId, productId);
 
         return NextResponse.json(
             {
                 code: 200,
-                message: '添加收藏成功',
+                message: 'Added to favorites successfully',
                 data: null
             },
             { status: 200 }
@@ -64,7 +64,7 @@ export async function POST(
         return NextResponse.json(
             {
                 code: 500,
-                message: '服务器内部错误',
+                message: 'Internal server error',
                 data: null
             },
             { status: 500 }
@@ -73,48 +73,48 @@ export async function POST(
 }
 
 /**
- * 处理DELETE请求，从收藏中移除商品
+ * Handle DELETE request — remove product from favorites
  */
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ productId: string }> }
 ): Promise<NextResponse> {
     try {
-        // 获取并验证客户端ID
+        // Get and validate client ID
         const clientId = request.headers.get('x-client-id');
 
         if (!clientId || !validateClientId(clientId)) {
             return NextResponse.json(
                 {
                     code: 401,
-                    message: '未提供有效的客户端ID',
+                    message: 'No valid client ID provided',
                     data: null
                 },
                 { status: 401 }
             );
         }
 
-        // 获取商品ID
+        // Get product ID
         const { productId } = await params;
 
         if (!productId || typeof productId !== 'string') {
             return NextResponse.json(
                 {
                     code: 400,
-                    message: '无效的商品ID',
+                    message: 'Invalid product ID',
                     data: null
                 },
                 { status: 400 }
             );
         }
 
-        // 移除收藏
+        // remove from favorites
         const _updatedIds = removeFromClientFavorites(clientId, productId);
 
         return NextResponse.json(
             {
                 code: 200,
-                message: '移除收藏成功',
+                message: 'Removed from favorites successfully',
                 data: null
             },
             { status: 200 }
@@ -124,7 +124,7 @@ export async function DELETE(
         return NextResponse.json(
             {
                 code: 500,
-                message: '服务器内部错误',
+                message: 'Internal server error',
                 data: null
             },
             { status: 500 }

@@ -3,20 +3,20 @@ import { Resend } from 'resend';
 
 import clientPromise from '@/lib/mongodb';
 
-// 懒初始化Resend - 仅在实际发送邮件时创建实例
+// Lazy-init Resend — only instantiated when actually sending email
 function getResend() {
     return new Resend(process.env.RESEND_API_KEY || 'placeholder');
 }
 
-// 判断是否启用邮件通知功能（默认启用）
+// Check whether email notification is enabled (default: enabled)
 const enableEmailNotification = process.env.ENABLE_CONTACT_EMAIL_NOTIFICATION !== 'false';
 
-// 联系表单提交API
+// Contact form submission API
 export async function POST(request: Request) {
     try {
         const { name, email, subject, message, formSource, formId, phone } = await request.json();
 
-        // 验证必填字段
+        // Validate required fields
         if (!name || !email || !subject || !message) {
             return NextResponse.json(
                 { success: false, message: 'All fields are required' },
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 验证邮箱格式
+        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
@@ -34,13 +34,13 @@ export async function POST(request: Request) {
             );
         }
 
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
         const collection = db.collection('contact_messages');
 
-        // 将联系信息保存到数据库
+        // Save contact info to database
         await collection.insertOne({
             name,
             email,
@@ -54,16 +54,16 @@ export async function POST(request: Request) {
             isProcessed: false,
         });
 
-        // 如果来源是邮件订阅表单，同时添加到订阅列表
+        // If source is email subscription form, also add to subscription list
         if (formSource === 'general' || formSource === 'blog') {
             try {
                 const subscriptionCollection = db.collection('subscriptions');
 
-                // 检查是否已存在相同邮箱
+                // Check if email already exists
                 const existingSubscription = await subscriptionCollection.findOne({ email });
 
                 if (existingSubscription) {
-                    // 更新已有订阅
+                    // Update existing subscription
                     await subscriptionCollection.updateOne(
                         { email },
                         {
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
                         }
                     );
                 } else {
-                    // 创建新订阅
+                    // Create new subscription
                     await subscriptionCollection.insertOne({
                         email,
                         sourceTypes: [formSource],
@@ -89,11 +89,11 @@ export async function POST(request: Request) {
                 }
             } catch {
 
-                // 继续处理，不影响主流程
+                // Continue processing, does not affect main flow
             }
         }
 
-        // 发送通知邮件给管理员（如果启用了该功能）
+        // Send notification email to admin (if enabled)
         if (enableEmailNotification && process.env.RESEND_API_KEY) {
             const adminEmail = process.env.ADMIN_EMAIL || 'admin@oohunt.com';
 
@@ -119,11 +119,11 @@ export async function POST(request: Request) {
                     `,
                 });
             } catch {
-                // 仅记录邮件发送失败的错误，不影响表单提交成功
+                // Log email failure only, does not affect form submission success
             }
         }
 
-        // 根据表单来源返回不同的成功消息
+        // Return different success message based on form source
         let successMessage = 'Your message has been sent successfully, we will reply to you as soon as possible!';
 
         if (formSource === 'general' || formSource === 'blog') {

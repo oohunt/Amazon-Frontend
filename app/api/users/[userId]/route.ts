@@ -5,10 +5,10 @@ import { auth } from '@/auth';
 import { UserRole, isSuperAdmin } from '@/lib/models/UserRole';
 import clientPromise from '@/lib/mongodb';
 
-// 配置路由选项
+// Configure route options
 export const dynamic = 'force-dynamic';
 
-// 调试用的全局路由处理器
+// Global route handler for debugging
 export async function OPTIONS(_request: NextRequest) {
     return new NextResponse(null, {
         status: 200,
@@ -18,7 +18,7 @@ export async function OPTIONS(_request: NextRequest) {
     });
 }
 
-// 获取用户详情
+// Fetch user details
 export async function GET(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> }
@@ -26,26 +26,26 @@ export async function GET(
     try {
         const { userId } = await context.params;
 
-        // 验证权限
+        // Validate permissions
         const session = await auth();
 
         if (!session?.user ||
             (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.SUPER_ADMIN)) {
             return NextResponse.json(
-                { error: '无权访问' },
+                { error: 'Access denied' },
                 { status: 403 }
             );
         }
 
-        // 验证参数
+        // Validate parameters
         if (!userId || !ObjectId.isValid(userId)) {
             return NextResponse.json(
-                { error: '无效的用户ID' },
+                { error: 'Invalid user ID' },
                 { status: 400 }
             );
         }
 
-        // 数据库操作
+        // Database operation
         const client = await clientPromise;
         const db = client.db('oohunt');
 
@@ -56,12 +56,12 @@ export async function GET(
 
         if (!user) {
             return NextResponse.json(
-                { error: '用户不存在' },
+                { error: 'User does not exist' },
                 { status: 404 }
             );
         }
 
-        // 格式化响应数据
+        // Format response data
         const userData = {
             id: user._id.toString(),
             name: user.name,
@@ -77,13 +77,13 @@ export async function GET(
         return NextResponse.json(userData);
     } catch {
         return NextResponse.json(
-            { error: '服务器错误' },
+            { error: 'Server error' },
             { status: 500 }
         );
     }
 }
 
-// 删除用户
+// Delete user
 export async function DELETE(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> }
@@ -91,83 +91,83 @@ export async function DELETE(
     try {
         const { userId } = await context.params;
 
-        // 验证权限
+        // Validate permissions
         const session = await auth();
 
         if (!session?.user ||
             (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.SUPER_ADMIN)) {
             return NextResponse.json(
-                { error: '无权删除用户' },
+                { error: 'No permission to delete user' },
                 { status: 403 }
             );
         }
 
-        // 验证参数
+        // Validate parameters
         if (!userId || !ObjectId.isValid(userId)) {
             return NextResponse.json(
-                { error: '无效的用户ID' },
+                { error: 'Invalid user ID' },
                 { status: 400 }
             );
         }
 
-        // 防止删除自己
+        // Prevent deleting self
         if (session.user.id === userId) {
             return NextResponse.json(
-                { error: '不能删除自己的账户' },
+                { error: 'Cannot delete your own account' },
                 { status: 400 }
             );
         }
 
-        // 数据库操作
+        // Database operation
         const client = await clientPromise;
         const db = client.db('oohunt');
         const objectId = new ObjectId(userId);
 
-        // 查找用户
+        // Find user
         const user = await db.collection('users').findOne({ _id: objectId });
 
         if (!user) {
             return NextResponse.json(
-                { error: '用户不存在' },
+                { error: 'User does not exist' },
                 { status: 404 }
             );
         }
 
-        // 检查权限（只有超级管理员可以删除管理员）
+        // Check permission (only super admins can delete admins)
         if ((user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN) &&
             !isSuperAdmin(session.user.role as UserRole)) {
             return NextResponse.json(
-                { error: '普通管理员不能删除管理员账户' },
+                { error: 'Regular admin cannot delete admin accounts' },
                 { status: 403 }
             );
         }
 
-        // 删除用户
+        // Delete user
         const result = await db.collection('users').deleteOne({ _id: objectId });
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
-                { error: '删除用户失败' },
+                { error: 'Failed to delete user' },
                 { status: 500 }
             );
         }
 
-        // 删除关联数据
+        // delete associated data
         await db.collection('favorites').deleteMany({ userId });
 
         return NextResponse.json({
-            message: '用户删除成功',
+            message: 'User deleted successfully',
             id: userId
         });
     } catch {
         return NextResponse.json(
-            { error: '服务器错误' },
+            { error: 'Server error' },
             { status: 500 }
         );
     }
 }
 
-// 更新用户基本信息
+// update user basic info
 export async function PATCH(
     request: NextRequest,
     context: { params: Promise<{ userId: string }> }
@@ -175,43 +175,43 @@ export async function PATCH(
     try {
         const { userId } = await context.params;
 
-        // 验证权限
+        // Validate permissions
         const session = await auth();
 
         if (!session?.user ||
             (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.SUPER_ADMIN)) {
             return NextResponse.json(
-                { error: '无权更新用户信息' },
+                { error: 'No permission to update user information' },
                 { status: 403 }
             );
         }
 
-        // 验证参数
+        // Validate parameters
         if (!userId || !ObjectId.isValid(userId)) {
             return NextResponse.json(
-                { error: '无效的用户ID' },
+                { error: 'Invalid user ID' },
                 { status: 400 }
             );
         }
 
-        // 获取请求数据
+        // Get request data
         const updates = await request.json();
 
-        // 验证更新数据
+        // Validate update data
         if (!updates || typeof updates !== 'object') {
             return NextResponse.json(
-                { error: '无效的更新数据' },
+                { error: 'Invalid update data' },
                 { status: 400 }
             );
         }
 
-        // 移除敏感字段
+        // remove sensitive fields
         delete updates.password;
         delete updates.role;
         delete updates._id;
         delete updates.email;
 
-        // 数据库操作
+        // Database operation
         const client = await clientPromise;
         const db = client.db('oohunt');
         const objectId = new ObjectId(userId);
@@ -228,18 +228,18 @@ export async function PATCH(
 
         if (result.matchedCount === 0) {
             return NextResponse.json(
-                { error: '用户不存在' },
+                { error: 'User does not exist' },
                 { status: 404 }
             );
         }
 
         return NextResponse.json({
-            message: '用户信息更新成功',
+            message: 'User info updated successfully',
             id: userId
         });
     } catch {
         return NextResponse.json(
-            { error: '服务器错误' },
+            { error: 'Server error' },
             { status: 500 }
         );
     }

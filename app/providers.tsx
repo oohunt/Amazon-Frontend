@@ -20,7 +20,7 @@ declare module "@react-types/shared" {
 }
 
 export function Providers({ children }: ProvidersProps) {
-  // 初始化缓存系统
+  // Initialize cache system
   useEffect(() => {
     try {
       initCacheSystem();

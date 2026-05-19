@@ -9,13 +9,13 @@ import { FeaturedDeals } from "@/components/ui/FeaturedDeals";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { useCategoryStats } from "@/lib/hooks";
 
-// 定义分类接口
+// Define category interface
 interface Category {
     name: string;
     slug: string;
 }
 
-// 产品组到分类的映射 - kept in sync with CategoryNavigation
+// Product group to category mapping — kept in sync with CategoryNavigation
 const productGroupToCategoryMapping: Record<string, { slug: string, name: string }> = {
     'Electronics': { slug: 'Electronics', name: 'Electronics' },
     'Clothing, Shoes & Jewelry': { slug: 'Clothing, Shoes & Jewelry', name: 'Clothing & Jewelry' },
@@ -34,7 +34,7 @@ const productGroupToCategoryMapping: Record<string, { slug: string, name: string
     'Office Products': { slug: 'Office Products', name: 'Office' },
 };
 
-// 添加获取导航栏高度的函数
+// Add helper to get navbar height
 const getNavbarHeight = () => {
     return parseInt(
         getComputedStyle(document.documentElement)
@@ -52,7 +52,7 @@ export default function Home() {
     const newsletterRef = useRef<HTMLDivElement>(null);
     const paginationRef = useRef<HTMLDivElement>(null);
 
-    // 使用useCategoryStats钩子获取分类数据
+    // Use useCategoryStats hook to fetch category data
     const { data: categoryStats, isLoading } = useCategoryStats({
         page: 1,
         page_size: 50,
@@ -60,27 +60,27 @@ export default function Home() {
         sort_order: 'desc'
     });
 
-    // 当分类数据加载完成后处理 - 仅在数据第一次加载或明确改变时处理
+    // Process after category data has loaded — only when data first loads or explicitly changes
     useEffect(() => {
-        // 如果正在加载或已经处理过数据，则跳过
+        // Skip if currently loading or data has already been processed
         if (isLoading || processed || !categoryStats || !categoryStats.product_groups) {
             return;
         }
 
         try {
-            // 转换product_groups数据为分类列表
+            // Convert product_groups data to category list
             const productGroups = categoryStats.product_groups;
 
-            // 将对象转换为数组，过滤数量大于50的分类，并按照数量排序
+            // Convert object to array, filter categories with count > 50, sort by count
             const sortedCategories = Object.entries(productGroups)
                 .filter(([_groupName, count]) => count > 50)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 8) // 取前8个
+                .slice(0, 8) // Take top 8
                 .map(([groupName]) => {
-                    // 使用原始的groupName作为slug，确保与API参数一致
+                    // Use the original groupName as slug to stay consistent with API params
                     const slug = groupName;
 
-                    // 从映射中获取显示名称，如果没有则使用原始分类名称
+                    // Get display name from mapping, fall back to raw category name
                     const displayName = productGroupToCategoryMapping[groupName]?.name || groupName;
 
                     return {
@@ -90,11 +90,11 @@ export default function Home() {
                 });
 
             setCategories(sortedCategories);
-            // 标记为已处理
+            // Mark as processed
             setProcessed(true);
         }
         catch {
-            // 出错时也标记为已处理，避免重复尝试
+            // Mark as processed on error to avoid retrying
             setProcessed(true);
         }
     }, [isLoading, categoryStats, processed]);
@@ -111,43 +111,43 @@ export default function Home() {
             const newsletterRect = newsletterRef.current?.getBoundingClientRect();
             const paginationRect = paginationRef.current?.getBoundingClientRect();
 
-            // 使用CSS变量获取导航栏高度
+            // Get navbar height from CSS variable
             const topOffset = getNavbarHeight();
 
-            // 计算父容器的位置
+            // Calculate parent container position
             const containerTop = catalogRect.top + window.scrollY;
             const _newsletterTop = newsletterRect ? newsletterRect.top + window.scrollY : Infinity;
             const paginationTop = paginationRect ? paginationRect.top + window.scrollY : Infinity;
 
-            // 计算侧边栏的高度和当前滚动位置
+            // Calculate sidebar height and current scroll position
             const sidebarHeight = sidebarRect.height;
             const scrollY = window.scrollY;
 
-            // 计算主内容区域的实际高度
+            // Calculate actual height of main content area
             const mainContentHeight = mainContentRect.height;
 
-            // 确保侧边栏不会超出主内容区域的底部和分页区域的顶部
-            const BUFFER = 20; // 增加缓冲区到20px
+            // Ensure sidebar does not overflow the bottom of the main content area or the top of the pagination area
+            const BUFFER = 20; // Increase buffer to 20px
             const maxTop = Math.min(
                 mainContentHeight - sidebarHeight,
                 paginationTop + window.scrollY - containerTop - topOffset - BUFFER
             );
 
-            // 计算当前滚动位置相对于底部的距离
+            // Calculate distance from current scroll position to the bottom
             const currentScrollTop = scrollY + topOffset - containerTop;
             const distanceToBottom = maxTop - currentScrollTop;
 
-            // 判断滚动位置并设置样式
+            // Check scroll position and update styles
             if (scrollY + topOffset >= containerTop) {
                 if (distanceToBottom <= BUFFER) {
-                    // 完全到达底部时
+                    // When fully scrolled to the bottom
                     Object.assign(sidebarElem.style, {
                         position: 'absolute',
                         top: `${maxTop}px`,
                         transform: 'none'
                     });
                 } else {
-                    // 正常滚动时保持fixed
+                    // Keep fixed during normal scrolling
                     Object.assign(sidebarElem.style, {
                         position: 'fixed',
                         top: `${topOffset}px`,
@@ -155,7 +155,7 @@ export default function Home() {
                     });
                 }
             } else {
-                // 回到顶部
+                // Return to top
                 Object.assign(sidebarElem.style, {
                     position: 'absolute',
                     top: '0',
@@ -164,7 +164,7 @@ export default function Home() {
             }
         };
 
-        // 添加防抖处理
+        // Add debounce handling
         let ticking = false;
         const scrollHandler = () => {
             if (!ticking) {
@@ -179,7 +179,7 @@ export default function Home() {
         window.addEventListener('scroll', scrollHandler, { passive: true });
         window.addEventListener('resize', scrollHandler, { passive: true });
 
-        // 初始化调用一次
+        // Call once on initialization
         handleScroll();
 
         return () => {
@@ -191,7 +191,7 @@ export default function Home() {
     return (
         <div className="relative min-h-screen w-full overflow-x-clip">
             <div className="flex max-w-[1800px] mx-auto w-full">
-                {/* 左侧导航 */}
+                {/* Left sidebar navigation */}
                 <div className="hidden lg:block w-[240px] relative" ref={catalogRef}>
                     <div
                         ref={sidebarRef}
@@ -208,16 +208,16 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* 右侧主内容区域 */}
+                {/* Right main content area */}
                 <main ref={mainContentRef} className="flex-1 min-h-screen w-full">
                     <div className="px-2 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
-                        {/* 顶部英雄区域 */}
+                        {/* Top hero section */}
                         <HeroSection />
 
-                        {/* 限时特惠区域 */}
+                        {/* Flash deals section */}
                         <FeaturedDeals />
 
-                        {/* 分隔线 */}
+                        {/* Divider */}
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-200" />
@@ -229,7 +229,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* 添加各个分类区域 - 使用从API获取的分类数据 */}
+                        {/* Category sections — populated with API data */}
                         {categories.map((category) => (
                             <CategoryProducts
                                 key={category.slug}
@@ -240,9 +240,9 @@ export default function Home() {
                             />
                         ))}
 
-                        {/* 分页区域 */}
+                        {/* Pagination area */}
                         <div ref={paginationRef} className="mb-8">
-                            {/* 分隔线 */}
+                            {/* Divider */}
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
                                     <div className="w-full border-t border-gray-200" />
@@ -255,7 +255,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* 邮箱订阅组件 */}
+                        {/* Email subscription component */}
                         <div ref={newsletterRef}>
                             <NewsletterSubscribe />
                         </div>

@@ -4,34 +4,34 @@ import { auth } from '@/auth';
 import { UserRole } from '@/lib/models/UserRole';
 import clientPromise from '@/lib/mongodb';
 
-// 确保API路由正确注册
+// Ensure API routes are properly registered
 export const dynamic = 'force-dynamic';
 
-// 获取用户列表
+// Fetch user list
 export async function GET(_request: NextRequest) {
     try {
-        // 验证当前用户是否为管理员
+        // Validate if current user is admin
         const session = await auth();
 
         if (!session?.user || (session.user.role !== UserRole.ADMIN && session.user.role !== UserRole.SUPER_ADMIN)) {
             return NextResponse.json(
-                { error: '无权访问用户列表' },
+                { error: 'No permission to access user list' },
                 { status: 403 }
             );
         }
 
-        // 连接数据库
+        // Connect to database
         const client = await clientPromise;
         const db = client.db('oohunt');
 
-        // 获取用户列表（不包含密码字段）
+        // Fetch user list (excluding password fields)
         const users = await db.collection('users')
             .find({})
             .project({ password: 0 })
             .sort({ createdAt: -1 })
             .toArray();
 
-        // 处理返回数据格式
+        // Handle returned data format
         const formattedUsers = users.map(user => ({
             id: user._id.toString(),
             name: user.name,
@@ -45,12 +45,12 @@ export async function GET(_request: NextRequest) {
         }));
 
         return NextResponse.json({
-            message: '获取用户列表成功',
+            message: 'User list fetched successfully',
             data: formattedUsers
         });
     } catch {
         return NextResponse.json(
-            { error: '服务器错误' },
+            { error: 'Server error' },
             { status: 500 }
         );
     }

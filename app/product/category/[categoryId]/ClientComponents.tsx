@@ -5,26 +5,26 @@ import { useEffect } from 'react';
 
 import ProductsPage from '@/app/product/page';
 
-// 客户端包装组件
+// Client wrapper component
 export function CategoryPageWrapper({ categorySlug }: { categorySlug: string }) {
     const pathname = usePathname();
 
-    // 强制确保URL一致性，防止被覆盖
+    // Force URL consistency to prevent overwriting
     useEffect(() => {
-        // 防止竞争条件：延迟执行以确保是最后一个执行的URL更新
+        // Prevent race condition: delay execution to ensure it is the last URL update
         const timer = setTimeout(() => {
             const expectedPath = `/product/category/${encodeURIComponent(categorySlug)}`;
 
-            // 只有当实际路径与预期路径不一致时才更新
+            // Update only when actual path differs from expected path
             if (pathname !== expectedPath && categorySlug) {
-                // 直接使用浏览器API更新URL
+                // Use browser API to update URL directly
                 window.history.replaceState(
                     null,
                     '',
                     expectedPath
                 );
             }
-        }, 100); // 100ms延迟，确保它是最后执行的操作
+        }, 100); // 100ms delay to ensure it is the last operation executed
 
         return () => clearTimeout(timer);
     }, [pathname, categorySlug]);

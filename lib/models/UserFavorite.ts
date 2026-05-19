@@ -1,18 +1,18 @@
 import type { ObjectId } from "mongodb";
 
 /**
- * 用户收藏数据模型
+ * User favorites data model
  */
 export interface UserFavorite {
     _id?: ObjectId;
-    userId: string;           // 用户ID
-    productId: string;        // 商品ID
-    createdAt: Date;         // 创建时间
-    updatedAt: Date;         // 更新时间
+    userId: string;           // User ID
+    productId: string;        // Product ID
+    createdAt: Date;         // Created time
+    updatedAt: Date;         // Update timestamp
 }
 
 /**
- * 用户收藏列表响应类型
+ * User favorites list response type
  */
 export interface UserFavoritesResponse {
     favorites: UserFavorite[];
@@ -20,7 +20,7 @@ export interface UserFavoritesResponse {
 }
 
 /**
- * 创建收藏的请求类型
+ * Request type for creating a favorite
  */
 export interface CreateFavoriteRequest {
     userId: string;
@@ -28,7 +28,7 @@ export interface CreateFavoriteRequest {
 }
 
 /**
- * 删除收藏的请求类型
+ * Request type for deleting a favorite
  */
 export interface DeleteFavoriteRequest {
     userId: string;

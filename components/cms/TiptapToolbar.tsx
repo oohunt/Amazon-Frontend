@@ -7,7 +7,7 @@ import {
     AlignLeft, AlignCenter, AlignRight, Code, Quote,
     Trash2, Highlighter, Type, Palette,
     CornerDownLeft,
-    Video as YoutubeIcon, // 使用 Video 图标替代已弃用的 Youtube 图标
+    Video as YoutubeIcon, // Use Video icon as replacement for deprecated Youtube icon
     Keyboard,
     Database,
     Upload,
@@ -26,17 +26,17 @@ import { ProductMetadataSelector } from './ProductMetadataSelector';
 import ProductPickerModal from './ProductPickerModal';
 import { type EmailFormAttributes } from './Template/email/EmailCollectionFormBlot';
 
-// 定义用于类型断言的接口
+// Interface for type assertion
 interface ProductMetadataCommands {
     insertProductMetadata: (attributes: ProductMetadataAttributes) => boolean;
 }
 
-// 新增：为产品卡片添加命令接口
+// Added: command interface for product card
 interface ProductCardCommands {
     insertProduct: (attributes: ProductAttributes) => boolean;
 }
 
-// 新增：为邮件收集表单添加命令接口
+// Added: command interface for email collection form
 interface EmailFormCommands {
     insertEmailCollectionForm: (attributes: Partial<EmailFormAttributes>) => boolean;
 }
@@ -46,7 +46,7 @@ interface TiptapToolbarProps {
     onAddProduct: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-// 辅助函数，用于生成 Kbd 标签
+// Helper function to generate Kbd tags
 const ShortcutKey = ({ children }: { children: React.ReactNode }) => (
     <kbd className="px-1.5 py-0.5 text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200 rounded-md">
         {children}
@@ -59,13 +59,13 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [youtubeWidth, setYoutubeWidth] = useState('640');
     const [youtubeHeight, setYoutubeHeight] = useState('480');
-    // 新增链接和图片 Popover 状态
+    // Added: link and image Popover state
     const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
     const [linkOpenInNewTab, setLinkOpenInNewTab] = useState(false);
     const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
     const [imageUrl, setImageUrl] = useState('');
-    // 新增：快捷键模态框状态
+    // Added: keyboard shortcut modal state
     const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
     const [_selectedProduct, _setSelectedProduct] = useState<ComponentProduct | null>(null);
     const [showProductPicker, setShowProductPicker] = useState(false);
@@ -82,40 +82,40 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
     const [emailSourceType, setEmailSourceType] = useState<'general' | 'blog'>('general');
     const [emailFormStyle, setEmailFormStyle] = useState<'default' | 'compact' | 'blog' | 'deals'>('default');
 
-    // 新增：切换快捷键模态框
+    // Added: toggle keyboard shortcut modal
     const toggleShortcutModal = useCallback(() => {
         setIsShortcutModalOpen(!isShortcutModalOpen);
     }, [isShortcutModalOpen]);
 
-    // 清除格式
+    // Clear formatting
     const clearFormatting = useCallback(() => {
         if (!editor) return;
         editor.chain().focus().clearNodes().unsetAllMarks().run();
     }, [editor]);
 
-    // 应用排版规则
+    // Apply typography rules
     const applyTypography = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
         setIsTypographyModalOpen(true);
     }, []);
 
-    // 插入或取消强制换行（硬断行）
+    // Insert or cancel forced line break (hard break)
     const toggleHardBreak = useCallback(() => {
         if (!editor) return;
         editor.chain().focus().setHardBreak().run();
     }, [editor]);
 
-    // 修改：handleYoutubeAdd 只打开 Popover
+    // Modified: handleYoutubeAdd only opens Popover
     const handleYoutubeAdd = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
         if (!editor) return;
-        // 打开 Popover 时，不清空 URL，以便用户可以编辑之前的输入
+        // When opening Popover, don't clear URL so user can edit previous input
         setIsYoutubePopoverOpen(true);
     }, [editor]);
 
-    // 更新：应用 YouTube URL，包含宽度和高度
+    // Updated: apply YouTube URL with width and height
     const applyYoutubeUrl = useCallback(() => {
         if (!editor) return;
         const urlToApply = youtubeUrl.trim();
@@ -138,10 +138,10 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                     setYoutubeWidth('640');
                     setYoutubeHeight('480');
                 } else {
-                    alert('请输入有效的 YouTube 或 YouTube Music 链接。');
+                    alert('Please enter a valid YouTube or YouTube Music URL.');
                 }
             } catch {
-                alert('输入的 URL 无效。');
+                alert('Invalid URL.');
             }
         } else {
             setIsYoutubePopoverOpen(false);
@@ -151,7 +151,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         }
     }, [editor, youtubeUrl, youtubeWidth, youtubeHeight]);
 
-    // 新增：处理取消操作，重置状态
+    // Added: handle cancel operation, reset state
     const handleYoutubeCancel = useCallback(() => {
         setIsYoutubePopoverOpen(false);
         setYoutubeUrl('');
@@ -159,7 +159,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setYoutubeHeight('480');
     }, []);
 
-    // 应用链接 URL
+    // Apply link URL
     const applyLinkUrl = useCallback(() => {
         if (!editor) return;
         const urlToSet = linkUrl.trim();
@@ -168,7 +168,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
             editor.chain().focus().extendMarkRange('link').unsetLink().run();
         } else {
             if (!/^https?:\/\//i.test(urlToSet)) {
-                alert('请输入有效的 URL (以 http:// 或 https:// 开头)');
+                alert('Please enter a valid URL (starting with http:// or https://)');
 
                 return;
             }
@@ -182,7 +182,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setLinkOpenInNewTab(false);
     }, [editor, linkUrl, linkOpenInNewTab]);
 
-    // 移除链接
+    // Remove link
     const handleLinkRemove = useCallback(() => {
         if (!editor) return;
         editor.chain().focus().extendMarkRange('link').unsetLink().run();
@@ -191,53 +191,53 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setLinkOpenInNewTab(false);
     }, [editor]);
 
-    // 应用图片 URL
+    // Apply image URL
     const applyImageUrl = useCallback(() => {
         if (!editor) return;
         const urlToApply = imageUrl.trim();
 
         if (urlToApply) {
-            // 可选：添加更严格的URL验证
+            // Optional: add stricter URL validation
             try {
-                new URL(urlToApply); // 基础验证
+                new URL(urlToApply); // Basic validation
                 editor.chain().focus().setImage({ src: urlToApply }).run();
                 setIsImagePopoverOpen(false);
-                setImageUrl(''); // 成功后清空
+                setImageUrl(''); // Clear after success
             } catch {
-                alert('输入的图片 URL 无效。');
+                alert('Invalid image URL.');
             }
         } else {
-            // 如果URL为空，可以选择关闭或提示用户输入
+            // If URL is empty, close or prompt user to enter
             setIsImagePopoverOpen(false);
         }
     }, [editor, imageUrl]);
 
-    // 取消图片插入
+    // Cancel image insertion
     const handleImageCancel = useCallback(() => {
         setIsImagePopoverOpen(false);
-        setImageUrl(''); // 取消时清空
+        setImageUrl(''); // Clear on cancel
     }, []);
 
-    // 处理本地图片上传
+    // Handle local image upload
     const handleLocalImageUpload = useCallback((url: string) => {
         if (!editor) return;
         editor.chain().focus().setImage({ src: url }).run();
     }, [editor]);
 
-    // 新增：处理从 ProductPickerModal 返回的产品选择
+    // Added: handle product selection returned from ProductPickerModal
     const handleProductPicked = useCallback((product: ComponentProduct) => {
         if (!editor) return;
 
         if (pickerMode === 'product') {
-            // 插入产品卡片
+            // Insert product card
             const attributes: ProductAttributes = {
                 id: product.id || product.asin || '',
                 title: product.title || 'Unnamed Product',
                 price: product.price || 0,
                 image: product.image || '/placeholder-product.jpg',
                 asin: product.asin || '',
-                style: 'card', // 默认样式，或从其他地方获取
-                alignment: 'left', // 默认对齐
+                style: 'card', // Default style, or get from elsewhere
+                alignment: 'left', // Default alignment
                 url: product.url || '',
                 cj_url: product.cj_url || '',
                 brand: product.brand ?? null,
@@ -252,49 +252,49 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
             };
 
             try {
-                // 确保 editor.commands.insertProduct 存在
-                // 断言编辑器命令类型
+                // Ensure editor.commands.insertProduct exists
+                // Assert editor command type
                 const commands = editor.commands as unknown as Partial<RawCommands & ProductCardCommands>;
 
                 if (commands.insertProduct) {
                     commands.insertProduct(attributes);
                 } else {
-                    alert('插入产品卡片时出错：命令未找到。');
+                    alert('Error inserting product card: command not found.');
                 }
             } catch {
-                alert('插入产品卡片时出错。');
+                alert('Error inserting product card.');
             }
         } else if (pickerMode === 'metadata') {
-            // 准备插入元数据
+            // Prepare to insert metadata
             setProductForMetadata(product);
             setShowMetadataSelector(true);
         }
 
-        // 重置模式并关闭选择器
+        // Reset mode and close picker
         setPickerMode(null);
         setShowProductPicker(false);
     }, [editor, pickerMode]);
 
-    // 处理元数据选择 - 同样重写
+    // Handle metadata selection - rewritten
     const handleMetadataSelect = useCallback((fieldId: string) => {
-        // 使用 productForMetadata
+        // Use productForMetadata
         if (!editor || !productForMetadata) return;
 
         try {
             const attributes: ProductMetadataAttributes = {
                 productId: productForMetadata.id || productForMetadata.asin || '',
                 fieldId,
-                // value 字段由 ProductMetadataBlot/View 内部获取，这里不需要传递
+                // value field is fetched internally by ProductMetadataBlot/View, no need to pass here
             };
-            // 在实际编辑器中尝试直接调用命令
-            // 断言以访问自定义命令
+            // Try calling commands directly in the actual editor
+            // Assert to access custom commands
             const commands = editor.commands as unknown as Partial<RawCommands & ProductMetadataCommands>;
 
             if (commands.insertProductMetadata) {
-                // 当插件正确注册时使用直接方法
+                // Use direct method when plugin is correctly registered
                 commands.insertProductMetadata(attributes);
             } else {
-                // 回退到链式调用（如果命令没有正确扩展）
+                // Fall back to chain call (if command is not properly extended)
                 editor.chain().focus().insertContent({
                     type: 'productMetadata',
                     attrs: attributes
@@ -302,15 +302,15 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
             }
 
         } catch {
-            alert('插入元数据时出错，请稍后再试');
+            alert('Error inserting metadata, please try again later');
         } finally {
-            // 不论成功失败，都关闭选择器并重置状态
+            // Close picker and reset state regardless of success or failure
             setShowMetadataSelector(false);
-            setProductForMetadata(null); // 重置关联的产品
+            setProductForMetadata(null); // Reset associated product
         }
-    }, [editor, productForMetadata]); // 依赖 productForMetadata
+    }, [editor, productForMetadata]); // Depends on productForMetadata
 
-    // 处理添加产品点击
+    // Handle add product click
     const handleAddProductClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -318,7 +318,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setShowProductPicker(true);
     }, []);
 
-    // 处理添加元数据点击
+    // Handle add metadata click
     const handleAddMetadataClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
@@ -326,58 +326,58 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         setShowProductPicker(true);
     }, []);
 
-    // 处理产品样式变更
+    // Handle product style change
     const _handleProductStyleChange = useCallback((style: string) => {
         if (editor && editor.isActive('product')) {
             editor.chain().focus().updateAttributes('product', { style }).run();
         }
     }, [editor]);
 
-    // 新增：打开邮件表单模态框
+    // Added: open email form modal
     const handleEmailFormClick = useCallback((e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        // 重置表单字段为默认值
+        // Reset form fields to default values
         setEmailFormTitle('Subscribe to Get Latest Updates');
         setEmailFormDescription('Enter your email address to get the latest product information and discount offers.');
         setEmailInputPlaceholder('your.email@example.com');
         setEmailSubmitButtonText('Subscribe');
         setEmailSourceType('general');
         setEmailFormStyle('default');
-        // 打开模态框
+        // Open modal
         setIsEmailFormModalOpen(true);
     }, []);
 
-    // 新增：插入邮件收集表单
+    // Added: insert email collection form
     const insertEmailForm = useCallback(() => {
         if (!editor) return;
 
         try {
-            // 构建表单属性
+            // Build form attributes
             const attributes: Partial<EmailFormAttributes> = {
                 formTitle: emailFormTitle,
                 formDescription: emailFormDescription,
                 inputPlaceholder: emailInputPlaceholder,
                 submitButtonText: emailSubmitButtonText,
                 sourceType: emailSourceType,
-                formId: `form-${Date.now()}`, // 生成唯一ID
+                formId: `form-${Date.now()}`, // Generate unique ID
                 style: emailFormStyle
             };
 
-            // 尝试使用插件命令
+            // Try using plugin command
             const commands = editor.commands as unknown as Partial<RawCommands & EmailFormCommands>;
 
             if (commands.insertEmailCollectionForm) {
                 commands.insertEmailCollectionForm(attributes);
             } else {
-                // 回退到通用插入内容方法
+                // Fall back to generic insert content method
                 editor.chain().focus().insertContent({
                     type: 'emailCollectionForm',
                     attrs: attributes
                 }).run();
             }
 
-            // 关闭模态框
+            // Close modal
             setIsEmailFormModalOpen(false);
         } catch {
             alert('Error inserting email collection form, please try again later');
@@ -388,8 +388,8 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         return null;
     }
 
-    // 快捷键数据（根据启用的扩展和 Tiptap 文档整理）
-    // 注意：Mod = Cmd (macOS) / Ctrl (Windows/Linux)
+    // Keyboard shortcut data (compiled based on enabled extensions and Tiptap documentation)
+    // Note: Mod = Cmd (macOS) / Ctrl (Windows/Linux)
     const shortcuts = [
         {
             category: 'Basic Operations', items: [
@@ -429,12 +429,12 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
         },
     ];
 
-    // 检测操作系统 (简易方式，可能不完全准确)
+    // Detect operating system (simple method, may not be fully accurate)
     const isMac = typeof window !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
     return (
         <div className="flex items-center flex-wrap gap-1 bg-white w-full">
-            {/* 撤销/重做 */}
+            {/* Undo/Redo */}
             <button
                 type="button"
                 onClick={() => editor.chain().focus().undo().run()}
@@ -454,9 +454,9 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Redo size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 文本格式化 */}
+            {/* Text formatting */}
             <button
                 type="button"
                 onClick={() => editor.chain().focus().toggleBold().run()}
@@ -490,7 +490,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Strikethrough size={16} />
             </button>
 
-            {/* 高亮颜色选择器 Popover */}
+            {/* Highlight color picker Popover */}
             <ColorPickerPopover
                 editor={editor}
                 mode="highlight"
@@ -505,7 +505,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 }
             />
 
-            {/* 文本颜色选择器 Popover */}
+            {/* Text color picker Popover */}
             <ColorPickerPopover
                 editor={editor}
                 mode="textColor"
@@ -529,17 +529,17 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Trash2 size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 标题 - 改为下拉菜单 */}
+            {/* Heading - changed to dropdown */}
             <Dropdown>
                 <DropdownTrigger>
                     <Button
-                        variant="light" // 或其他你喜欢的样式
-                        className="p-1.5 rounded hover:bg-gray-100 data-[hover=true]:bg-gray-100 min-w-0 h-auto" // 调整样式以适应按钮
+                        variant="light" // Or other preferred style
+                        className="p-1.5 rounded hover:bg-gray-100 data-[hover=true]:bg-gray-100 min-w-0 h-auto" // Adjust style to fit button
                         title="Heading Level"
                     >
-                        {/* 可以根据当前级别显示不同内容，或保持通用图标 */}
+                        {/* Can show different content based on current level, or keep generic icon */}
                         <Heading size={16} />
                     </Button>
                 </DropdownTrigger>
@@ -554,7 +554,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                             editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 }).run();
                         }
                     }}
-                    selectedKeys={editor.isActive('heading', { level: 1 }) ? ['h-1'] : editor.isActive('heading', { level: 2 }) ? ['h-2'] : editor.isActive('heading', { level: 3 }) ? ['h-3'] : ['h-0']} // 高亮当前级别
+                    selectedKeys={editor.isActive('heading', { level: 1 }) ? ['h-1'] : editor.isActive('heading', { level: 2 }) ? ['h-2'] : editor.isActive('heading', { level: 3 }) ? ['h-3'] : ['h-0']} // Highlight current level
                     selectionMode="single"
                 >
                     <DropdownItem key="h-0">Normal Text</DropdownItem>
@@ -573,9 +573,9 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Type size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 对齐方式 */}
+            {/* Text alignment */}
             <button
                 type="button"
                 onClick={() => editor.chain().focus().setTextAlign('left').run()}
@@ -601,9 +601,9 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <AlignRight size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 列表 */}
+            {/* Lists */}
             <button
                 type="button"
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -621,9 +621,9 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <ListOrdered size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 引用和代码块 */}
+            {/* Blockquote and code block */}
             <button
                 type="button"
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -649,10 +649,10 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <CornerDownLeft size={16} />
             </button>
 
-            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* 分隔符 */}
+            <div className="h-6 w-px bg-gray-300 mx-1" /> {/* Separator */}
 
-            {/* 链接、图片、产品、YouTube */}
-            {/* 链接 Popover */}
+            {/* Link, image, product, YouTube */}
+            {/* Link Popover */}
             <Popover placement="bottom" isOpen={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
                 <PopoverTrigger>
                     <button
@@ -710,7 +710,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 </PopoverContent>
             </Popover>
 
-            {/* 图片 Popover */}
+            {/* Image Popover */}
             <Popover placement="bottom" isOpen={isImagePopoverOpen} onOpenChange={setIsImagePopoverOpen}>
                 <PopoverTrigger>
                     <button
@@ -853,7 +853,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Database size={16} />
             </button>
 
-            {/* 新增：邮件收集表单按钮 */}
+            {/* Added: email collection form button */}
             <button
                 type="button"
                 onClick={handleEmailFormClick}
@@ -863,11 +863,11 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 <Mail size={16} />
             </button>
 
-            {/* 新增：快捷键说明按钮 */}
+            {/* Added: keyboard shortcut help button */}
             <button
                 type="button"
                 onClick={toggleShortcutModal}
-                className="p-1.5 rounded hover:bg-gray-100 ml-auto" /* 使用 ml-auto 推到右边 */
+                className="p-1.5 rounded hover:bg-gray-100 ml-auto" /* Use ml-auto to push to right */
                 title="View Keyboard Shortcuts"
             >
                 <Keyboard size={16} />
@@ -912,7 +912,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 </ModalContent>
             </Modal>
 
-            {/* 新增：快捷键说明模态框 */}
+            {/* Added: keyboard shortcut help modal */}
             <Modal isOpen={isShortcutModalOpen} onOpenChange={setIsShortcutModalOpen} size="2xl">
                 <ModalContent>
                     {(onClose) => (
@@ -958,32 +958,32 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                 </ModalContent>
             </Modal>
 
-            {/* 产品选择器 */}
+            {/* Product picker */}
             <ProductPickerModal
                 isOpen={showProductPicker}
                 onClose={() => setShowProductPicker(false)}
                 onProductSelect={handleProductPicked}
             />
 
-            {/* 元数据选择器 - 逻辑改进 */}
+            {/* Metadata selector - improved logic */}
             <ProductMetadataSelector
                 isOpen={showMetadataSelector}
                 onClose={() => {
                     setShowMetadataSelector(false);
-                    // 关闭时不重置 productForMetadata，handleMetadataSelect 会处理
+                    // Don't reset productForMetadata on close, handleMetadataSelect will handle it
                 }}
                 product={productForMetadata}
                 onSelect={handleMetadataSelect}
             />
 
-            {/* 添加图片上传模态框 */}
+            {/* Image upload modal */}
             <ImageUploader
                 isOpen={showImageUploader}
                 onClose={() => setShowImageUploader(false)}
                 onImageUpload={handleLocalImageUpload}
             />
 
-            {/* 新增：邮件收集表单模态框 */}
+            {/* Added: email collection form modal */}
             <Modal isOpen={isEmailFormModalOpen} onOpenChange={setIsEmailFormModalOpen}>
                 <ModalContent>
                     {(onClose) => (
@@ -1046,7 +1046,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                                         </div>
                                     </div>
 
-                                    {/* 高级设置 - 隐藏在折叠面板中 */}
+                                    {/* Advanced settings - hidden in collapsible panel */}
                                     <div className="mt-4 pt-4 border-t border-gray-200">
                                         <details className="text-sm">
                                             <summary className="cursor-pointer text-gray-700 font-medium">Advanced Settings</summary>
@@ -1096,7 +1096,7 @@ export function TiptapToolbar({ editor }: TiptapToolbarProps) {
                                         </details>
                                     </div>
 
-                                    {/* 表单预览 */}
+                                    {/* Form preview */}
                                     <div className="mt-4 pt-4 border-t border-gray-200">
                                         <p className="text-sm font-medium text-gray-700 mb-2">Form Preview:</p>
                                         <div className={`border border-gray-200 rounded-md p-4 ${emailFormStyle === 'default' ? 'bg-gradient-to-br from-[#1A5276] to-[#154360] text-white' :

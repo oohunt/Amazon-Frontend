@@ -34,7 +34,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
             className="group relative bg-background rounded-lg sm:rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300"
         >
             <Link href={`/product/${product.id}`} className="block">
-                {/* 新品标签 */}
+                {/* New badge */}
                 {isNew && (
                     <motion.div
                         initial={{ scale: 0 }}
@@ -42,12 +42,12 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                         className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10"
                     >
                         <div className="bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm">
-                            新品
+                            New
                         </div>
                     </motion.div>
                 )}
 
-                {/* 折扣标签 */}
+                {/* Discount badge */}
                 {discount > 0 && (
                     <motion.div
                         initial={{ scale: 0 }}
@@ -60,7 +60,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                     </motion.div>
                 )}
 
-                {/* Prime标签 */}
+                {/* Prime label */}
                 {product.prime_eligible && (
                     <motion.div
                         initial={{ scale: 0 }}
@@ -73,7 +73,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                     </motion.div>
                 )}
 
-                {/* 商品图片 */}
+                {/* Product images */}
                 <div className="relative aspect-square overflow-hidden bg-gray-100">
                     <motion.div
                         animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
@@ -91,7 +91,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                     </motion.div>
                 </div>
 
-                {/* 商品信息 */}
+                {/* Product information */}
                 <div className="p-3 sm:p-4">
                     <h3 className="text-sm sm:text-lg font-medium line-clamp-2 group-hover:text-primary transition-colors">
                         {product.title.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
@@ -109,7 +109,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                     </div>
                 </div>
 
-                {/* 悬浮效果 */}
+                {/* Hover effect */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: isHovered ? 1 : 0 }}
@@ -117,7 +117,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                 />
             </Link>
 
-            {/* 快捷操作按钮 */}
+            {/* Quick action buttons */}
             {showActions && (
                 <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-linear-to-t from-background to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex justify-center space-x-2">
@@ -129,7 +129,7 @@ export default function ProductCard({ product, showActions = false, isNew = fals
                             rel="noopener noreferrer"
                             className="bg-primary text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium hover:bg-primary/90 transition-colors"
                         >
-                            查看详情
+                            View Details
                         </motion.a>
                     </div>
                 </div>

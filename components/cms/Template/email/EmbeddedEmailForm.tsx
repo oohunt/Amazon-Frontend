@@ -3,7 +3,7 @@
 import { Mail, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 
-// 定义组件的属性接口
+// Define component props interface
 interface EmbeddedEmailFormProps {
     formTitle: string;
     formDescription: string;
@@ -15,8 +15,8 @@ interface EmbeddedEmailFormProps {
 }
 
 /**
- * 前端渲染的电子邮件收集表单组件
- * 用于在实际内容页面中显示和处理电子邮件订阅
+ * Frontend-rendered email collection form component
+ * Display and handle email subscriptions in actual content pages
  */
 export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
     formTitle,
@@ -27,7 +27,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
     formId,
     style = 'default',
 }) => {
-    // 组件状态
+    // Component status
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<{
@@ -36,21 +36,21 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
     }>({ type: null, message: '' });
     const [acceptTerms, setAcceptTerms] = useState(false);
 
-    // 电子邮件验证
+    // Email validation
     const validateEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         return emailRegex.test(email);
     };
 
-    // 表单提交处理
+    // Form submit handler
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // 清除之前的状态
+        // Clear previous status
         setStatus({ type: null, message: '' });
 
-        // 验证邮箱格式
+        // Validate email format
         if (!validateEmail(email)) {
             setStatus({
                 type: 'error',
@@ -60,7 +60,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
             return;
         }
 
-        // 验证条款接受
+        // Validate terms acceptance
         if (!acceptTerms) {
             setStatus({
                 type: 'error',
@@ -73,18 +73,18 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         setIsSubmitting(true);
 
         try {
-            // 调用API提交邮箱 - 使用与contact-us页面相同的端点
+            // Call API to submit email — use same endpoint as contact-us page
             const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    name: 'Newsletter Subscriber', // 默认名称
+                    name: 'Newsletter Subscriber', // Default name
                     email,
                     subject: 'Newsletter Subscription',
                     message: `Email subscription from ${sourceType} form (ID: ${formId})`,
-                    formSource: sourceType, // 添加来源字段来区分
+                    formSource: sourceType, // Add source field to differentiate
                     formId: formId,
                 }),
             });
@@ -92,21 +92,21 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
             const result = await response.json();
 
             if (result.success) {
-                // 成功处理
+                // SuccessHandle
                 setStatus({
                     type: 'success',
                     message: result.message || 'Subscription successful!',
                 });
-                setEmail(''); // 清除输入
+                setEmail(''); // Clear input
             } else {
-                // 错误处理
+                // Error handling
                 setStatus({
                     type: 'error',
                     message: result.message || 'Subscription failed, please try again later',
                 });
             }
         } catch {
-            // 捕获网络错误等
+            // Catch network errors etc.
             setStatus({
                 type: 'error',
                 message: 'An error occurred, please try again later',
@@ -116,7 +116,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         }
     };
 
-    // Deals 风格表单 - 更加紧凑且没有图标
+    // Deals style form — more compact without icons
     if (style === 'deals') {
         return (
             <div
@@ -128,7 +128,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
             >
                 <div className="bg-[#2E71A6] rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-7">
-                        {/* 表单标题和说明 */}
+                        {/* Form title and description */}
                         <div className="mb-4 text-center">
                             <h2 className="text-xl font-bold text-[#FFFFFF] mb-2">
                                 {formTitle || 'Subscribe to Our Deals Newsletter'}
@@ -138,7 +138,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                             </p>
                         </div>
 
-                        {/* 表单内容 */}
+                        {/* Form content */}
                         <form onSubmit={handleSubmit} className="w-full mx-auto">
                             <div className="flex flex-col sm:flex-row gap-3 mb-4">
                                 <input
@@ -160,7 +160,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </button>
                             </div>
 
-                            {/* 条款同意复选框 */}
+                            {/* Terms agreement checkbox */}
                             <div>
                                 <label className="flex items-start gap-2 text-sm text-white/90 cursor-pointer">
                                     <input
@@ -175,7 +175,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </label>
                             </div>
 
-                            {/* 状态消息 */}
+                            {/* Status message */}
                             {status.type === 'error' && (
                                 <div className="mt-3 bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-md text-red-300 text-sm">
                                     {status.message}
@@ -196,7 +196,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         );
     }
 
-    // 博客风格的表单
+    // Blog-style form
     if (style === 'blog') {
         return (
             <div
@@ -208,7 +208,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
             >
                 <div className="bg-gradient-to-r from-[#3282B7] to-[#1C567B] rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-7 relative z-10">
-                        {/* 表单标题 */}
+                        {/* Form title */}
                         <div className="mb-5 text-center">
                             <h2 className="text-xl font-bold text-white flex items-center justify-center mb-2">
                                 <Mail className="w-[30px] h-[30px] text-[#FFC107] mr-2.5" strokeWidth={1.5} />
@@ -219,7 +219,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                             </p>
                         </div>
 
-                        {/* 表单内容 */}
+                        {/* Form content */}
                         <form onSubmit={handleSubmit} className="w-full mx-auto">
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <div className="flex-grow relative">
@@ -248,7 +248,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </button>
                             </div>
 
-                            {/* 条款同意复选框 */}
+                            {/* Terms agreement checkbox */}
                             <div className="mt-4">
                                 <label className="flex items-start gap-2.5 text-sm text-white/90 cursor-pointer">
                                     <input
@@ -263,7 +263,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </label>
                             </div>
 
-                            {/* 状态消息 */}
+                            {/* Status message */}
                             {status.type === 'error' && (
                                 <div className="mt-4 bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-md text-red-400 text-sm">
                                     {status.message}
@@ -284,7 +284,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         );
     }
 
-    // 紧凑风格的表单
+    // Compact style form
     if (style === 'compact') {
         return (
             <div
@@ -296,13 +296,13 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
             >
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
                     <div className="px-5 py-6">
-                        {/* 表单标题 */}
+                        {/* Form title */}
                         <div className="mb-4 text-center">
                             <h3 className="text-lg font-medium text-gray-800">{formTitle}</h3>
                             <p className="text-gray-600 text-sm mt-1">{formDescription}</p>
                         </div>
 
-                        {/* 表单内容 */}
+                        {/* Form content */}
                         <form onSubmit={handleSubmit}>
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <div className="flex-grow relative">
@@ -333,7 +333,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </button>
                             </div>
 
-                            {/* 条款同意复选框 */}
+                            {/* Terms agreement checkbox */}
                             <div className="mt-3">
                                 <label className="flex items-start gap-2 text-sm text-gray-600 cursor-pointer">
                                     <input
@@ -348,7 +348,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                                 </label>
                             </div>
 
-                            {/* 状态消息 */}
+                            {/* Status message */}
                             {status.type === 'error' && (
                                 <div className="mt-3 text-sm text-red-600">
                                     {status.message}
@@ -368,7 +368,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         );
     }
 
-    // 默认风格 - 完整版带渐变背景
+    // Default style — full version with gradient background
     return (
         <div
             className="email-collection-form-wrapper mb-8"
@@ -379,7 +379,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
         >
             <div className="bg-gradient-to-br from-[#1A5276] to-[#154360] rounded-lg shadow-lg overflow-hidden">
                 <div className="px-6 py-8 relative z-10">
-                    {/* 表单标题 */}
+                    {/* Form title */}
                     <div className="mb-4 text-center">
                         <div className="inline-flex items-center justify-center mb-2">
                             <Mail className="w-6 h-6 text-[#FFC107] mr-2" strokeWidth={1.5} />
@@ -390,7 +390,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                         </p>
                     </div>
 
-                    {/* 表单内容 */}
+                    {/* Form content */}
                     <form onSubmit={handleSubmit} className="w-full mx-auto">
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="flex-grow relative">
@@ -422,7 +422,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                             </button>
                         </div>
 
-                        {/* 条款同意复选框 */}
+                        {/* Terms agreement checkbox */}
                         <div className="mt-3 mx-auto">
                             <label className="flex items-start gap-2 text-sm text-white/80 cursor-pointer text-left">
                                 <input
@@ -437,7 +437,7 @@ export const EmbeddedEmailForm: React.FC<EmbeddedEmailFormProps> = ({
                             </label>
                         </div>
 
-                        {/* 状态消息 */}
+                        {/* Status message */}
                         {status.type === 'error' && (
                             <div className="mt-4 bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-400 text-sm">
                                 {status.message}

@@ -32,17 +32,17 @@ const ModernButton: React.FC<ModernButtonProps> = ({
     fullWidth = false,
     type = 'button',
 }) => {
-    // 基础样式类
+    // Base style classes
     const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 relative overflow-hidden';
 
-    // 尺寸样式
+    // Size styles
     const sizeClasses = {
         sm: 'px-3 py-1.5 text-sm gap-1.5',
         md: 'px-4 py-2 text-sm gap-2',
         lg: 'px-6 py-3 text-base gap-2.5',
     };
 
-    // 变体样式
+    // Variant styles
     const variantClasses = {
         primary: 'bg-gray-900 text-white hover:bg-gray-800 focus:ring-gray-500 shadow-sm hover:shadow-md',
         secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500 border border-gray-300',
@@ -51,13 +51,13 @@ const ModernButton: React.FC<ModernButtonProps> = ({
         success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-sm hover:shadow-md',
     };
 
-    // 禁用状态样式
+    // disabled status styles
     const disabledClasses = 'opacity-50 cursor-not-allowed pointer-events-none';
 
-    // 全宽样式
+    // Full-width styles
     const widthClasses = fullWidth ? 'w-full' : '';
 
-    // 组合所有样式类
+    // Combine all style classes
     const combinedClasses = `
     ${baseClasses}
     ${sizeClasses[size]}
@@ -67,7 +67,7 @@ const ModernButton: React.FC<ModernButtonProps> = ({
     ${className}
   `.trim();
 
-    // 加载动画
+    // Loading animation
     const LoadingSpinner = () => (
         <motion.div
             className="absolute inset-0 flex items-center justify-center"
@@ -83,7 +83,7 @@ const ModernButton: React.FC<ModernButtonProps> = ({
         </motion.div>
     );
 
-    // 渲染图标
+    // Render icon
     const renderIcon = () => {
         if (!icon) return null;
 
@@ -98,7 +98,7 @@ const ModernButton: React.FC<ModernButtonProps> = ({
         );
     };
 
-    // 渲染内容
+    // Render content
     const renderContent = () => (
         <motion.span
             className={`${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200 flex items-center gap-inherit`}
@@ -128,7 +128,7 @@ const ModernButton: React.FC<ModernButtonProps> = ({
     );
 };
 
-// 预定义的按钮组件
+// Predefined button component
 export const ActionButton: React.FC<Omit<ModernButtonProps, 'variant'> & { variant?: 'view' | 'edit' | 'delete' }> = ({
     variant = 'view',
     ...props
@@ -142,7 +142,7 @@ export const ActionButton: React.FC<Omit<ModernButtonProps, 'variant'> & { varia
     return <ModernButton variant={variantMap[variant]} size="sm" {...props} />;
 };
 
-// 图标按钮
+// Icon button
 export const IconButton: React.FC<Omit<ModernButtonProps, 'children'> & {
     icon: React.ReactNode;
     'aria-label': string;
@@ -154,7 +154,7 @@ export const IconButton: React.FC<Omit<ModernButtonProps, 'children'> & {
     );
 };
 
-// 链接样式按钮
+// Link style button
 export const LinkButton: React.FC<ModernButtonProps> = (props) => {
     return (
         <ModernButton

@@ -1,4 +1,4 @@
-// Amazon API商品相关类型
+// Amazon API product-related types
 export interface AmazonOffer {
     condition: string;
     price: number;
@@ -42,7 +42,7 @@ export interface AmazonProduct {
     api_provider: string;
 }
 
-// 页面响应
+// Page response
 export interface ProductResponse {
     items: AmazonProduct[];
     total: number;
@@ -50,7 +50,7 @@ export interface ProductResponse {
     page_size: number;
 }
 
-// API响应
+// API response
 export interface ApiResponse {
     status: number;
     message: string;

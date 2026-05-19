@@ -1,14 +1,14 @@
 /**
- * 用户角色枚举
+ * User role enum
  */
 export enum UserRole {
-    USER = 'user',           // 普通用户
-    ADMIN = 'admin',         // 管理员
-    SUPER_ADMIN = 'super_admin'  // 超级管理员
+    USER = 'user',           // Regular user
+    ADMIN = 'admin',         // Admin
+    SUPER_ADMIN = 'super_admin'  // Super admin
 }
 
 /**
- * 角色权限映射
+ * Role permission mapping
  */
 export const RolePermissions = {
     [UserRole.USER]: {
@@ -35,7 +35,7 @@ export const RolePermissions = {
 } as const;
 
 /**
- * 用户角色接口
+ * User role interface
  */
 export interface UserRoleData {
     userId: string;
@@ -44,35 +44,35 @@ export interface UserRoleData {
 }
 
 /**
- * 检查用户是否具有特定权限
+ * Check whether the user has a specific permission
  */
 export function hasPermission(role: UserRole, permission: keyof typeof RolePermissions[UserRole.USER]): boolean {
     return RolePermissions[role][permission];
 }
 
 /**
- * 获取角色的所有权限
+ * Get all permissions for a role
  */
 export function getRolePermissions(role: UserRole) {
     return RolePermissions[role];
 }
 
 /**
- * 检查是否为管理员角色
+ * Check whether the user has admin role
  */
 export function isAdminRole(role: UserRole): boolean {
     return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
 }
 
 /**
- * 检查是否为超级管理员
+ * Check whether the user is a super admin
  */
 export function isSuperAdmin(role: UserRole): boolean {
     return role === UserRole.SUPER_ADMIN;
 }
 
 /**
- * 预定义的管理员账户列表
+ * Predefined admin account list
  */
 export const ADMIN_ACCOUNTS = [
     't2715481617@gmail.com',
@@ -81,7 +81,7 @@ export const ADMIN_ACCOUNTS = [
 ] as const;
 
 /**
- * 预定义的超级管理员账户列表
+ * Predefined super admin account list
  */
 export const SUPER_ADMIN_ACCOUNTS = [
     't2715481617@gmail.com',
@@ -90,20 +90,20 @@ export const SUPER_ADMIN_ACCOUNTS = [
 ] as const;
 
 /**
- * 检查邮箱是否为预定义的管理员账户
+ * Check whether the email belongs to a predefined admin account
  */
 export function isAdminAccount(email: string): boolean {
-    // 转换为小写后比较，确保大小写不敏感
+    // Compare after converting to lowercase for case-insensitive comparison
     const normalizedEmail = email.toLowerCase();
 
     return ADMIN_ACCOUNTS.some(admin => admin.toLowerCase() === normalizedEmail);
 }
 
 /**
- * 检查邮箱是否为预定义的超级管理员账户
+ * Check whether the email belongs to a predefined super-admin account
  */
 export function isSuperAdminAccount(email: string): boolean {
-    // 转换为小写后比较，确保大小写不敏感
+    // Compare after converting to lowercase for case-insensitive comparison
     const normalizedEmail = email.toLowerCase();
 
     return SUPER_ADMIN_ACCOUNTS.some(admin => admin.toLowerCase() === normalizedEmail);

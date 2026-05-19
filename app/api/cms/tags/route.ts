@@ -1,28 +1,28 @@
-// import { ObjectId } from 'mongodb'; // 恢复导入
-// 正确的导入语句
+// import { ObjectId } from 'mongodb'; // Restore import
+// Correct import statement
 import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 import type { ContentTagCreateRequest } from '@/types/cms';
 
-// 获取标签列表
+// Get tag list
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
         const _page = parseInt(searchParams.get('page') || '1');
-        // 注意：为了计算 postCount，我们暂时移除分页限制，获取所有标签
-        // 如果标签数量非常多，后续可能需要优化为更复杂的聚合分页
-        const limit = parseInt(searchParams.get('limit') || '500'); // 获取所有标签
+        // Note: to calculate postCount, pagination limit is temporarily removed to fetch all tags
+        // If there are a very large number of tags, this may need to be optimized with aggregation pagination
+        const limit = parseInt(searchParams.get('limit') || '500'); // Fetch all tags
         const search = searchParams.get('search') || '';
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const tagsCollection = db.collection('cms_tags');
         const _pagesCollection = db.collection('cms_pages');
 
-        // 构建查询条件
+        // Build query conditions
         const query: Record<string, unknown> = {};
 
         if (search) {
@@ -32,40 +32,40 @@ export async function GET(request: NextRequest) {
             ];
         }
 
-        // 使用聚合查询获取标签及其关联的文章数
+        // Use aggregation pipeline to fetch tags along with their associated post counts
         const aggregationPipeline = [
-            // 匹配查询条件
+            // Match query conditions
             { $match: query },
-            // 按名称排序
+            // Sort by name
             { $sort: { name: 1 } },
-            // 限制数量 (暂时获取全部)
+            // Limit results (temporarily fetch all)
             { $limit: limit },
-            // 关联 cms_pages 集合
+            // Join with cms_pages collection
             {
                 $lookup: {
                     from: 'cms_pages',
-                    // 注意：cms_pages 中的 tags 存储的是 ObjectId 字符串，所以需要转换
-                    // 这里假设 tags 字段存储的是 tag._id 的字符串形式
+                    // Note: tags in cms_pages are stored as ObjectId strings, so conversion is needed
+                    // Assumes the tags field stores the string form of tag._id
                     let: { tagId: { $toString: '$_id' } },
                     pipeline: [
                         {
                             $match: {
                                 $expr: { $in: ['$$tagId', '$tags'] },
-                                status: 'published' // 只计算已发布的文章
+                                status: 'published' // Only count published posts
                             }
                         },
-                        { $count: 'count' } // 计算匹配的文章数量
+                        { $count: 'count' } // Count matching posts
                     ],
                     as: 'relatedPages'
                 }
             },
-            // 添加 postCount 字段
+            // Add postCount field
             {
                 $addFields: {
                     postCount: { $ifNull: [{ $first: '$relatedPages.count' }, 0] }
                 }
             },
-            // 移除不再需要的 relatedPages 字段
+            // Remove the relatedPages field that is no longer needed
             {
                 $project: {
                     relatedPages: 0
@@ -73,35 +73,35 @@ export async function GET(request: NextRequest) {
             }
         ];
 
-        // 获取数据
+        // Fetch data
         const tags = await tagsCollection.aggregate(aggregationPipeline).toArray();
 
-        // 计算总数 (聚合结果的总数)
-        // 注意：这里的 total 反映的是聚合查询匹配到的标签总数，而不是所有标签总数
+        // Calculate total count (total from aggregation result)
+        // Note: this total reflects tags matched by the aggregation query, not all tags
         const total = tags.length;
-        // 基于原始的 limit 参数计算分页 (如果需要恢复分页)
+        // Calculate pagination based on the original limit parameter (if pagination is restored)
         // const originalLimit = parseInt(searchParams.get('limit') || '50');
         // const totalPages = Math.ceil(total / originalLimit);
 
-        // 转换数据格式 (聚合结果已包含 _id)
+        // Format data (aggregation result already includes _id)
         const formattedTags = tags.map(tag => ({
             ...tag,
-            _id: tag._id.toString(), // 确保 _id 是字符串
-            postCount: tag.postCount, // 确保 postCount 存在
+            _id: tag._id.toString(), // Ensure _id is a string
+            postCount: tag.postCount, // Ensure postCount exists
             createdAt: tag.createdAt instanceof Date ? tag.createdAt.toISOString() : tag.createdAt,
             updatedAt: tag.updatedAt instanceof Date ? tag.updatedAt.toISOString() : tag.updatedAt
         }));
 
-        // 如果需要恢复分页逻辑，可以在这里对 formattedTags 进行 slice 操作
+        // If pagination logic needs to be restored, slice formattedTags here
         // const startIndex = (page - 1) * originalLimit;
         // const paginatedTags = formattedTags.slice(startIndex, startIndex + originalLimit);
 
         return NextResponse.json({
             status: true,
             data: {
-                tags: formattedTags, // 返回所有带计数的标签
-                // totalPages, // 如果恢复分页，则取消注释
-                // currentPage: page, // 如果恢复分页，则取消注释
+                tags: formattedTags, // Return all tags with counts
+                // totalPages, // Uncomment if pagination is restored
+                // currentPage: page, // Uncomment if pagination is restored
                 totalItems: total
             }
         });
@@ -110,50 +110,50 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
             {
                 status: false,
-                message: '获取标签列表失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get tag list, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );
     }
 }
 
-// 创建新标签
+// Create new tag
 export async function POST(request: NextRequest) {
     try {
         const body: ContentTagCreateRequest = await request.json();
 
-        // 验证必填字段
+        // Validate required fields
         if (!body.name || !body.slug) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '标签名称和URL路径为必填项'
+                    message: 'Tag name and URL path are required'
                 },
                 { status: 400 }
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_tags');
 
-        // 检查slug是否已存在
+        // Check if the slug already exists
         const existingTag = await collection.findOne({ slug: body.slug });
 
         if (existingTag) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '该URL路径已被使用，请选择其他路径'
+                    message: 'This URL path is already in use, please choose a different one'
                 },
                 { status: 400 }
             );
         }
 
-        // 构建标签数据
+        // Build tag data
         const now = new Date();
         const tagData = {
             name: body.name,
@@ -162,17 +162,17 @@ export async function POST(request: NextRequest) {
             updatedAt: now
         };
 
-        // 插入数据
+        // Insert data
         const result = await collection.insertOne(tagData);
 
         if (!result.acknowledged) {
-            throw new Error('数据库插入失败');
+            throw new Error('Database insertion failed');
         }
 
-        // 返回创建的标签数据
+        // Return the created tag data
         return NextResponse.json({
             status: true,
-            message: '标签创建成功',
+            message: 'Tag created successfully',
             data: {
                 ...tagData,
                 _id: result.insertedId.toString()
@@ -183,8 +183,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 status: false,
-                message: '创建标签失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to create tag, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

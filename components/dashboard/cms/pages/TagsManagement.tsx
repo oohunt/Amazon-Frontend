@@ -9,8 +9,8 @@ import { generateSlug } from '@/lib/utils';
 import type { ContentTag } from '@/types/cms';
 
 /**
- * 标签管理组件
- * 用于管理内容标签
+ * Tag management component
+ * For managing content tags
  */
 const TagsManagement = () => {
     // State for tags list

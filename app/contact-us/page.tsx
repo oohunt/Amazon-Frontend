@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFacebook, FaInstagram, FaPinterest, FaTwitter, FaYoutube } from "react-icons/fa";
 
-// 表单数据类型
+// Form data type
 type ContactFormData = {
     name: string;
     email: string;

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getFavoriteStats } from '@/lib/services/stats';
 
 /**
- * GET /api/stats/favorites - 获取收藏统计数据
+ * GET /api/stats/favorites - Fetch favorites statistics
  */
 export async function GET() {
     try {
@@ -13,7 +13,7 @@ export async function GET() {
     } catch {
 
         return NextResponse.json(
-            { error: '获取收藏统计数据失败' },
+            { error: 'Failed to get favorites statistics' },
             { status: 500 }
         );
     }

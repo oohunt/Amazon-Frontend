@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 
-// 添加用于隐藏滚动条的全局样式
+// Addglobal styles for hiding scrollbar
 const noScrollbarStyle = `
     .no-scrollbar::-webkit-scrollbar {
         display: none !important;
@@ -238,7 +238,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
     const { data: _session } = useSession();
     const _isInitialMount = useRef(true);
 
-    // 价格上限提升到10000美元
+    // Raise price upper limit to $10,000
     const MAX_PRICE = 10000;
 
     // Get initial filter state from URL parameters
@@ -248,7 +248,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
     const initialIsPrime = searchParams.get('is_prime_only') === 'true';
     const initialApiProvider = searchParams.get('api_provider') || '';
 
-    // 当前应用的筛选条件
+    // Currently applied filter conditions
     const [filter, setFilter] = useState<FilterState>({
         price: [initialMinPrice, initialMaxPrice] as [number, number],
         discount: initialDiscount,
@@ -256,7 +256,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         apiProvider: initialApiProvider
     });
 
-    // 添加临时筛选条件状态
+    // Addtemporary filter condition status
     const [tempFilter, setTempFilter] = useState<FilterState>({
         price: [initialMinPrice, initialMaxPrice] as [number, number],
         discount: initialDiscount,
@@ -264,13 +264,13 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         apiProvider: initialApiProvider
     });
 
-    // 添加一个状态表示是否有未应用的变更
+    // Adda status indicating whether there are unapplied changes
     const [_hasUnappliedChanges, setHasUnappliedChanges] = useState(false);
 
-    // 跟踪筛选器是否正在应用中
+    // Track whether filter is being applied
     const [isApplying, setIsApplying] = useState(false);
 
-    // 添加debounce计时器ref
+    // Adddebounce timer ref
     const debouncedApplyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [expandedSections, setExpandedSections] = useState({
@@ -286,16 +286,16 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         }));
     };
 
-    // 添加useEffect，监听URL参数变化并更新filter状态
+    // AdduseEffect to listen for URL param changes and update filter status
     useEffect(() => {
-        // 获取当前URL参数
+        // Get current URL parameters
         const minPrice = Number(searchParams.get('min_price')) || 0;
         const maxPrice = Number(searchParams.get('max_price')) || MAX_PRICE;
         const discount = Number(searchParams.get('min_discount')) || 0;
         const isPrime = searchParams.get('is_prime_only') === 'true';
         const apiProvider = searchParams.get('api_provider') || '';
 
-        // 更新filter状态以反映URL参数
+        // update filter status to reflect URL params
         const newFilter: FilterState = {
             price: [minPrice, maxPrice] as [number, number],
             discount,
@@ -304,16 +304,16 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         };
 
         setFilter(newFilter);
-        // 同时更新临时筛选状态，确保它始终反映当前应用的筛选条件
+        // Also update temporary filter status to always reflect currently applied filter
         setTempFilter(newFilter);
-        // 重置未应用变更状态
+        // reset unapplied changes status
         setHasUnappliedChanges(false);
-    }, [searchParams, MAX_PRICE]); // 依赖于searchParams，确保URL变化时会更新
+    }, [searchParams, MAX_PRICE]); // Depend on searchParams to ensure updates on URL change
 
-    // 使用ref保存上一次的过滤条件，避免无限循环
+    // Use ref to save last filter conditions, avoid infinite loop
     const prevFilter = useRef<FilterState>(filter);
 
-    // 添加一个辅助函数，检查当前是否有活跃的筛选条件
+    // Adda helper function to check if there are currently active filter conditions
     const hasActiveFilters = useCallback((filterState: FilterState) => {
         return (
             filterState.price[0] > 0 ||
@@ -326,43 +326,43 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
 
     // Create a function to build URLSearchParams that doesn't depend on filter
     const buildUrlParams = useCallback((currentFilter: FilterState) => {
-        // 基于当前URL的searchParams创建新实例，保留所有现有参数
+        // Create new searchParams instance based on current URL, preserving all existing parameters
         const params = new URLSearchParams(searchParams.toString());
 
-        // 获取当前路径信息，检查是否使用新的分类URL格式
+        // Get current path info, check if using new category URL format
         const path = pathname;
         const isUsingCategoryPath = path.includes('/product/category/');
 
-        // 如果使用的是新的分类路径，则不需要在查询参数中包含分类信息
+        // If using new category path, no need to include category in query params
         if (!isUsingCategoryPath) {
-            // 确保保留分类相关参数，仅用于旧格式兼容
+            // Ensure category-related parameters are preserved for old format compatibility only
             const productGroups = searchParams.get('product_groups');
             const category = searchParams.get('category');
 
-            // 保留必要的导航参数
+            // Preserve necessary navigation parameters
             if (productGroups) params.set('product_groups', productGroups);
             if (category) params.set('category', category);
         }
 
-        // 保留页码参数
+        // Preserve page number parameter
         const page = searchParams.get('page');
 
         if (page) params.set('page', page);
 
-        // 先清除所有筛选相关参数
+        // Clear all filter-related parameters first
         params.delete('min_price');
         params.delete('max_price');
         params.delete('min_discount');
         params.delete('brands');
         params.delete('is_prime_only');
         params.delete('api_provider');
-        // 也清除时间戳参数，稍后根据条件再添加
+        // Also clear timestamp parameter, re-add later based on conditions
         params.delete('_ts');
 
-        // 使用辅助函数检查是否有活跃的筛选条件
+        // Use helper function to check if there are active filter conditions
         const hasFilters = hasActiveFilters(currentFilter);
 
-        // Only add to URL when value is not default - 使用正确的API参数名称
+        // Only add to URL when value is not default — use correct API parameter names
         if (currentFilter.price[0] > 0) {
             params.set('min_price', currentFilter.price[0].toString());
         }
@@ -383,34 +383,34 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
             params.set('api_provider', currentFilter.apiProvider);
         }
 
-        // 添加时间戳参数，防止缓存问题 - 只在有实际筛选条件时添加
+        // Addtimestamp parameter to prevent caching — only add when there are actual filter conditions
         if (hasFilters) {
             params.set('_ts', Date.now().toString());
         }
 
         return params;
-    }, [searchParams, MAX_PRICE, hasActiveFilters, pathname]); // 添加pathname依赖
+    }, [searchParams, MAX_PRICE, hasActiveFilters, pathname]); // Add pathname dependency
 
-    // 创建自动应用筛选函数，使用debounce减少频繁更新
+    // create auto-apply filter function, using debounce to reduce frequent updates
     const autoApplyFilters = useCallback((newFilter: FilterState) => {
-        // 取消之前的计时器
+        // cancel previous timer
         if (debouncedApplyRef.current) {
             clearTimeout(debouncedApplyRef.current);
         }
 
-        // 设置新的计时器，缩短为200ms应用筛选
+        // Set new timer, shortened to 200ms to apply filter
         debouncedApplyRef.current = setTimeout(() => {
-            // 只有当临时筛选条件与当前应用的筛选条件不同时才应用
+            // Apply only when temporary filter conditions differ from currently applied conditions
             if (JSON.stringify(newFilter) !== JSON.stringify(filter)) {
                 setFilter(newFilter);
                 prevFilter.current = { ...newFilter };
 
-                // 构建URL参数并更新
+                // Build URL parameters and update
                 const params = buildUrlParams(newFilter);
 
                 router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 
-                // 调用回调
+                // Call callback
                 if (onFilter) {
                     const filterParams: Record<string, unknown> = {};
 
@@ -424,18 +424,18 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
                 }
             }
 
-            // 始终重置未应用变更状态
+            // Always reset unapplied changes status
             setHasUnappliedChanges(false);
             debouncedApplyRef.current = null;
-        }, 200); // 缩短到200ms
+        }, 200); // Shorten to 200ms
     }, [filter, buildUrlParams, onFilter, pathname, router, MAX_PRICE]);
 
-    // 更新URL parameters function - 优化为只在明确应用筛选时调用
+    // update URL parameters function — optimized to call only when explicitly applying filters
     const _applyFilters = useCallback(() => {
-        // 防止重复应用
+        // Prevent duplicate application
         if (isApplying) return;
 
-        // 取消任何正在进行的自动应用
+        // cancel any ongoing auto-apply
         if (debouncedApplyRef.current) {
             clearTimeout(debouncedApplyRef.current);
             debouncedApplyRef.current = null;
@@ -444,19 +444,19 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         setIsApplying(true);
 
         try {
-            // 检查临时筛选条件是否与当前应用的筛选条件不同
+            // Check if temporary filter conditions differ from currently applied conditions
             if (JSON.stringify(tempFilter) !== JSON.stringify(filter)) {
-                // 将临时筛选条件应用到主筛选条件
+                // Apply temporary filter conditions to main filter conditions
                 setFilter(tempFilter);
                 prevFilter.current = { ...tempFilter };
 
-                // 构建URL参数
+                // Build URL parameters
                 const params = buildUrlParams(tempFilter);
 
-                // 更新URL，一次性应用所有筛选条件
+                // update URL, apply all filter conditions at once
                 router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 
-                // 如果有onFilter回调，调用它
+                // If onFilter callback exists, call it
                 if (onFilter) {
                     const filterParams: Record<string, unknown> = {};
 
@@ -469,7 +469,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
                     onFilter(filterParams);
                 }
 
-                // 重置未应用变更状态
+                // reset unapplied changes status
                 setHasUnappliedChanges(false);
             }
         } finally {
@@ -477,15 +477,15 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         }
     }, [tempFilter, filter, buildUrlParams, onFilter, pathname, router, isApplying, MAX_PRICE]);
 
-    // 更新清除筛选条件函数
+    // update clear filter conditions function
     const handleClearFilters = useCallback(() => {
-        // 取消任何正在进行的自动应用
+        // cancel any ongoing auto-apply
         if (debouncedApplyRef.current) {
             clearTimeout(debouncedApplyRef.current);
             debouncedApplyRef.current = null;
         }
 
-        // 重置临时筛选条件到默认值
+        // reset temporary filter conditions to defaults
         const defaultFilter: FilterState = {
             price: [0, MAX_PRICE] as [number, number],
             discount: 0,
@@ -493,30 +493,30 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
             apiProvider: ''
         };
 
-        // 设置临时过滤器为默认值
+        // Set temporary filter to default value
         setTempFilter(defaultFilter);
 
-        // 直接应用清除操作，不使用setTimeout
+        // Apply clear operation directly without setTimeout
         setFilter(defaultFilter);
         const _params = buildUrlParams(defaultFilter);
 
-        // 尝试使用window.location.href直接修改URL
+        // Try to modify URL directly using window.location.href
         const baseUrl = window.location.href.split('?')[0];
 
         window.location.href = baseUrl;
 
-        // 如果有onFilter回调，调用它
+        // If onFilter callback exists, call it
         if (onFilter) {
             onFilter({});
         }
 
-        // 重置未应用变更状态
+        // reset unapplied changes status
         setHasUnappliedChanges(false);
     }, [MAX_PRICE, buildUrlParams, onFilter]);
 
-    // 添加取消更改函数，恢复到当前应用的筛选条件
+    // add cancel-changes function to revert to currently applied filter conditions
     const _handleCancelChanges = useCallback(() => {
-        // 取消任何正在进行的自动应用
+        // cancel any ongoing auto-apply
         if (debouncedApplyRef.current) {
             clearTimeout(debouncedApplyRef.current);
             debouncedApplyRef.current = null;
@@ -526,7 +526,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
         setHasUnappliedChanges(false);
     }, [filter]);
 
-    // 组件卸载时清理计时器
+    // Clean up timer when component unmounts
     useEffect(() => {
         return () => {
             if (debouncedApplyRef.current) {
@@ -537,7 +537,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
 
     return (
         <div className="space-y-4 w-full overflow-x-hidden overscroll-contain">
-            {/* 添加全局样式 */}
+            {/* Add global styles */}
             <style jsx global>{noScrollbarStyle}</style>
 
             {/* Prime Filter Section - New Premium Position */}
@@ -683,7 +683,7 @@ export function ProductFilter({ onFilter, hideButtons }: ProductFilterProps) {
                 )}
             </div>
 
-            {/* 只保留Clear按钮 */}
+            {/* Only keep Clear button */}
             {!hideButtons && hasActiveFilters(filter) && (
                 <div className="sticky bottom-0 pt-2 bg-white dark:bg-gray-800 z-10">
                     <motion.button

@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation';
 import ContentRenderer from '@/components/cms/ContentRenderer';
 import { SafeImage } from '@/components/common/SafeImage';
 
-// 获取文章数据
+// Fetch post data
 async function getPageData(slug: string, preview: boolean = false): Promise<PageData | null> {
     const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
     try {
-        // 添加preview参数以支持草稿预览
+        // Add preview parameter to support draft preview
         const url = preview
             ? `${apiBaseUrl}/api/cms/content/${slug}?preview=true`
             : `${apiBaseUrl}/api/cms/content/${slug}`;
@@ -37,7 +37,7 @@ async function getPageData(slug: string, preview: boolean = false): Promise<Page
     }
 }
 
-// 定义文章数据类型
+// Define post data type
 interface PageData {
     _id: string;
     title: string;
@@ -59,10 +59,10 @@ interface PageData {
     };
     products?: unknown[];
     featuredImage?: string;
-    isDraft?: boolean; // 添加草稿标记
+    isDraft?: boolean; // Draft flag
 }
 
-// 生成页面元数据
+// Generate page metadata
 export async function generateMetadata(
     { params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: Promise<{ [key: string]: string | string[] | undefined }> },
     parent: ResolvingMetadata
@@ -95,7 +95,7 @@ export async function generateMetadata(
     };
 }
 
-// 格式化日期
+// Format date
 function _formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -104,7 +104,7 @@ function _formatDate(dateString: string): string {
     });
 }
 
-// 页面组件
+// Page component
 export default async function BlogPost({ params, searchParams }: {
     params: Promise<{ slug: string }>,
     searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
@@ -118,16 +118,16 @@ export default async function BlogPost({ params, searchParams }: {
         notFound();
     }
 
-    // 计算阅读时长
+    // Calculate reading time
     const wordCount = pageData.content.split(/\s+/).length;
-    const _readingTime = Math.max(1, Math.ceil(wordCount / 200)); // 假设平均阅读速度为每分钟200词
+    const _readingTime = Math.max(1, Math.ceil(wordCount / 200)); // Assume average reading speed of 200 words per minute
 
-    // 获取特色图片URL（优先使用featuredImage字段）
+    // Get featured image URL (prefer the featuredImage field)
     const featuredImageUrl = pageData.featuredImage || pageData.seoData?.ogImage;
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-            {/* 草稿模式提示条 */}
+            {/* Draft mode banner */}
             {pageData.isDraft && (
                 <div className="fixed top-0 left-0 w-full bg-amber-500 text-white py-2 px-4 text-center z-50">
                     <div className="container mx-auto">
@@ -146,7 +146,7 @@ export default async function BlogPost({ params, searchParams }: {
                         </Link>
                         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{pageData.title}</h1>
 
-                        {/* 草稿状态标签 */}
+                        {/* Draft status badge */}
                         {pageData.isDraft && (
                             <div className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium mb-4">
                                 Draft
@@ -154,7 +154,7 @@ export default async function BlogPost({ params, searchParams }: {
                         )}
                     </header>
 
-                    {/* 添加特色图片显示 */}
+                    {/* Featured image display */}
                     {featuredImageUrl && (
                         <div className="mb-8 rounded-xl overflow-hidden shadow-md mx-auto max-w-full">
                             <div className="relative mx-auto">

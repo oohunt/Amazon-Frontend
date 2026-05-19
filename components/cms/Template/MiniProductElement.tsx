@@ -8,7 +8,7 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { ComponentProduct } from '@/types';
 
-// 迷你风格的产品组件
+// Mini style product component
 const MiniProductElement = ({ product }: { product: ComponentProduct }) => {
     const { id, title, price, image, url, cj_url } = product;
     const effectiveUrl = cj_url || url || '';

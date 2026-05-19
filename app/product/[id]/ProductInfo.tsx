@@ -13,16 +13,17 @@ import type { ComponentProduct } from '@/types';
 
 interface ProductInfoProps {
     product: ComponentProduct;
+    otherOffers?: ComponentProduct[];
 }
 
-export default function ProductInfo({ product }: ProductInfoProps) {
+export default function ProductInfo({ product, otherOffers = [] }: ProductInfoProps) {
     const { isFavorite, toggleFavorite, isUpdating } = useProductFavorite(product.id);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
     const [lastAction, setLastAction] = useState<'add' | 'remove'>('add');
 
-    // 日期格式化函数
+    // Date formatting function
     const formatExpiryDate = (dateString: string): string => {
         const date = new Date(dateString);
         const options: Intl.DateTimeFormatOptions = {
@@ -80,7 +81,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         setShowToast(false);
     };
 
-    // 获取产品链接
+    // Get product link
     const getProductLink = () => {
         return product.cj_url || product.url || '';
     };
@@ -96,7 +97,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     apiProvider={product.apiProvider}
                 />
 
-                {/* Prime badge - 放置在右侧 */}
+                {/* Prime badge - placed on the right */}
                 {product.isPrime && (
                     <div className="flex items-center">
                         <div className="bg-[#0574F7] text-white text-sm font-bold px-3 py-1.5 rounded-md shadow-sm">
@@ -140,11 +141,11 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     )}
                 </div>
 
-                {/* 显示优惠券到期时间 */}
+                {/* Show coupon expiry time */}
                 {product.source === 'coupon' && product.couponExpirationDate && (
                     <div className="coupon-info mt-2 text-sm border-t border-gray-200 dark:border-gray-700 pt-2">
                         <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                            {/* 优惠券面值和类型显示 */}
+                            {/* Coupon value and type display */}
                             {product.couponValue && (
                                 <div className="inline-flex items-center bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-[#1A5276] dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,7 +155,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                                 </div>
                             )}
 
-                            {/* 优惠券到期时间 */}
+                            {/* Coupon expiration time */}
                             <div className="inline-flex items-center bg-gray-50 dark:bg-gray-800/40 px-2 py-1 rounded">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -267,6 +268,45 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     We verify all deals to ensure they&apos;re valid and offer real savings. When you click &ldquo;View Deal,&rdquo; you&apos;ll be directed to the store&apos;s website where you can complete your purchase. OOHunt may earn a commission at no cost to you.
                 </p>
             </div>
+
+            {otherOffers.length > 0 && (
+                <div className="other-offers mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {otherOffers.length} more offer{otherOffers.length > 1 ? 's' : ''} available
+                        </h3>
+                    </div>
+                    <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {otherOffers.map((offer, i) => (
+                            <li key={offer.id ?? i} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-lg font-bold text-[#1A5276] dark:text-white">
+                                        {formatPrice(offer.price)}
+                                    </span>
+                                    {offer.discount > 0 && (
+                                        <span className="text-xs text-gray-500 dark:text-gray-400 line-through">
+                                            {formatPrice(offer.originalPrice)}
+                                        </span>
+                                    )}
+                                    {offer.discount > 0 && (
+                                        <span className="text-xs font-medium text-[#F39C12]">
+                                            {Math.round(offer.discount)}% OFF
+                                        </span>
+                                    )}
+                                </div>
+                                <a
+                                    href={offer.cj_url || offer.url || '#'}
+                                    target="_blank"
+                                    rel="nofollow noopener noreferrer"
+                                    className="ml-4 shrink-0 bg-[#16A085] hover:bg-[#117A65] text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
+                                >
+                                    View Deal
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             <FavoriteToast
                 action={lastAction}

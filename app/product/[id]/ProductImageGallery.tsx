@@ -13,20 +13,20 @@ interface ProductImageGalleryProps {
 }
 
 export default function ProductImageGallery({ product }: ProductImageGalleryProps) {
-    // 添加状态控制大图查看模式
+    // Addstatus for controlling large image view mode
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // 处理图片点击事件
+    // Handle image click event
     const handleImageClick = () => {
         setIsFullscreen(true);
     };
 
-    // 关闭全屏图片查看
+    // close full-screen image viewer
     const handleCloseFullscreen = () => {
         setIsFullscreen(false);
     };
 
-    // 处理外部链接点击
+    // Handle external link click
     const handleExternalLink = (e: React.MouseEvent) => {
         e.preventDefault();
         const linkUrl = product.cj_url || product.url;
@@ -36,7 +36,7 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
         }
     };
 
-    // 获取产品链接
+    // Get product link
     const getProductLink = () => {
         return product.cj_url || product.url || '';
     };

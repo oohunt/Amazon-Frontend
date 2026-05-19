@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getUserStats } from '@/lib/services/stats';
 
 /**
- * GET /api/stats/users - 获取用户统计数据
+ * GET /api/stats/users - Fetch user statistics
  */
 export async function GET() {
     try {
@@ -13,7 +13,7 @@ export async function GET() {
     } catch {
 
         return NextResponse.json(
-            { error: '获取用户统计数据失败' },
+            { error: 'Failed to get user statistics' },
             { status: 500 }
         );
     }

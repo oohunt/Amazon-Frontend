@@ -9,10 +9,10 @@ import type { Product, Category, PriceHistory, ApiResponse, CJProduct, CategoryS
 
 import { productsApi, userApi, systemApi } from './api';
 
-// 通用fetcher类型
+// Generic fetcher type
 type _Fetcher<T> = (...args: unknown[]) => Promise<AxiosResponse<ApiResponse<T>>>;
 
-// SWR配置类型
+// SWR configuration type
 type SWRHookResponse<T> = {
     data?: T;
     isLoading: boolean;
@@ -20,7 +20,7 @@ type SWRHookResponse<T> = {
     mutate?: () => Promise<unknown>;
 };
 
-// 定义自定义脚本接口
+// Define custom script interface
 interface CustomScript {
     _id?: string;
     name: string;
@@ -30,7 +30,7 @@ interface CustomScript {
     isNew?: boolean;
 }
 
-// 产品列表
+// Product list
 export function useProducts(params?: {
     product_type?: 'discount' | 'coupon' | 'all';
     page?: number;
@@ -45,7 +45,7 @@ export function useProducts(params?: {
     brands?: string;
     api_provider?: string;
 }): SWRHookResponse<{ items: Product[], total: number, page: number, page_size: number }> {
-    // 创建一个唯一的key，确保参数变化时会重新获取
+    // Create a unique key to ensure re-fetch on parameter change
     const cacheKey = JSON.stringify(['/products/list', params]);
 
     const { data, error, isLoading, mutate } = useSWR(
@@ -54,37 +54,37 @@ export function useProducts(params?: {
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            dedupingInterval: 30000, // 30秒内相同请求不重复获取
+            dedupingInterval: 30000, // Deduplicate identical requests within 30 seconds
             shouldRetryOnError: true,
             errorRetryCount: 3,
-            revalidateIfStale: false, // 不自动重新获取旧数据
-            focusThrottleInterval: 10000, // 限制焦点重新验证的频率
+            revalidateIfStale: false, // Do not auto-revalidate stale data
+            focusThrottleInterval: 10000, // Throttle focus revalidation frequency
         }
     );
 
-    // 处理嵌套的API响应结构
+    // Handle nested API response structure
     let processedData;
 
     if (data) {
-        // 简化数据处理逻辑，处理多种可能的响应格式
+        // Simplify data handling — support multiple possible response formats
         if (data.data?.data?.items) {
-            // 处理双重嵌套 {data: {data: {items: [...]}}}
+            // Handle double-nested {data: {data: {items: [...]}}}
             processedData = data.data.data;
         } else if (data.data?.items) {
-            // 处理单重嵌套 {data: {items: [...]}}
+            // Handle single-nested {data: {items: [...]}}
             processedData = data.data;
         } else if ((data as unknown as { items: Product[] }).items) {
-            // 处理直接返回 {items: [...]}
+            // Handle direct return {items: [...]}
             processedData = data;
         } else if (typeof data.data === 'object' && data.data && 'success' in data.data && data.data.success && 'data' in data.data) {
-            // 处理 {data: {success: true, data: {items: [...]}}} 格式
+            // Handle {data: {success: true, data: {items: [...]}}} format
             processedData = data.data.data;
         } else {
-            // 默认空值
+            // Default empty value
             processedData = { items: [], total: 0, page: 1, page_size: 10 };
         }
     } else {
-        // 当无数据时提供默认值
+        // Provide default value when no data is available
         processedData = { items: [], total: 0, page: 1, page_size: 10 };
     }
 
@@ -96,7 +96,7 @@ export function useProducts(params?: {
     };
 }
 
-// 产品详情
+// Product details
 export function useProduct(id: string): SWRHookResponse<Product> {
     const { data: response, error, isLoading } = useSWR(
         id ? `/products/${id}` : null,
@@ -113,7 +113,7 @@ export function useProduct(id: string): SWRHookResponse<Product> {
     };
 }
 
-// 分类列表
+// Category list
 export function useCategories(params?: {
     product_type?: 'discount' | 'coupon';
 }): SWRHookResponse<Category[]> {
@@ -132,7 +132,7 @@ export function useCategories(params?: {
     };
 }
 
-// 分类统计信息
+// Category statistics
 export function useCategoryStats(params?: {
     product_type?: 'discount' | 'coupon' | 'all';
     page?: number;
@@ -140,28 +140,28 @@ export function useCategoryStats(params?: {
     sort_by?: string;
     sort_order?: 'asc' | 'desc';
 }): SWRHookResponse<CategoryStats> & { rawData?: Record<string, unknown> } {
-    // 设置默认参数值
+    // Set default parameter values
     const defaultParams = {
         page: 1,
-        page_size: 50, // 最大分类数量
+        page_size: 50, // Maximum number of categories
         sort_by: 'count',
         sort_order: 'desc' as const,
         ...params
     };
 
-    // 创建用于 SWR 的 fetcher 函数，直接使用新的 API 路由
+    // Create SWR fetcher function using the new API route directly
     const fetcher = async (url: string, params: Record<string, unknown>) => {
-        // 构建查询参数
+        // Build query parameters
         const queryParams = new URLSearchParams();
 
-        // 添加所有查询参数
+        // Add all query parameters
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
                 queryParams.append(key, String(value));
             }
         });
 
-        // 发起请求，利用 Next.js 的自动缓存机制
+        // Make request, leveraging Next.js automatic caching
         const response = await fetch(`${url}?${queryParams.toString()}`);
 
         if (!response.ok) {
@@ -176,7 +176,7 @@ export function useCategoryStats(params?: {
         ([url, params]) => fetcher(url, params),
         {
             revalidateOnFocus: false,
-            refreshInterval: 300000, // 每5分钟刷新一次
+            refreshInterval: 300000, // Refresh every 5 minutes
         }
     );
 
@@ -187,14 +187,14 @@ export function useCategoryStats(params?: {
         product_groups: {}
     };
 
-    // 处理API返回的数据
+    // Handle data returned by API
     const processData = (rawData: Record<string, unknown>): CategoryStats => {
         if (!rawData) {
             return defaultData;
         }
 
         try {
-            // 直接使用API响应中的数据
+            // Use data directly from API response
             const result: CategoryStats = {
                 browse_nodes: (rawData.browse_nodes as CategoryStats['browse_nodes']) || {},
                 browse_tree: (rawData.browse_tree as CategoryStats['browse_tree']) || {},
@@ -202,10 +202,10 @@ export function useCategoryStats(params?: {
                 product_groups: {}
             };
 
-            // 验证和处理product_groups
+            // Validate and process product_groups
             if (rawData.product_groups) {
                 if (typeof rawData.product_groups === 'object' && !Array.isArray(rawData.product_groups)) {
-                    // 确保所有的值都是数字，并且过滤掉count为0的分类
+                    // Ensure all values are numbers and filter out categories with count 0
                     result.product_groups = Object.fromEntries(
                         Object.entries(rawData.product_groups as Record<string, number>)
                             .filter(([_, count]) => Number(count) > 0)
@@ -223,7 +223,7 @@ export function useCategoryStats(params?: {
         }
     };
 
-    // 根据API响应结构访问数据
+    // Access data based on API response structure
     const apiData = data?.data || data;
     const processedData = processData((apiData as unknown) as Record<string, unknown> || {});
 
@@ -235,7 +235,7 @@ export function useCategoryStats(params?: {
     };
 }
 
-// 限时特惠
+// Flash Deals
 export function useDeals(params?: {
     active?: boolean;
     page?: number;
@@ -247,24 +247,24 @@ export function useDeals(params?: {
         ['/products/list', { ...params, min_discount: params?.min_discount || 50, sort_by: 'discount', sort_order: 'desc' }],
         () => productsApi.getDeals(params),
         {
-            refreshInterval: 60000, // 每分钟刷新一次
+            refreshInterval: 60000, // Refresh every minute
         }
     );
 
-    // 构建默认返回值
+    // Build default return value
     const defaultResult = { items: [], total: 0, page: 1, page_size: 10 };
 
-    // 处理嵌套响应 (使用类型安全的访问方式)
+    // Handle nested response (using type-safe access)
     let responseData;
 
     if (data?.data?.data) {
-        // 深层嵌套，符合 ApiResponse<ListResponse<Product>> 结构
+        // Deep nesting, matching ApiResponse<ListResponse<Product>> structure
         responseData = data.data.data as ListResponse<Product>;
     } else if (data?.data) {
-        // 中层嵌套，直接包含数据
+        // Middle nesting level, directly containing data
         responseData = data.data as unknown as ListResponse<Product>;
     } else {
-        // 默认情况
+        // Default case
         responseData = defaultResult;
     }
 
@@ -281,7 +281,7 @@ export function useDeals(params?: {
     };
 }
 
-// 价格历史
+// Price history
 export function usePriceHistory(productId: string): SWRHookResponse<PriceHistory[]> {
     const { data: response, error, isLoading } = useSWR(
         productId ? `/products/${productId}/price-history` : null,
@@ -298,7 +298,7 @@ export function usePriceHistory(productId: string): SWRHookResponse<PriceHistory
     };
 }
 
-// 收藏列表
+// Favorites list
 export function useFavorites(): SWRHookResponse<Product[]> & { mutate: () => Promise<unknown> } {
     const { data: response, error, isLoading, mutate } = useSWR(
         '/user/favorites',
@@ -316,7 +316,7 @@ export function useFavorites(): SWRHookResponse<Product[]> & { mutate: () => Pro
     };
 }
 
-// CJ产品搜索
+// CJ product search
 export function useCJProducts(params: {
     keyword: string;
     page?: number;
@@ -337,7 +337,7 @@ export function useCJProducts(params: {
     };
 }
 
-// CJ产品详情
+// CJProduct details
 export function useCJProduct(pid: string): SWRHookResponse<CJProduct> {
     const { data: response, error, isLoading } = useSWR(
         pid ? `/cj/products/${pid}` : null,
@@ -354,14 +354,14 @@ export function useCJProduct(pid: string): SWRHookResponse<CJProduct> {
     };
 }
 
-// 商品统计信息
+// Product statistics
 export function useProductStats(productType?: 'discount' | 'coupon'): SWRHookResponse<ProductStats> {
     const { data, error, isLoading } = useSWR(
         ['/products/stats', productType],
         () => productsApi.getProductsStats(productType),
         {
             revalidateOnFocus: false,
-            refreshInterval: 300000, // 每5分钟刷新一次
+            refreshInterval: 300000, // Refresh every 5 minutes
         }
     );
 
@@ -383,7 +383,7 @@ export function useProductStats(productType?: 'discount' | 'coupon'): SWRHookRes
     };
 }
 
-// 品牌统计信息
+// Brand statistics
 export function useBrandStats(params?: {
     product_type?: 'discount' | 'coupon';
     page?: number;
@@ -391,10 +391,10 @@ export function useBrandStats(params?: {
     sort_by?: string;
     sort_order?: 'asc' | 'desc';
 }): SWRHookResponse<BrandStats> & { rawData?: Record<string, unknown> } {
-    // 设置默认参数值
+    // Set default parameter values
     const defaultParams = {
         page: 1,
-        page_size: 50, // 最大品牌数量
+        page_size: 50, // Maximum brand count
         sort_by: 'count',
         sort_order: 'desc' as const,
         ...params
@@ -405,11 +405,11 @@ export function useBrandStats(params?: {
         () => productsApi.getBrandStats(defaultParams),
         {
             revalidateOnFocus: false,
-            refreshInterval: 300000, // 每5分钟刷新一次
+            refreshInterval: 300000, // Refresh every 5 minutes
         }
     );
 
-    // 创建默认的品牌统计数据
+    // create default brand statistics data
     const defaultBrandStats: BrandStats = {
         brands: {},
         total_brands: 0,
@@ -429,7 +429,7 @@ export function useBrandStats(params?: {
     };
 }
 
-// 产品搜索
+// Product search
 export function useProductSearch(params: {
     keyword: string;
     page?: number;
@@ -444,10 +444,10 @@ export function useProductSearch(params: {
     brands?: string;
     api_provider?: string;
 }): SWRHookResponse<{ items: Product[], total: number, page: number, page_size: number }> {
-    // 只有当keyword存在且非空时才执行查询
+    // Execute query only when keyword exists and is non-empty
     const shouldFetch = Boolean(params.keyword && params.keyword.trim());
 
-    // 创建一个唯一的key，确保参数变化时会重新获取
+    // Create a unique key to ensure re-fetch on parameter change
     const cacheKey = shouldFetch ? JSON.stringify(['/search/products', params]) : null;
     const paramsString = JSON.stringify(params);
 
@@ -457,13 +457,13 @@ export function useProductSearch(params: {
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            dedupingInterval: 0, // 禁用缓存去重，确保每次参数变化都重新获取
+            dedupingInterval: 0, // Disable cache deduplication to ensure re-fetch on every param change
             shouldRetryOnError: true,
             errorRetryCount: 3
         }
     );
 
-    // 当参数变化时，主动触发重新获取数据
+    // Proactively trigger data re-fetch when parameters change
     useEffect(() => {
         if (shouldFetch) {
             mutate();
@@ -478,7 +478,7 @@ export function useProductSearch(params: {
     };
 }
 
-// 系统健康状态
+// System health status
 export function useHealthStatus(): SWRHookResponse<{
     status: string;
     service: string;
@@ -495,12 +495,12 @@ export function useHealthStatus(): SWRHookResponse<{
         '/health',
         () => systemApi.getHealthStatus(),
         {
-            refreshInterval: 60000, // 每分钟刷新一次
+            refreshInterval: 60000, // Refresh every minute
             revalidateOnFocus: false,
         }
     );
 
-    // 使用类型断言处理响应数据
+    // Use type assertion to handle response data
     const healthData = response?.data?.data ||
         (response?.data && typeof response.data === 'object' && ('status' in response.data || 'database' in response.data)
             ? (response.data as unknown) as {
@@ -524,7 +524,7 @@ export function useHealthStatus(): SWRHookResponse<{
     };
 }
 
-// 用户统计
+// User statistics
 export function useUserStats(): SWRHookResponse<{
     total_users: number;
     active_users: number;
@@ -535,12 +535,12 @@ export function useUserStats(): SWRHookResponse<{
         '/stats/users',
         () => systemApi.getUserStats(),
         {
-            refreshInterval: 60000, // 每分钟刷新一次
+            refreshInterval: 60000, // Refresh every minute
             revalidateOnFocus: false,
         }
     );
 
-    // 使用类型断言处理响应数据
+    // Use type assertion to handle response data
     const userData = response?.data?.data ||
         (response?.data && typeof response.data === 'object' && 'total_users' in response.data
             ? (response.data as unknown) as {
@@ -558,7 +558,7 @@ export function useUserStats(): SWRHookResponse<{
     };
 }
 
-// 收藏统计
+// Favorites statistics
 export function useFavoriteStats(): SWRHookResponse<{
     total_favorites: number;
     unique_users: number;
@@ -569,12 +569,12 @@ export function useFavoriteStats(): SWRHookResponse<{
         '/stats/favorites',
         () => systemApi.getFavoriteStats(),
         {
-            refreshInterval: 60000, // 每分钟刷新一次
+            refreshInterval: 60000, // Refresh every minute
             revalidateOnFocus: false,
         }
     );
 
-    // 使用类型断言处理响应数据
+    // Use type assertion to handle response data
     const favoritesData = response?.data?.data ||
         (response?.data && typeof response.data === 'object' && 'total_favorites' in response.data
             ? (response.data as unknown) as {
@@ -592,14 +592,14 @@ export function useFavoriteStats(): SWRHookResponse<{
     };
 }
 
-// 用户列表
+// User list
 export function useUserList(): SWRHookResponse<UserItem[]> {
     const { data: response, error, isLoading, mutate } = useSWR(
         '/users/list',
         () => fetch('/api/users').then(res => res.json()),
         {
             revalidateOnFocus: false,
-            refreshInterval: 30000, // 每30秒刷新一次
+            refreshInterval: 30000, // Refresh every 30 seconds
         }
     );
 
@@ -611,7 +611,7 @@ export function useUserList(): SWRHookResponse<UserItem[]> {
     };
 }
 
-// 邮箱列表
+// Email list
 export function useEmailList(params?: {
     page?: number;
     limit?: number;
@@ -619,7 +619,7 @@ export function useEmailList(params?: {
     sort_order?: 'asc' | 'desc';
     search?: string;
     is_active?: boolean;
-    collection?: string; // 指定集合名称：'email_subscription' 或 'users'
+    collection?: string; // Specify collection name: 'email_subscription' or 'users'
 }): SWRHookResponse<{ items: EmailItem[], total: number, page: number, page_size: number }> {
     const cacheKey = JSON.stringify(['/api/emails/list', params]);
 
@@ -640,7 +640,7 @@ export function useEmailList(params?: {
 
             try {
                 const response = await fetch(url, {
-                    // 添加no-cache和no-store头，避免浏览器缓存
+                    // Addno-cache and no-store headers to avoid browser caching
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
@@ -648,11 +648,11 @@ export function useEmailList(params?: {
                     }
                 });
 
-                // 检查响应状态
+                // Check response status
                 if (!response.ok) {
                     const errorText = await response.text();
 
-                    throw new Error(`API错误 ${response.status}: ${errorText}`);
+                    throw new Error(`API error ${response.status}: ${errorText}`);
                 }
 
                 return await response.json();
@@ -678,7 +678,7 @@ export function useEmailList(params?: {
 }
 
 /**
- * 获取联系表单留言列表
+ * Get contact form message list
  */
 export function useContactMessages(params?: {
     page?: number;
@@ -687,20 +687,20 @@ export function useContactMessages(params?: {
     sort_order?: 'asc' | 'desc';
     search?: string;
     is_processed?: boolean;
-    formSource?: string | { $exists: boolean }; // 添加formSource过滤
+    formSource?: string | { $exists: boolean }; // Add formSource filter
 }): SWRHookResponse<{ items: ContactMessage[], total: number, page: number, page_size: number }> {
     const cacheKey = JSON.stringify(['/api/contact/list', params]);
 
     const { data, error, isLoading, mutate } = useSWR(
         cacheKey,
         async () => {
-            // 将params转换为URL查询参数
+            // Convert params to URL query parameters
             const queryParams: Record<string, string> = {};
 
             if (params) {
                 Object.entries(params).forEach(([key, value]) => {
                     if (value !== undefined && value !== null) {
-                        // 特殊处理formSource字段
+                        // Special handling for formSource field
                         if (key === 'formSource' && typeof value === 'object') {
                             queryParams['formSourceExists'] = String(!(value.$exists === false));
                         } else {
@@ -713,7 +713,7 @@ export function useContactMessages(params?: {
 
             try {
                 const response = await fetch(url, {
-                    // 添加no-cache和no-store头，避免浏览器缓存
+                    // Addno-cache and no-store headers to avoid browser caching
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
@@ -721,11 +721,11 @@ export function useContactMessages(params?: {
                     }
                 });
 
-                // 检查响应状态
+                // Check response status
                 if (!response.ok) {
                     const errorText = await response.text();
 
-                    throw new Error(`API错误 ${response.status}: ${errorText}`);
+                    throw new Error(`API error ${response.status}: ${errorText}`);
                 }
 
                 return await response.json();
@@ -750,7 +750,7 @@ export function useContactMessages(params?: {
     };
 }
 
-// 社交媒体链接配置
+// Social media link configuration
 export function useSocialLinks(): SWRHookResponse<SocialLinks> & { mutate: () => Promise<unknown> } {
     const { data: response, error, isLoading, mutate } = useSWR(
         '/api/settings/social-links',
@@ -758,14 +758,14 @@ export function useSocialLinks(): SWRHookResponse<SocialLinks> & { mutate: () =>
             const res = await fetch('/api/settings/social-links');
 
             if (!res.ok) {
-                throw new Error('获取社交媒体链接配置失败');
+                throw new Error('Failed to get social media link configuration');
             }
 
             return res.json();
         },
         {
             revalidateOnFocus: false,
-            dedupingInterval: 60000, // 1分钟内不重复请求
+            dedupingInterval: 60000, // Do not repeat request within 1 minute
         }
     );
 
@@ -777,12 +777,12 @@ export function useSocialLinks(): SWRHookResponse<SocialLinks> & { mutate: () =>
     };
 }
 
-// 自定义脚本配置
+// Custom script configuration
 export function useCustomScripts(params?: {
     enabled?: boolean;
     location?: string;
 }): SWRHookResponse<{ items: CustomScript[], total: number }> & { mutate: () => Promise<unknown> } {
-    // 构建查询参数
+    // Build query parameters
     const queryParams = new URLSearchParams();
 
     if (params?.enabled !== undefined) {
@@ -801,14 +801,14 @@ export function useCustomScripts(params?: {
             const res = await fetch(apiUrl);
 
             if (!res.ok) {
-                throw new Error('获取自定义脚本配置失败');
+                throw new Error('Failed to get custom script configuration');
             }
 
             return res.json();
         },
         {
             revalidateOnFocus: false,
-            dedupingInterval: 60000, // 1分钟内不重复请求
+            dedupingInterval: 60000, // Do not repeat request within 1 minute
         }
     );
 

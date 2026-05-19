@@ -4,7 +4,7 @@ import { useEffect, useState, Fragment } from 'react';
 
 import { ScriptLocation } from '@/lib/models/CustomScript';
 
-// 自定义脚本接口
+// Custom script interface
 interface CustomScript {
     _id: string;
     name: string;
@@ -15,7 +15,7 @@ interface CustomScript {
     updatedAt?: string;
 }
 
-// 服务端和客户端的脚本加载器
+// Script loader for server and client
 export function HeadScripts() {
     return <ClientScriptsLoader location={ScriptLocation.HEAD} />;
 }
@@ -28,30 +28,30 @@ export function BodyEndScripts() {
     return <ClientScriptsLoader location={ScriptLocation.BODY_END} />;
 }
 
-// 纯客户端脚本加载器 - 注意，不返回div元素
+// Pure client-side script loader — note: does not return div element
 function ClientScriptsLoader({ location }: { location: ScriptLocation }) {
-    // 使用state来存储脚本内容，而不是引用DOM
+    // Use state to store script content instead of referencing DOM
     const [isLoaded, setIsLoaded] = useState(false);
     const [scriptElements, setScriptElements] = useState<React.ReactNode[]>([]);
 
     useEffect(() => {
-        // 防止重复加载
+        // Prevent duplicate loading
         if (isLoaded) return;
 
-        // 获取并注入脚本
+        // Get and inject scripts
         const loadScripts = async () => {
             try {
-                // 确保去重脚本只加载一次
+                // Ensure deduplication script is loaded only once
                 if (location === ScriptLocation.HEAD) {
-                    // 只在HeadScripts注入去重辅助脚本
+                    // Only inject deduplication helper script in HeadScripts
                     injectDeduplicatorScript();
                 }
 
-                // 获取该位置的所有脚本
+                // Get all scripts for this position
                 const scripts = await fetchScripts(location);
 
                 if (scripts && scripts.length > 0) {
-                    // 准备脚本元素，但不实际插入DOM
+                    // Prepare script element without actually inserting into DOM
                     const elements = prepareScriptElements(scripts);
 
                     setScriptElements(elements);
@@ -59,18 +59,18 @@ function ClientScriptsLoader({ location }: { location: ScriptLocation }) {
 
                 setIsLoaded(true);
             } catch {
-                setIsLoaded(true); // 即使出错也标记为已加载，防止无限重试
+                setIsLoaded(true); // Mark as loaded even on error to prevent infinite Retry
             }
         };
 
         loadScripts();
     }, [location, isLoaded]);
 
-    // 返回Fragment而不是div，避免在head中插入div元素
+    // return Fragment instead of div to avoid inserting div into head
     return <>{scriptElements}</>;
 }
 
-// 获取脚本数据
+// Get script data
 async function fetchScripts(location: ScriptLocation): Promise<CustomScript[]> {
     const response = await fetch(`/api/settings/custom-scripts?location=${location}`, {
         cache: 'no-store',
@@ -90,9 +90,9 @@ async function fetchScripts(location: ScriptLocation): Promise<CustomScript[]> {
     return data.items || [];
 }
 
-// 注入去重辅助脚本
+// Inject deduplication helper script
 function injectDeduplicatorScript() {
-    // 避免重复注入
+    // Avoid duplicate injection
     if (typeof window !== 'undefined' && !window.__CUSTOM_SCRIPTS_DEDUPLICATOR_INJECTED__) {
         window.__CUSTOM_SCRIPTS_DEDUPLICATOR_INJECTED__ = true;
 
@@ -101,10 +101,10 @@ function injectDeduplicatorScript() {
         if (window.__CUSTOM_SCRIPTS_DEDUPLICATOR_RUNNING__) return;
         window.__CUSTOM_SCRIPTS_DEDUPLICATOR_RUNNING__ = true;
         
-        // 记录已处理的脚本ID
+        // Record processed script IDs
         var processedScripts = {};
         
-        // 去重函数
+        // Deduplication function
         function deduplicateScripts() {
           document.querySelectorAll('script[data-custom-script]').forEach(function(script) {
             var id = script.id;
@@ -118,10 +118,10 @@ function injectDeduplicatorScript() {
           });
         }
         
-        // 立即执行一次去重
+        // Execute deduplication once immediately
         deduplicateScripts();
         
-        // 监听DOM变化
+        // Listen for DOM changes
         var observer = new MutationObserver(function(mutations) {
           var needsDedupe = false;
           mutations.forEach(function(mutation) {
@@ -141,12 +141,12 @@ function injectDeduplicatorScript() {
           }
         });
         
-        // 监听整个文档
+        // Listen to the entire document
         observer.observe(document, { childList: true, subtree: true });
       })();
     `;
 
-        // 直接在客户端创建并添加脚本
+        // Create and add script directly on client side
         const scriptEl = document.createElement('script');
 
         scriptEl.id = 'script-deduplicator';
@@ -155,22 +155,22 @@ function injectDeduplicatorScript() {
     }
 }
 
-// 创建脚本元素但不立即插入DOM
+// create script element without immediately inserting into DOM
 function prepareScriptElements(scripts: CustomScript[]): React.ReactNode[] {
     return scripts.map(script => {
         const scriptId = `custom-script-${script._id}`;
         const content = script.content || '';
 
-        // 判断是否为src脚本
+        // Check if it is a src script
         const srcMatch = content.match(/src=["']([^"']*)["']/);
         const isSrcScript = srcMatch && srcMatch[1];
 
         if (content.trim().startsWith('<script') && content.trim().endsWith('</script>')) {
-            // 提取script标签内的内容
+            // Extract content inside script tag
             const scriptContent = extractScriptContent(content);
 
             if (isSrcScript) {
-                // 外部脚本，使用nonce确保安全
+                // External script, using nonce for security
                 const nonce = generateRandomId();
                 const scriptSrc = srcMatch ? srcMatch[1] : '';
 
@@ -186,7 +186,7 @@ function prepareScriptElements(scripts: CustomScript[]): React.ReactNode[] {
                     />
                 );
             } else {
-                // 内联脚本
+                // Inline scripts
                 return (
                     <script
                         key={scriptId}
@@ -198,7 +198,7 @@ function prepareScriptElements(scripts: CustomScript[]): React.ReactNode[] {
                 );
             }
         } else {
-            // 纯内容脚本
+            // Pure content script
             return (
                 <script
                     key={scriptId}
@@ -212,7 +212,7 @@ function prepareScriptElements(scripts: CustomScript[]): React.ReactNode[] {
     });
 }
 
-// 提取脚本内容
+// Extract script content
 function extractScriptContent(scriptTag: string): string {
     if (scriptTag.trim().startsWith('<script') && scriptTag.trim().endsWith('</script>')) {
         const openTagEnd = scriptTag.indexOf('>');
@@ -226,12 +226,12 @@ function extractScriptContent(scriptTag: string): string {
     return scriptTag;
 }
 
-// 生成随机ID
+// Generate random ID
 function generateRandomId(): string {
     return Math.random().toString(36).substring(2, 9);
 }
 
-// 扩展Window接口以支持我们添加的全局变量
+// Extend Window interface to support global variables we added
 declare global {
     interface Window {
         __CUSTOM_SCRIPTS_DEDUPLICATOR_INJECTED__?: boolean;

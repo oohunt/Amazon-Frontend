@@ -1,5 +1,5 @@
 /**
- * 通用API响应类型
+ * Generic API response type
  */
 export interface ApiResponse<T = unknown> {
     status: number;
@@ -9,7 +9,7 @@ export interface ApiResponse<T = unknown> {
 }
 
 /**
- * 分页响应参数
+ * Pagination response parameters
  */
 export interface PaginationResponse {
     totalItems: number;
@@ -18,7 +18,7 @@ export interface PaginationResponse {
     pageSize: number;
 }
 
-// FastAPI分页响应类型
+// FastAPI pagination response type
 export interface ListResponse<T> {
     items: T[];
     total: number;
@@ -26,7 +26,7 @@ export interface ListResponse<T> {
     page_size: number;
 }
 
-// Amazon产品优惠信息
+// Amazon product offer information
 export interface ProductOffer {
     condition: string;
     price: number;
@@ -46,14 +46,14 @@ export interface ProductOffer {
     commission?: Record<string, unknown> | null;
 }
 
-// 浏览节点类型
+// Browse node type
 export interface BrowseNode {
     id: string;
     name: string;
     is_root: boolean;
 }
 
-// 商品相关类型
+// Product-related types
 export interface Product {
     asin?: string;
     id?: string;
@@ -121,13 +121,13 @@ export interface Category {
     slug: string;
 }
 
-// CJ平台相关类型
+// CJ platform-related types
 export interface CJProduct extends Omit<Product, 'id' | 'type'> {
     pid: string;
     shipping_price: number;
 }
 
-// 分类统计接口
+// Category statistics interface
 export interface CategoryStats {
     browse_nodes: {
         [key: string]: {
@@ -145,7 +145,7 @@ export interface CategoryStats {
     total_categories?: number;
 }
 
-// 产品统计接口
+// Product statistics interface
 export interface ProductStats {
     total_products: number;
     discount_products: number;
@@ -157,7 +157,7 @@ export interface ProductStats {
     max_price: number;
 }
 
-// 品牌统计接口
+// Brand statistics interface
 export interface BrandStats {
     brands: { [brand: string]: number };
     total_brands: number;
@@ -172,7 +172,7 @@ export interface BrandStats {
 import type { UserRole } from '@/lib/models/UserRole';
 
 /**
- * 用户项的接口定义
+ * Interface definition for user items
  */
 export interface UserItem {
     id: string;
@@ -188,7 +188,7 @@ export interface UserItem {
 }
 
 /**
- * 产品项的接口定义
+ * Interface definition for product items
  */
 export interface ProductItem {
     id: string;
@@ -208,7 +208,7 @@ export interface ProductItem {
 }
 
 /**
- * 邮箱订阅项接口定义
+ * Email subscription item interface definition
  */
 export interface EmailItem {
     id: string;
@@ -218,7 +218,7 @@ export interface EmailItem {
 }
 
 /**
- * 联系表单留言接口定义
+ * Interface definition for contact form messages
  */
 export interface ContactMessage {
     id: string;
@@ -235,7 +235,7 @@ export interface ContactMessage {
     formId?: string;
 }
 
-// 社交媒体链接配置
+// Social media link configuration
 export interface SocialLinks {
     twitter?: string;
     facebook?: string;
@@ -248,27 +248,27 @@ export interface SocialLinks {
 }
 
 /**
- * 手动添加商品的请求体结构
- * 基于 /api/products/manual API 文档
- * 注意: 复用了已有的 ProductOffer 接口定义
+ * Request body structure for manually adding products
+ * Based on /api/products/manual API documentation
+ * Note: reuses the existing ProductOffer interface definition
  */
 export interface ProductInfo {
-    asin: string; // 商品的唯一 ASIN (必需)
-    title: string; // 商品标题 (必需)
-    url: string; // 商品的亚马逊链接 (必需)
-    offers: ProductOffer[]; // 包含至少一个 ProductOffer 对象的数组 (必需)
-    brand?: string; // 品牌名称 (可选)
-    main_image?: string; // 主图链接 (可选)
-    timestamp?: string; // 数据采集的时间戳 (ISO 8601 格式) (可选)
-    binding?: string; // 商品绑定类型 (可选)
-    product_group?: string; // 商品分组 (可选)
-    categories?: string[]; // 商品分类路径列表 (字符串数组) (可选)
-    browse_nodes?: Array<{ id: string; name: string;[key: string]: unknown }>; // 亚马逊浏览节点信息列表 (可选)
-    features?: string[]; // 商品特性列表 (字符串数组) (可选)
-    cj_url?: string; // CJ 推广链接 (可选)
-    api_provider?: string; // API 提供者标识 (默认为 "manual") (可选)
-    source?: string; // 数据来源标识 (默认为 "manual") (可选)
-    coupon_expiration_date?: string; // 优惠券过期日期 (ISO 8601 格式) (可选)
-    coupon_terms?: string; // 优惠券使用条款 (可选)
-    raw_data?: Record<string, unknown>; // 包含原始数据的 JSON 对象 (可选)
+    asin: string; // Unique ASIN for the product (required)
+    title: string; // Product title (required)
+    url: string; // Amazon link for the product (required)
+    offers: ProductOffer[]; // Array containing at least one ProductOffer object (required)
+    brand?: string; // Brand name (optional)
+    main_image?: string; // Main image link (optional)
+    timestamp?: string; // Data collection timestamp (ISO 8601 format) (optional)
+    binding?: string; // Product binding type (optional)
+    product_group?: string; // Product group (optional)
+    categories?: string[]; // Product category path list (string array) (optional)
+    browse_nodes?: Array<{ id: string; name: string;[key: string]: unknown }>; // Amazon browse node info list (optional)
+    features?: string[]; // Product features list (string array) (optional)
+    cj_url?: string; // CJ affiliate link (optional)
+    api_provider?: string; // API provider identifier (default "manual") (optional)
+    source?: string; // Data source identifier (default: "manual") (optional)
+    coupon_expiration_date?: string; // Coupon expiry date (ISO 8601 format) (optional)
+    coupon_terms?: string; // Coupon usage terms (optional)
+    raw_data?: Record<string, unknown>; // JSON object containing raw data (optional)
 } 

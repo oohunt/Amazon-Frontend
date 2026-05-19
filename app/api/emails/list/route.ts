@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// MongoDB查询值可能的类型
+// Possible types for MongoDB query values
 type MongoQueryValue = string | number | boolean | { $regex: string, $options: string } | Date | RegExp;
 
 export async function GET(request: NextRequest) {
@@ -16,14 +16,14 @@ export async function GET(request: NextRequest) {
         const is_active = searchParams.get('is_active');
         const collection = searchParams.get('collection') || 'users';
 
-        // 记录使用的数据库名称
+        // Log the database name being used
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
-        // 根据collection参数选择不同的集合
+        // Select different collection based on collection parameter
         const dbCollection = db.collection(collection === 'email_subscription' ? 'email_subscription' : 'users');
 
-        // 构建查询条件
+        // Build query conditions
         const query: Record<string, MongoQueryValue> = {};
 
         if (search) {
@@ -34,17 +34,17 @@ export async function GET(request: NextRequest) {
             query.isActive = is_active === 'true';
         }
 
-        // 计算总数
+        // Calculate total count
         const total = await dbCollection.countDocuments(query);
 
-        // 获取数据
+        // Get data
         const items = await dbCollection.find(query)
             .sort({ [sort_by]: sort_order === 'asc' ? 1 : -1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .toArray();
 
-        // 转换为前端需要的格式
+        // Convert to format needed by frontend
         const formattedItems = items.map(item => ({
             id: item._id.toString(),
             email: item.email,
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
             isActive: item.isActive
         }));
 
-        // 设置响应头以允许跨域和避免缓存
+        // Set response headers to allow cross-origin and avoid caching
         const headers = new Headers();
 
         headers.append('Content-Type', 'application/json');
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         headers.append('Pragma', 'no-cache');
         headers.append('Expires', '0');
 
-        // 允许所有来源，这在生产环境不推荐
+        // Allow all origins, not recommended for production
         if (process.env.NODE_ENV === 'development') {
             headers.append('Access-Control-Allow-Origin', '*');
             headers.append('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
             headers: headers
         });
     } catch (error) {
-        // 设置响应头以允许跨域和避免缓存
+        // Set response headers to allow cross-origin and avoid caching
         const headers = new Headers();
 
         headers.append('Content-Type', 'application/json');

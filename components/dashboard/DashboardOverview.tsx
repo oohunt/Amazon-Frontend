@@ -17,7 +17,7 @@ interface StatsCardProps {
     color: string;
 }
 
-// 数字计数动画组件
+// Number counting animation component
 const CountUpNumber: React.FC<{ end: number; duration?: number }> = ({ end, duration = 1000 }) => {
     const [count, setCount] = useState(0);
 
@@ -43,7 +43,7 @@ const CountUpNumber: React.FC<{ end: number; duration?: number }> = ({ end, dura
     return <span>{count.toLocaleString()}</span>;
 };
 
-// 进度条组件
+// Progress bar component
 const ProgressBar: React.FC<{ percentage: number; color: string }> = ({ percentage, color }) => {
     return (
         <div className="w-full bg-gray-100 rounded-full h-1 overflow-hidden">
@@ -87,7 +87,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
             hover:shadow-lg hover:border-gray-200 transition-all duration-300 
             hover:transform hover:scale-[1.02] relative overflow-hidden ${className || ''}`}>
 
-            {/* 微妙的背景装饰 */}
+            {/* Subtle background decoration */}
             <div
                 className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500"
                 style={{ backgroundColor: color }}
@@ -283,7 +283,7 @@ const DashboardOverview: React.FC = () => {
 
     return (
         <div className="space-y-8 max-w-full relative">
-            {/* 背景装饰 */}
+            {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full opacity-30 animate-pulse" />
                 <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-green-100 to-blue-100 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '2s' }} />
@@ -374,7 +374,7 @@ const DashboardOverview: React.FC = () => {
 
             {/* Quick Summary */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 relative z-10 animate-fade-in-up overflow-hidden" style={{ animationDelay: '900ms' }}>
-                {/* 装饰性背景 */}
+                {/* Decorative background */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50" />
 
                 <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center relative z-10">

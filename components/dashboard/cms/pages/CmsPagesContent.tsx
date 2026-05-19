@@ -15,13 +15,13 @@ import type { ContentPage, ContentCategory, ContentTag } from '@/types/cms';
 
 
 /**
- * 内容页面管理组件
+ * Content page management component
  */
 const CmsPagesContent = () => {
     const _router = useRouter();
     const { data: _session } = useSession();
 
-    // 选项卡状态
+    // TabsStatus
     const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'tags'>('posts');
 
     const [pages, setPages] = useState<ContentPage[]>([]);
@@ -36,18 +36,18 @@ const CmsPagesContent = () => {
     const [availableCategories, setAvailableCategories] = useState<ContentCategory[]>([]);
     const [availableTags, setAvailableTags] = useState<ContentTag[]>([]);
 
-    // 新增状态用于删除确认
+    // Add new status for delete confirmation
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deletingPageId, setDeletingPageId] = useState<string | null>(null);
 
-    // 加载页面数据
+    // Load page data
     useEffect(() => {
         if (activeTab !== 'posts') return;
 
         const fetchPages = async () => {
             setLoading(true);
             try {
-                // 构建查询参数
+                // Build query parameters
                 const params: Record<string, string | number> = {
                     page: currentPage,
                     limit: 10,
@@ -55,12 +55,12 @@ const CmsPagesContent = () => {
                     sortOrder: sortOrder
                 };
 
-                // 添加搜索条件
+                // Addsearch conditions
                 if (search) {
                     params.search = search;
                 }
 
-                // 添加状态过滤
+                // Addstatus filtering
                 if (statusFilter !== 'all') {
                     params.status = statusFilter;
                 }
@@ -89,7 +89,7 @@ const CmsPagesContent = () => {
         fetchPages();
     }, [currentPage, search, statusFilter, sortBy, sortOrder, refreshKey, activeTab]);
 
-    // 加载分类和标签数据
+    // Load category and tag data
     useEffect(() => {
         if (activeTab !== 'posts') return;
 
@@ -116,20 +116,20 @@ const CmsPagesContent = () => {
                     setAvailableTags(tagsRes.data.data.tags);
                 }
             } catch {
-                // 静默处理错误
+                // Silently handle error
             }
         };
 
         fetchCategoriesAndTags();
     }, [activeTab, refreshKey]);
 
-    // 处理搜索
+    // Handle search
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        setCurrentPage(1); // 重置到第一页
+        setCurrentPage(1); // Reset to first page
     };
 
-    // 处理排序变更
+    // Handle sort change
     const handleSortChange = (field: string) => {
         if (sortBy === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -139,13 +139,13 @@ const CmsPagesContent = () => {
         }
     };
 
-    // 删除页面 - 现在只打开确认对话框
+    // delete page — now only opens confirm dialog
     const handleDeletePage = (id: string) => {
         setDeletingPageId(id);
         setShowDeleteConfirm(true);
     };
 
-    // 确认删除页面 - 实际执行删除操作
+    // confirm page deletion — actually execute delete operation
     const confirmDeletePage = async () => {
         if (!deletingPageId) return;
 
@@ -157,7 +157,7 @@ const CmsPagesContent = () => {
                     title: "Deletion Successful",
                     description: "The blog post has been successfully deleted.",
                 });
-                // 刷新列表
+                // refresh list
                 setRefreshKey(prev => prev + 1);
             } else {
                 showErrorToast({
@@ -176,7 +176,7 @@ const CmsPagesContent = () => {
         }
     };
 
-    // 渲染状态标签
+    // Render status badge
     const renderStatusBadge = (status: string) => {
         switch (status) {
             case 'published':
@@ -190,7 +190,7 @@ const CmsPagesContent = () => {
         }
     };
 
-    // 渲染排序图标
+    // Render sort icon
     const renderSortIcon = (field: string) => {
         if (sortBy !== field) return null;
 
@@ -199,7 +199,7 @@ const CmsPagesContent = () => {
             : <span className="ml-1">↓</span>;
     };
 
-    // 格式化日期为英文格式
+    // Format date in English format
     const formatDateInEnglish = (date: Date) => {
         return date.toLocaleString('en-US', {
             year: 'numeric',
@@ -211,7 +211,7 @@ const CmsPagesContent = () => {
         });
     };
 
-    // 渲染分页
+    // Render pagination
     const renderPagination = () => {
         if (totalPages <= 1) return null;
 
@@ -220,12 +220,12 @@ const CmsPagesContent = () => {
         let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
         const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-        // 如果页数不足，调整开始页
+        // If insufficient pages, adjust start page
         if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(1, endPage - maxVisiblePages + 1);
         }
 
-        // 添加首页按钮
+        // Addfirst page button
         if (startPage > 1) {
             pages.push(
                 <button
@@ -242,7 +242,7 @@ const CmsPagesContent = () => {
             }
         }
 
-        // 添加页码按钮
+        // Addpage number button
         for (let i = startPage; i <= endPage; i++) {
             pages.push(
                 <button
@@ -258,7 +258,7 @@ const CmsPagesContent = () => {
             );
         }
 
-        // 添加末页按钮
+        // Addlast page button
         if (endPage < totalPages) {
             if (endPage < totalPages - 1) {
                 pages.push(<span key="ellipsis2" className="px-2">...</span>);
@@ -304,7 +304,7 @@ const CmsPagesContent = () => {
         );
     };
 
-    // 渲染标签页导航
+    // Render tab navigation
     const renderTabsNav = () => (
         <div className="border-b border-gray-200 mb-6">
             <nav className="-mb-px flex space-x-8" aria-label="Tabs">
@@ -342,21 +342,21 @@ const CmsPagesContent = () => {
         </div>
     );
 
-    // 根据ID获取分类名称
+    // Get category name by ID
     const getCategoryName = (categoryId: string) => {
         const category = availableCategories.find(cat => cat._id === categoryId);
 
         return category ? category.name : '';
     };
 
-    // 根据ID获取标签名称
+    // Get tag name by ID
     const getTagName = (tagId: string) => {
         const tag = availableTags.find(tag => tag._id === tagId);
 
         return tag ? tag.name : '';
     };
 
-    // 渲染页面内容
+    // Render page content
     const renderPostsContent = () => (
         <>
             <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -372,7 +372,7 @@ const CmsPagesContent = () => {
                 </div>
             </div>
 
-            {/* 过滤和搜索 */}
+            {/* Filter and search */}
             <div className="bg-white rounded-lg shadow-sm p-4">
                 <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                     <div className="flex-grow">
@@ -417,7 +417,7 @@ const CmsPagesContent = () => {
                 </div>
             </div>
 
-            {/* 页面列表 */}
+            {/* Page list */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-8 text-center">
@@ -585,7 +585,7 @@ const CmsPagesContent = () => {
                     </div>
                 )}
 
-                {/* 分页 */}
+                {/* Pagination */}
                 {!loading && pages.length > 0 && renderPagination()}
             </div>
         </>
@@ -593,15 +593,15 @@ const CmsPagesContent = () => {
 
     return (
         <div className="space-y-6">
-            {/* 标签页导航 */}
+            {/* Tab navigation */}
             {renderTabsNav()}
 
-            {/* 根据当前选中的标签页显示不同内容 */}
+            {/* Show different content based on currently selected tab */}
             {activeTab === 'posts' && renderPostsContent()}
             {activeTab === 'categories' && <CategoriesManagement />}
             {activeTab === 'tags' && <TagsManagement />}
 
-            {/* 删除确认对话框 */}
+            {/* Delete confirmation dialog */}
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black/35 bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">

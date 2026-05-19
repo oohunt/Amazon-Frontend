@@ -21,7 +21,7 @@ import { useState, useEffect, useRef, createContext, useContext } from 'react';
 
 import { UserRole } from '@/lib/models/UserRole';
 
-// 创建一个 Context 用于保存按钮状态
+// create a context for save button status
 export const DashboardSaveContext = createContext<{
     saveButton: React.ReactNode | null;
     setSaveButton: (button: React.ReactNode | null) => void;
@@ -30,7 +30,7 @@ export const DashboardSaveContext = createContext<{
     setSaveButton: () => { }
 });
 
-// 创建 Hook 供子组件使用
+// create hook for child components
 export const useDashboardSave = () => useContext(DashboardSaveContext);
 
 interface DashboardLayoutProps {
@@ -51,17 +51,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             const newIsMobile = window.innerWidth < 768;
 
             setIsMobile(newIsMobile);
-            // 宽屏设备默认展开，窄屏设备默认收起
+            // Wide screens default to expanded, narrow screens default to collapsed
             if (newIsMobile !== isMobile) {
                 setIsSidebarOpen(window.innerWidth >= 1024);
             }
         };
 
-        // 防止水平滚动条
+        // Prevent horizontal scrollbar
         document.documentElement.style.overflowX = 'hidden';
         document.body.style.overflowX = 'hidden';
 
-        // 重置仪表盘页面的body padding-top
+        // reset dashboard page body padding-top
         const originalPaddingTop = document.body.style.paddingTop;
 
         document.body.style.paddingTop = '0';
@@ -71,50 +71,50 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            // 清理时恢复默认值
+            // Restore defaults on cleanup
             document.documentElement.style.overflowX = '';
             document.body.style.overflowX = '';
-            // 恢复原来的padding-top
+            // Restore original padding-top
             document.body.style.paddingTop = originalPaddingTop;
         };
     }, [isMobile]);
 
-    // 实现更强大的滚动锁定
+    // Implement more robust scroll locking
     useEffect(() => {
         if (isMobile && isSidebarOpen) {
-            // 保存当前滚动位置
+            // save current scroll position
             scrollPosition.current = window.scrollY;
-            // 锁定滚动 - 设置固定位置并隐藏溢出内容
+            // Lock scroll — set fixed position and hide overflow
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollPosition.current}px`;
             document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
         } else {
-            // 恢复滚动
+            // Restore scrolling
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
             document.body.style.overflow = '';
-            // 恢复滚动位置
+            // Restore scrolling position
             if (scrollPosition.current > 0) {
                 window.scrollTo(0, scrollPosition.current);
             }
         }
 
         return () => {
-            // 组件卸载时恢复滚动能力
+            // Restore scroll ability when component unmounts
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
             document.body.style.overflow = '';
-            // 恢复滚动位置
+            // Restore scrolling position
             if (scrollPosition.current > 0) {
                 window.scrollTo(0, scrollPosition.current);
             }
         };
     }, [isMobile, isSidebarOpen]);
 
-    // 简洁的导航配置
+    // Clean navigation configuration
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
         { name: 'Users', href: '/dashboard/users', icon: Users },
@@ -143,7 +143,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return (
         <DashboardSaveContext.Provider value={{ saveButton, setSaveButton }}>
             <div className="flex bg-gray-50 overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
-                {/* 移动端背景遮罩 */}
+                {/* Mobile background overlay */}
                 {isMobile && isSidebarOpen && (
                     <div
                         className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300"
@@ -159,7 +159,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     />
                 )}
 
-                {/* 侧边栏 - 简洁亮色设计 */}
+                {/* Sidebar - clean light design */}
                 <aside
                     className={`fixed md:sticky top-0 left-0 z-50 h-full flex-shrink-0 overflow-hidden
                         ${isSidebarOpen ? 'w-64' : isMobile ? 'w-0' : 'w-16'} 
@@ -167,7 +167,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                         transition-all duration-300 ease-in-out`}
                 >
                     <div className="flex flex-col h-full bg-white shadow-lg border-r border-gray-200 w-full">
-                        {/* 侧边栏头部 */}
+                        {/* Sidebar header */}
                         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 flex-shrink-0">
                             {(isSidebarOpen || !isMobile) && (
                                 <>
@@ -194,7 +194,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             )}
                         </div>
 
-                        {/* 导航菜单 */}
+                        {/* Navigation menu */}
                         <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 min-h-0">
                             <nav className="space-y-1">
                                 {navigation.map((item) => {
@@ -221,12 +221,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                                 </span>
                                             )}
 
-                                            {/* 活跃状态指示器 */}
+                                            {/* Active state indicator */}
                                             {isActive && (isSidebarOpen || isMobile) && (
                                                 <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-full" />
                                             )}
 
-                                            {/* 工具提示 - 仅在收起状态显示 */}
+                                            {/* Tooltip — shown only when collapsed */}
                                             {!isSidebarOpen && !isMobile && (
                                                 <div className="fixed left-20 z-[60] whitespace-nowrap bg-gray-900 text-white px-2 py-1 rounded 
                                                     opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none text-sm
@@ -245,7 +245,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             </nav>
                         </div>
 
-                        {/* 底部用户信息 */}
+                        {/* Bottom user info */}
                         <div className="border-t border-gray-200 p-2 flex-shrink-0">
                             {(isSidebarOpen || isMobile) ? (
                                 <div>
@@ -276,7 +276,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                         </div>
                                     </div>
 
-                                    {/* 登出按钮 */}
+                                    {/* Logout button */}
                                     <button
                                         onClick={handleSignOut}
                                         className="w-full mt-2 flex items-center space-x-3 px-3 py-2 rounded-lg 
@@ -304,13 +304,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                         </div>
                                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full" />
 
-                                        {/* 悬停工具提示 */}
+                                        {/* Hover tooltip */}
                                         <div className="fixed left-20 z-[60] whitespace-nowrap bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none transform -translate-y-1/2 top-1/2">
                                             {session.user.name || session.user.email}
                                         </div>
                                     </div>
 
-                                    {/* 收起状态下的登出按钮 */}
+                                    {/* Logout button in collapsed state */}
                                     <button
                                         onClick={handleSignOut}
                                         className="p-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group relative"
@@ -318,7 +318,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                     >
                                         <LogOut size={16} />
 
-                                        {/* 悬停工具提示 */}
+                                        {/* Hover tooltip */}
                                         <div className="fixed left-20 z-[60] whitespace-nowrap bg-gray-900 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none transform -translate-y-1/2 top-1/2">
                                             Sign Out
                                         </div>
@@ -329,11 +329,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     </div>
                 </aside>
 
-                {/* 主内容区域 */}
+                {/* Main content area */}
                 <div
                     className={`flex-1 flex flex-col min-w-0 min-h-0 transition-all duration-300 ${isMobile && isSidebarOpen ? 'opacity-50' : 'opacity-100'}`}
                 >
-                    {/* 顶部导航栏 */}
+                    {/* Top navbar */}
                     <header className="bg-white shadow-sm border-b border-gray-200 z-20 flex-shrink-0">
                         <div className="flex h-16 items-center justify-between px-4 md:px-6 min-w-0">
                             <div className="flex items-center min-w-0 flex-1">
@@ -365,7 +365,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                             </div>
                         </div>
 
-                        {/* 面包屑导航 */}
+                        {/* Breadcrumb navigation */}
                         <div className="px-4 md:px-6 py-2 border-t border-gray-100 bg-gray-50 flex justify-between items-center min-w-0">
                             <div className="text-sm text-gray-600 flex items-center space-x-2 min-w-0 flex-1">
                                 <Link href="/" className="hover:text-blue-600 transition-colors whitespace-nowrap">Home</Link>
@@ -375,14 +375,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                 </span>
                             </div>
 
-                            {/* 保存按钮区域 */}
+                            {/* Save button area */}
                             <div className="flex-shrink-0 ml-4">
                                 {saveButton}
                             </div>
                         </div>
                     </header>
 
-                    {/* 内容区域 */}
+                    {/* Content area */}
                     <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 min-w-0 min-h-0">
                         <div className="w-full max-w-full">
                             {children}

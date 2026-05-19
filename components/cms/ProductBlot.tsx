@@ -68,7 +68,7 @@ const fetchEditorProduct = async (productIdOrAsin: string): Promise<ComponentPro
     }
 };
 
-// 产品节点的属性接口 - 添加 alignment
+// Product node attribute interface — add alignment
 export interface ProductAttributes {
     id: string;
     title?: string;
@@ -92,7 +92,7 @@ export interface ProductAttributes {
 
 type ProductComponentProps = NodeViewProps;
 
-// 定义产品样式 (导出以便在 RichTextEditor 中使用)
+// Define product styles (export for use in RichTextEditor)
 export const PRODUCT_STYLES = [
     { id: 'simple', name: 'Simple' },
     { id: 'card', name: 'Card' },
@@ -102,7 +102,7 @@ export const PRODUCT_STYLES = [
     { id: 'featured', name: 'Featured Item' }
 ];
 
-// 产品节点组件 - 应用 inline-block 样式
+// Product node component — apply inline-block styles
 const ProductComponent: FC<ProductComponentProps> = ({ node, selected }) => {
     const { id: productId, style = 'simple' } = node.attrs as ProductAttributes;
 
@@ -149,22 +149,22 @@ const ProductComponent: FC<ProductComponentProps> = ({ node, selected }) => {
         }
     };
 
-    // 移除 alignmentClass 计算
+    // remove alignmentClass calculation
 
     return (
-        // NodeViewWrapper 渲染为 <span class="... inline-block ...">
+        // NodeViewWrapper renders as <span class="... inline-block ...">
         <NodeViewWrapper as="span" className="flex-shrink-0">
-            {/* 内部容器 - 改为 span 并添加 inline-block */}
+            {/* Inner container - changed to span and added inline-block */}
             <span
                 data-product-id={productId}
                 data-node-type="product"
                 data-style={style}
-                // 复制原有样式并添加 inline-block - 使用 group 类来应用悬停效果
+                // copy original styles and add inline-block — use group class for hover effects
                 className={`relative p-1 border ${selected ? 'ring-2 ring-blue-500 border-transparent' : 'border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800'} rounded-lg overflow-visible bg-white dark:bg-gray-800 inline-block align-middle group flex-shrink-0`}
             >
                 {renderFetchedProduct()}
 
-                {/* 产品标签 - 改进可见性 */}
+                {/* Product label - improved visibility */}
                 <span className={`absolute top-1 right-1 flex items-center gap-1 z-20 transition-opacity duration-200 ${selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-200 rounded-full shadow-sm transition-colors" contentEditable={false}>Product</span>
                 </span>
@@ -173,13 +173,13 @@ const ProductComponent: FC<ProductComponentProps> = ({ node, selected }) => {
     );
 };
 
-// TipTap产品节点扩展 - 修改 group 和 inline
+// TipTap product node extension — modify group and inline
 export const ProductBlot = Node.create<ProductAttributes>({
     name: 'product',
     group: 'inline',
     atom: true,
     inline: true,
-    // draggable: true, // 移除或注释掉 draggable
+    // draggable: true, // Remove or comment out draggable
     content: '',
 
     addAttributes() {
@@ -194,10 +194,10 @@ export const ProductBlot = Node.create<ProductAttributes>({
                 parseHTML: element => element.getAttribute('data-style'),
                 renderHTML: attributes => ({ 'data-style': attributes.style }),
             },
-            alignment: { // <-- 新增
+            alignment: { // <-- New addition
                 default: 'left',
                 parseHTML: element => element.getAttribute('data-alignment') || 'left',
-                // 仅在非默认值时渲染 HTML 属性
+                // Render HTML attributes only when values are non-default
                 renderHTML: attributes => attributes.alignment && attributes.alignment !== 'left' ? { 'data-alignment': attributes.alignment } : {},
             },
             // Keep other attributes for node structure, insertion, and parsing
@@ -330,7 +330,7 @@ export const ProductBlot = Node.create<ProductAttributes>({
         ];
     },
 
-    // 直接定义 toDOM 方法，并为 node 添加类型
+    // Directly define toDOM method and add type to node
     toDOM(node: ProseMirrorNode) {
         const attrs: Record<string, string | number | boolean | null | undefined> = {
             'data-node-type': 'product',

@@ -9,10 +9,10 @@ import { revalidateTag } from 'next/cache';
 export async function revalidateProductsList() {
     try {
         revalidateTag('products');
-        // 返回成功响应（对于Server Action不是必需的，但可以提供反馈）
+        // Return a success response (not required for Server Actions, but can provide feedback)
         // return NextResponse.json({ revalidated: true, now: Date.now() });
     } catch {
-        // 抛出错误或返回错误响应
+        // Throw error or return error response
         // throw new Error('Failed to revalidate product cache');
         // return NextResponse.json({ revalidated: false, error: 'Failed to revalidate' }, { status: 500 });
     }

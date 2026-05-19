@@ -11,7 +11,7 @@ interface PaginationProps {
 const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: PaginationProps) => {
     const [maxDisplayedPages, setMaxDisplayedPages] = useState(5);
 
-    // 响应窗口大小变化，调整显示的页码数量
+    // Respond to window size changes, adjust number of pages shown
     useEffect(() => {
         const handleResize = () => {
             setMaxDisplayedPages(window.innerWidth < 640 ? 3 : 5);
@@ -28,7 +28,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: P
     return (
         <div className={`mt-6 md:mt-10 flex justify-center ${className}`}>
             <div className="flex flex-wrap justify-center gap-1 sm:gap-2">
-                {/* 上一页按钮 */}
+                {/* Previous page button */}
                 <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -45,7 +45,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: P
                 </motion.button>
 
                 <div className="flex items-center gap-1 md:gap-2">
-                    {/* 当页码大于2时，显示第1页链接和省略号 */}
+                    {/* When page > 2, show page 1 link and ellipsis */}
                     {currentPage > 2 && (
                         <>
                             <motion.button
@@ -63,12 +63,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: P
                         </>
                     )}
 
-                    {/* 动态计算要显示的页码 */}
+                    {/* Dynamically calculate page numbers to show */}
                     {(() => {
                         let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
                         const endPage = Math.min(totalPages, startPage + maxDisplayedPages - 1);
 
-                        // 如果不能显示最大页数，则调整起始页
+                        // If can't show max pages, adjust start page
                         if (endPage - startPage + 1 < maxDisplayedPages && startPage > 1) {
                             startPage = Math.max(1, endPage - maxDisplayedPages + 1);
                         }
@@ -91,7 +91,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: P
                         ));
                     })()}
 
-                    {/* 如果总页数大于显示的页码范围，且当前页不接近最后一页，显示省略号和最后一页 */}
+                    {/* If total pages exceed the displayed page range and current page is not near the last page, show ellipsis and last page */}
                     {currentPage < totalPages - 2 && (
                         <>
                             {currentPage < totalPages - 3 && (
@@ -110,7 +110,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, className = '' }: P
                     )}
                 </div>
 
-                {/* 下一页按钮 */}
+                {/* Next page button */}
                 <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

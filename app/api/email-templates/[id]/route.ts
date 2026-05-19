@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 获取单个模板
+// Get single template
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -11,16 +11,16 @@ export async function GET(
     try {
         const { id } = await params;
 
-        // 处理按templateId查询的情况
+        // Handle querying by templateId
         const isObjectId = ObjectId.isValid(id);
 
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 查询条件：可以是_id或templateId
+        // Query condition: can be _id or templateId
         const query = isObjectId
             ? { _id: new ObjectId(id) }
             : { templateId: id };
@@ -29,12 +29,12 @@ export async function GET(
 
         if (!template) {
             return NextResponse.json(
-                { success: false, message: '未找到邮件模板' },
+                { success: false, message: 'Email template not found' },
                 { status: 404 }
             );
         }
 
-        // 返回完整模板，包括HTML内容
+        // return complete template including HTML content
         return NextResponse.json({
             success: true,
             data: {
@@ -55,7 +55,7 @@ export async function GET(
         return NextResponse.json(
             {
                 success: false,
-                message: '获取邮件模板失败，请稍后重试',
+                message: 'Failed to fetch email templates, please try again later',
                 error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
@@ -63,7 +63,7 @@ export async function GET(
     }
 }
 
-// 更新模板
+// update template
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -71,19 +71,19 @@ export async function PUT(
     try {
         const { id } = await params;
 
-        // 验证ID格式
+        // Validate ID format
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
-                { success: false, message: '无效的模板ID格式' },
+                { success: false, message: 'Invalid template ID format' },
                 { status: 400 }
             );
         }
 
-        // 获取请求体数据
+        // Get request body data
         const data = await request.json();
         const { name, subject, fromName, fromEmail, htmlContent, templateId, type, isActive } = data;
 
-        // 数据验证 - 改进为提供更详细的错误信息
+        // Data validation — improved to provide more detailed error message
         const missingFields = [];
 
         if (!name) missingFields.push('name');
@@ -105,13 +105,13 @@ export async function PUT(
             );
         }
 
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 检查templateId唯一性（排除当前更新的文档）
+        // Check templateId uniqueness (excluding currently updated document)
         const existingTemplate = await collection.findOne({
             templateId: templateId,
             _id: { $ne: new ObjectId(id) }
@@ -124,7 +124,7 @@ export async function PUT(
             );
         }
 
-        // 更新模板
+        // update template
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
             {
@@ -165,7 +165,7 @@ export async function PUT(
     }
 }
 
-// 删除模板
+// delete template
 export async function DELETE(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -173,7 +173,7 @@ export async function DELETE(
     try {
         const { id } = await params;
 
-        // 验证ID格式
+        // Validate ID format
         if (!ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: 'Invalid template ID format' },
@@ -181,13 +181,13 @@ export async function DELETE(
             );
         }
 
-        // 连接到MongoDB
+        // Connect to MongoDB
         const client = await clientPromise;
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const db = client.db(dbName);
         const collection = db.collection('email_templates');
 
-        // 删除模板
+        // delete template
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {

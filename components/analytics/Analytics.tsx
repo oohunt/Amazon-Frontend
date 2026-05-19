@@ -4,19 +4,19 @@ import Script from 'next/script';
 import { useEffect, useState } from 'react';
 
 export function Analytics() {
-    // 仅在生产环境中加载分析脚本
+    // Load analytics script in production environment only
     const [isProduction, setIsProduction] = useState(false);
 
     useEffect(() => {
-        // 客户端组件中检查环境
+        // Check environment in client component
         setIsProduction(process.env.NODE_ENV === 'production');
     }, []);
 
-    // 从环境变量获取分析工具ID
+    // Get analytics tool ID from environment variables
     const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
     const MS_CLARITY_ID = process.env.NEXT_PUBLIC_MS_CLARITY_ID;
 
-    // 如果不是生产环境或缺少必要的ID，则不显示分析工具
+    // If not production or missing required IDs, don't show analytics
     if (!isProduction || !GA_MEASUREMENT_ID || !MS_CLARITY_ID) {
         return null;
     }

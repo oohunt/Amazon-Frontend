@@ -1,6 +1,6 @@
-/* 富文本编辑器内容样式 */
+/* Rich text editor content styles */
 
-/* 空编辑器提示 */
+/* Empty editor placeholder */
 .is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
@@ -9,7 +9,7 @@
   height: 0;
 }
 
-/* 引用块样式 */
+/* Blockquote styles */
 .cms-content .ProseMirror blockquote,
 .cms-content .prose blockquote {
   border-left: 3px solid #b4b4b4;
@@ -19,7 +19,7 @@
   margin: 1rem 0;
 }
 
-/* 代码块样式 */
+/* Code block styles */
 .cms-content .ProseMirror pre,
 .cms-content .prose pre {
   background-color: #f7fafc;
@@ -41,41 +41,41 @@
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* 高亮文本样式 */
+/* Highlighted text styles */
 .cms-content .ProseMirror mark,
 .cms-content .prose mark {
   border-radius: 0.25rem;
   padding: 0.125rem 0.25rem;
-  background-color: #fef3c7; /* 默认黄色 */
+  background-color: #fef3c7; /* Default yellow */
 }
 
 .cms-content .ProseMirror mark[data-color="#fef3c7"],
 .cms-content .prose mark[data-color="#fef3c7"] {
-  background-color: #fef3c7; /* 黄色 */
+  background-color: #fef3c7; /* Yellow */
 }
 
 .cms-content .ProseMirror mark[data-color="#d1fae5"],
 .cms-content .prose mark[data-color="#d1fae5"] {
-  background-color: #d1fae5; /* 绿色 */
+  background-color: #d1fae5; /* Green */
 }
 
 .cms-content .ProseMirror mark[data-color="#fce7f3"],
 .cms-content .prose mark[data-color="#fce7f3"] {
-  background-color: #fce7f3; /* 粉色 */
+  background-color: #fce7f3; /* Pink */
 }
 
 .cms-content .ProseMirror mark[data-color="#dbeafe"],
 .cms-content .prose mark[data-color="#dbeafe"] {
-  background-color: #dbeafe; /* 蓝色 */
+  background-color: #dbeafe; /* Blue */
 }
 
-/* 文本颜色样式 */
+/* Text color styles */
 .cms-content .ProseMirror span[style*="color"],
 .cms-content .prose span[style*="color"] {
   border-radius: 0.125rem;
 }
 
-/* 列表样式 */
+/* List styles */
 .cms-content .ProseMirror ul,
 .cms-content .ProseMirror ol,
 .cms-content .prose ul,
@@ -93,7 +93,7 @@
   list-style-type: decimal;
 }
 
-/* 链接样式 */
+/* Link styles */
 .cms-content .ProseMirror a,
 .cms-content .prose a {
   color: #3182ce;
@@ -107,7 +107,7 @@
   color: #2c5282;
 }
 
-/* 图片样式 */
+/* Image styles */
 .cms-content .ProseMirror img,
 .cms-content .prose img {
   max-width: 100%;
@@ -117,7 +117,7 @@
   margin: 1rem auto;
 }
 
-/* 产品嵌入样式 */
+/* Product embed styles */
 .cms-content .ProseMirror .product-embed,
 .cms-content .prose .product-embed {
   border: 1px solid #e2e8f0;
@@ -127,25 +127,25 @@
   background-color: #f8fafc;
 }
 
-/* 编辑器容器样式 */
+/* Editor container styles */
 .rich-text-editor {
   --content-width: 100%;
   --content-max-width: 768px;
 }
 
-/* 编辑器内容容器 */
+/* Editor content container */
 .rich-text-editor .ProseMirror {
   outline: none;
   min-height: 150px;
 }
 
-/* 预览模式样式 */
+/* Preview mode styles */
 .rich-text-editor.preview .ProseMirror {
   color: #1a202c;
   line-height: 1.7;
 }
 
-/* 颜色选择器弹出菜单样式 */
+/* Color picker popup menu styles */
 .color-picker-dropdown {
   opacity: 0;
   visibility: hidden;
@@ -159,22 +159,22 @@
   visibility: visible;
 }
 
-/* 响应式样式 */
+/* Responsive styles */
 @media (max-width: 640px) {
   .rich-text-editor {
     --content-max-width: 100%;
   }
 }
 
-/* 工具栏响应式 */
+/* Toolbar responsive */
 @media (max-width: 768px) {
   .rich-text-editor .toolbar-group {
     flex-wrap: wrap;
   }
 }
 
-/* 添加 Focus 样式 */
+/* Add focus styles */
 .ProseMirror .has-focus {
   border-radius: 3px;
-  box-shadow: 0 0 0 2px #3b82f6; /* 示例：蓝色轮廓 */
+  box-shadow: 0 0 0 2px #3b82f6; /* Example: blue outline */
 } 

@@ -1,11 +1,11 @@
 import { S3Client } from '@aws-sdk/client-s3';
 
 /**
- * Cloudflare R2存储客户端配置
- * 使用AWS S3兼容API与Cloudflare R2进行交互
+ * Cloudflare R2 storage client configuration
+ * Interact with Cloudflare R2 using the AWS S3-compatible API
  */
 export const r2Client = new S3Client({
-    region: 'auto', // Cloudflare R2使用auto作为区域
+    region: 'auto', // Cloudflare R2 uses auto as region
     endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     credentials: {
         accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
@@ -13,8 +13,8 @@ export const r2Client = new S3Client({
     },
 });
 
-// 存储桶名称
+// Bucket name
 export const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'amazon-frontend-assets';
 
-// 公共访问URL前缀
+// Public access URL prefix
 export const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL; 

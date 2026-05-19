@@ -1,6 +1,6 @@
 /**
- * 收藏按钮组件
- * 用于在商品卡片或详情页中显示收藏按钮
+ * Favorite button component
+ * Display a favorite button on product cards or detail pages
  */
 
 import { Heart } from 'lucide-react';
@@ -21,14 +21,14 @@ interface FavoriteButtonProps {
 }
 
 /**
- * 收藏按钮组件
- * @param productId 商品ID
- * @param className 自定义类名
- * @param size 按钮大小，可选值：sm, md, lg
- * @param withText 是否显示文本
- * @param withAnimation 是否启用动画效果
- * @param withToast 是否显示操作提示，默认为true
- * @param productTitle 产品标题，用于在提示中显示
+ * Favorite button component
+ * @param productId Product ID
+ * @param className Custom CSS class name
+ * @param size Button size: sm, md, or lg
+ * @param withText Whether to show text
+ * @param withAnimation Whether to enable animation
+ * @param withToast Whether to show a toast notification, defaults to true
+ * @param productTitle Product title displayed in the toast
  */
 const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     productId,
@@ -39,7 +39,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     withToast = true,
     productTitle = '',
 }) => {
-    // 使用自定义Hook获取商品收藏状态和切换方法
+    // Use custom hook to get product favorites state and toggle method
     const { isFavorite, toggleFavorite, isUpdating } = useProductFavorite(productId);
     const [animateHeartbeat, setAnimateHeartbeat] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -47,53 +47,53 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     const [lastAction, setLastAction] = useState<'add' | 'remove'>('add');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
-    // 根据size确定图标尺寸
+    // Determine icon size based on size
     const iconSize = {
         sm: 'h-4 w-4',
         md: 'h-5 w-5',
         lg: 'h-6 w-6',
     }[size];
 
-    // 根据size确定按钮样式
+    // Determine button styles based on size
     const buttonSize = {
         sm: 'p-1.5',
         md: 'p-2',
         lg: 'p-2.5',
     }[size];
 
-    // 动画类名
+    // Animation class names
     const animationClass = withAnimation
         ? 'transition-all duration-300 ease-in-out hover:scale-110 active:scale-95'
         : '';
 
-    // 心跳动画类名
+    // Heartbeat animation class names
     const heartbeatClass = animateHeartbeat
         ? 'animate-heartbeat'
         : '';
 
-    // 点击处理函数
+    // Click handler
     const handleClick = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
-        // 避免重复点击
+        // Avoid duplicate clicks
         if (isUpdating) return;
 
-        // 设置操作类型
+        // Set operation type
         const actionType = isFavorite ? 'remove' : 'add';
 
         setLastAction(actionType);
 
-        // 如果正在添加到收藏，触发心跳动画
+        // If adding to favorites, trigger heartbeat animation
         if (!isFavorite) {
             setAnimateHeartbeat(true);
             setTimeout(() => setAnimateHeartbeat(false), 1000);
         }
 
-        // 执行收藏操作
+        // Execute favorites operation
         const result = await toggleFavorite();
 
-        // 显示提示
+        // show toast
         if (withToast) {
             setToastType(result.success ? 'success' : 'error');
             setToastMessage(result.message);
@@ -101,7 +101,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
         }
     };
 
-    // 隐藏提示的回调函数
+    // callback function to hide toast
     const handleHideToast = () => {
         setShowToast(false);
     };

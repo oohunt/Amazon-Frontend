@@ -18,7 +18,7 @@ import type { ComponentProduct } from '@/types';
 import type { AmazonProduct } from '@/types/amazonApi';
 import type { Product } from '@/types/api';
 
-// 定义DrawerFilters接口
+// Define DrawerFilters interface
 interface DrawerFilters {
     min_price?: number;
     max_price?: number;
@@ -27,20 +27,20 @@ interface DrawerFilters {
     is_prime_only?: boolean;
 }
 
-// 筛选器参数接口
+// Filter parameter interface
 interface FilterParams extends DrawerFilters {
     api_provider?: string;
     min_commission?: number;
     min_rating?: number;
 }
 
-// 添加类型定义
+// Addtype definition
 interface ProductsApiResponse {
     items?: Product[];
     total?: number;
     page?: number;
     page_size?: number;
-    // 支持嵌套结构
+    // Support nested structure
     success?: boolean;
     data?: {
         items: Product[];
@@ -50,7 +50,7 @@ interface ProductsApiResponse {
     };
 }
 
-// API参数类型
+// API parameter types
 interface ApiParams {
     product_groups?: string;
     brands?: string;
@@ -66,7 +66,7 @@ interface ApiParams {
     limit?: number;
 }
 
-// 交互式动画SVG组件替代原3D模型
+// Interactive animated SVG component replacing original 3D model
 const CategoryIllustration = ({ category }: { category: string }) => {
     const illustrations: Record<string, React.ReactNode> = {
         electronics: (
@@ -207,7 +207,7 @@ const CategoryIllustration = ({ category }: { category: string }) => {
     return illustrations[category] || illustrations.default;
 };
 
-// 液态按钮效果的SVG过滤器
+// SVG filter for liquid button effect
 const LiquidFilter = () => (
     <svg width="0" height="0" style={{ position: 'absolute' }}>
         <filter id="liquid" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
@@ -218,7 +218,7 @@ const LiquidFilter = () => (
     </svg>
 );
 
-// 类型谓词函数，用于区分产品类型
+// Type predicate function to distinguish product types
 const _isAmazonProduct = (product: AmazonProduct | Product): product is AmazonProduct => {
     return 'asin' in product;
 };
@@ -227,20 +227,20 @@ const _isProduct = (product: AmazonProduct | Product): product is Product => {
     return 'id' in product;
 };
 
-// 添加商品骨架屏组件
+// Addproduct skeleton component
 const ProductSkeleton = () => (
     <div className="relative group h-full">
         <div className="relative h-full flex flex-col overflow-hidden rounded-lg shadow-lg bg-white dark:bg-gray-800 animate-pulse">
-            {/* 图片骨架 */}
+            {/* Image skeleton */}
             <div className="relative w-full pt-[100%] bg-gray-200 dark:bg-gray-700" />
 
-            {/* 内容区域 */}
+            {/* Content area */}
             <div className="p-2 sm:p-3 md:p-4 flex-grow flex flex-col">
-                {/* 标题骨架 */}
+                {/* Title skeleton */}
                 <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
                 <div className="w-2/3 h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
 
-                {/* 价格区域骨架 */}
+                {/* Price area skeleton */}
                 <div className="mt-auto pt-1 sm:pt-2 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-0.5 sm:gap-1">
                     <div className="w-16 h-5 bg-gray-200 dark:bg-gray-700 rounded" />
                     <div className="w-12 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
@@ -250,11 +250,11 @@ const ProductSkeleton = () => (
     </div>
 );
 
-// 添加返回顶部按钮组件
+// add back-to-top button component
 const ScrollToTopButton = () => {
     const [isVisible, setIsVisible] = useState(false);
 
-    // 检测滚动位置以控制按钮可见性
+    // Detect scroll position to control button visibility
     useEffect(() => {
         const toggleVisibility = () => {
             if (window.pageYOffset > 500) {
@@ -269,7 +269,7 @@ const ScrollToTopButton = () => {
         return () => window.removeEventListener('scroll', toggleVisibility);
     }, []);
 
-    // 滚动到顶部的函数
+    // Scroll to top function
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
@@ -297,7 +297,7 @@ const ScrollToTopButton = () => {
     );
 };
 
-// 修改主页面组件
+// Modify main page component
 export default function ProductsPage() {
     const categoryFromSlug = undefined;
     return (
@@ -309,7 +309,7 @@ export default function ProductsPage() {
     );
 }
 
-// 使用 Client Component 包装搜索参数逻辑
+// Use Client Component to wrap search parameter logic
 function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {}) {
     const searchParamsFromUrl = useSearchParams();
     // Detect category from URL path (e.g. /product/category/Electronics)
@@ -345,14 +345,14 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
     const { scrollYProgress } = useScroll({ layoutEffect: false });
     const headerOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.97]);
 
-    // 添加缓存状态展示
+    // Addcache status display
     const [_cacheStatus, setCacheStatus] = useState<{
         isCached: boolean;
         responseTime: number;
         expires: string;
     } | null>(null);
 
-    // 添加JS滚动逻辑，实现侧边栏在父容器内的固定效果
+    // AddJS scroll logic for sidebar fixed positioning within parent container
     useEffect(() => {
         const handleScroll = () => {
             if (!sidebarRef.current || !mainContentRef.current || !catalogRef.current || !paginationRef.current) return;
@@ -363,42 +363,42 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             const sidebarRect = sidebarElem.getBoundingClientRect();
             const paginationRect = paginationRef.current.getBoundingClientRect();
 
-            // 固定偏移量（导航栏高度）
+            // Fixed offset (navbar height)
             const topOffset = 72;
 
-            // 计算父容器的位置
+            // Calculate parent container position
             const containerTop = catalogRect.top + window.scrollY;
             const paginationTop = paginationRect.top + window.scrollY;
 
-            // 计算侧边栏的高度和当前滚动位置
+            // Calculate sidebar height and current scroll position
             const sidebarHeight = sidebarRect.height;
             const scrollY = window.scrollY;
 
-            // 计算主内容区域的实际高度
+            // Calculate actual height of main content area
             const mainContentHeight = mainContentRect.height;
 
-            // 确保侧边栏不会超出分页区域的顶部，同时考虑侧边栏自身的高度
-            const BUFFER = 20; // 增加缓冲区到20px
+            // Ensure sidebar doesn't exceed top of pagination area, accounting for sidebar height
+            const BUFFER = 20; // Increase buffer to 20px
             const maxTop = Math.min(
                 mainContentHeight - sidebarHeight,
                 paginationTop - containerTop - sidebarHeight - BUFFER
             );
 
-            // 计算当前滚动位置相对于底部的距离
+            // Calculate distance from current scroll position to the bottom
             const currentScrollTop = scrollY + topOffset - containerTop;
             const distanceToBottom = maxTop - currentScrollTop;
 
-            // 判断滚动位置并设置样式
+            // Check scroll position and update styles
             if (scrollY + topOffset >= containerTop) {
                 if (distanceToBottom <= BUFFER) {
-                    // 完全到达底部时
+                    // When fully scrolled to the bottom
                     Object.assign(sidebarElem.style, {
                         position: 'absolute',
                         top: `${maxTop}px`,
                         transform: 'none'
                     });
                 } else {
-                    // 正常滚动时保持fixed
+                    // Keep fixed during normal scrolling
                     Object.assign(sidebarElem.style, {
                         position: 'fixed',
                         top: `${topOffset}px`,
@@ -406,7 +406,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                     });
                 }
             } else {
-                // 回到顶部
+                // Return to top
                 Object.assign(sidebarElem.style, {
                     position: 'absolute',
                     top: '0',
@@ -415,7 +415,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             }
         };
 
-        // 添加防抖处理
+        // Add debounce handling
         let ticking = false;
         const scrollHandler = () => {
             if (!ticking) {
@@ -430,7 +430,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         window.addEventListener('scroll', scrollHandler, { passive: true });
         window.addEventListener('resize', scrollHandler, { passive: true });
 
-        // 初始化调用一次
+        // Call once on initialization
         handleScroll();
 
         return () => {
@@ -439,15 +439,15 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         };
     }, []);
 
-    // 添加useEffect，确保从URL参数正确加载
+    // AdduseEffect to ensure correct loading from URL params
     useEffect(() => {
-        // 获取URL参数（忽略时间戳参数_ts）
+        // Get URL parameters (ignore timestamp parameter _ts)
         const brands = searchParamsFromUrl.get('brands') || '';
         const product_groups = searchParamsFromUrl.get('product_groups') || '';
-        const category = searchParamsFromUrl.get('category') || ''; // 兼容category参数
+        const category = searchParamsFromUrl.get('category') || ''; // Compatible with category parameter
 
-        // 优先使用从路由路径传入的categoryFromSlug或URL路径中的分类，而不是查询参数
-        // 如果有categoryFromSlug或categoryFromPath，则忽略查询参数中的category或product_groups
+        // Prefer categoryFromSlug from route path or URL path category over query params
+        // If categoryFromSlug or categoryFromPath exists, ignore category/product_groups from query params
         const effective_category = categoryFromSlug || categoryFromPath || product_groups || category;
 
         const page = Number(searchParamsFromUrl.get('page')) || 1;
@@ -459,12 +459,12 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         const sort_order = (searchParamsFromUrl.get('sort_order') as typeof searchParams.sort_order) || 'desc';
         const api_provider = searchParamsFromUrl.get('api_provider') || undefined;
 
-        // 更新searchParams状态，使用合并后的分类参数
+        // update searchParams status using merged category params
         setSearchParams(prev => {
             const newParams = {
                 ...prev,
                 brands,
-                product_groups: effective_category, // 使用合并后的分类参数
+                product_groups: effective_category, // Use merged category parameter
                 page,
                 min_price,
                 max_price,
@@ -478,10 +478,10 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             return newParams;
         });
 
-        // 标记URL参数已加载
+        // Mark URL parameters as loaded
         setUrlParamsLoaded(true);
 
-        // 更新临时筛选状态
+        // Updatetemporary filter status
         setDrawerFilters({
             min_price: min_price,
             max_price: max_price,
@@ -492,24 +492,24 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParamsFromUrl, categoryFromSlug, categoryFromPath]);
 
-    // 引入useRouter和usePathname
+    // Import useRouter and usePathname
     const router = useRouter();
-    const pathname = pathname0; // 使用当前页面实际路径
+    const pathname = pathname0; // Use current page actual path
 
-    // 添加useEffect，当searchParams变化时更新URL
+    // AdduseEffect to update URL when searchParams changes
     useEffect(() => {
-        // 创建URL参数对象
+        // create URL parameter object
         const params = new URLSearchParams();
 
-        // 检查当前是否在分类页面（URL包含/category/）
+        // Check if currently on category page (URL contains /category/)
         const isInCategoryPage = pathname.includes('/category/');
 
-        // 仅在非分类页面时添加product_groups参数，避免重复
+        // Add product_groups parameter only on non-category pages to avoid duplication
         if (searchParams.product_groups && !isInCategoryPage) {
             params.set('product_groups', searchParams.product_groups);
         }
 
-        // 其他参数正常添加
+        // Add other parameters normally
         if (searchParams.brands) params.set('brands', searchParams.brands);
         if (searchParams.page > 1) params.set('page', searchParams.page.toString());
         if (searchParams.min_price !== undefined) params.set('min_price', searchParams.min_price.toString());
@@ -520,33 +520,33 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         if (searchParams.sort_order !== 'desc') params.set('sort_order', searchParams.sort_order);
         if (searchParams.api_provider) params.set('api_provider', searchParams.api_provider);
 
-        // 构建查询字符串
+        // Build query string
         const queryString = params.toString();
         const url = queryString ? `${pathname}?${queryString}` : pathname;
 
-        // 使用replace而不是push来更新URL，避免创建太多历史记录
+        // Use replace instead of push to update URL, avoid creating too many history entries
         router.replace(url, { scroll: false });
     }, [searchParams, router, pathname]);
 
-    // 清理URL中的时间戳参数
+    // Clean up timestamp parameter from URL
     useEffect(() => {
         if (typeof window !== 'undefined' && searchParamsFromUrl.has('_ts')) {
-            // 创建一个新的URLSearchParams实例
+            // create a new URLSearchParams instance
             const cleanParams = new URLSearchParams();
 
-            // 复制除了_ts之外的所有参数
+            // copy all parameters except _ts
             searchParamsFromUrl.forEach((value, key) => {
                 if (key !== '_ts') {
                     cleanParams.append(key, value);
                 }
             });
 
-            // 构建干净的URL
+            // Build clean URL
             const cleanUrl = cleanParams.toString()
                 ? `${pathname}?${cleanParams.toString()}`
                 : pathname;
 
-            // 延迟200ms后清理URL，避免干扰初始数据加载
+            // Clean up URL after 200ms delay to avoid interfering with initial data load
             const timeoutId = setTimeout(() => {
                 router.replace(cleanUrl, { scroll: false });
             }, 200);
@@ -555,42 +555,42 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }
     }, [searchParamsFromUrl, router, pathname]);
 
-    // 只有当urlParamsLoaded为true时才获取产品数据，确保使用的是从URL加载的参数
+    // Fetch product data only when urlParamsLoaded is true to ensure URL-loaded params are used
     const { data, isLoading, isError, mutate } = useProducts(urlParamsLoaded ? searchParams : undefined);
     const [isDirectLoading, setIsDirectLoading] = useState(false);
     const [directData, setDirectData] = useState<ProductsApiResponse | null>(null);
 
-    // 在searchParams变化后，明确触发数据刷新
+    // Explicitly trigger data refresh after searchParams change
     useEffect(() => {
         if (urlParamsLoaded && mutate) {
-            // 添加短暂延迟，确保URL已更新完成
+            // Addbrief delay to ensure URL update is complete
             setTimeout(() => {
                 mutate();
             }, 50);
         }
     }, [searchParams, urlParamsLoaded, mutate]);
 
-    // 如果SWR获取失败，尝试直接使用fetch获取
+    // If SWR fetch fails, try fetching directly
     useEffect(() => {
         const fetchDirectlyIfNeeded = async () => {
             if ((isError || (!data && !isLoading)) && !isDirectLoading) {
                 try {
                     setIsDirectLoading(true);
 
-                    // 创建参数对象，转换参数名
+                    // create parameter object, converting parameter names
                     const apiParams: ApiParams = { ...searchParams };
 
                     if (searchParams.limit) apiParams.page_size = searchParams.limit;
                     delete apiParams.limit;
 
-                    // 移除空的参数
+                    // remove empty parameters
                     if (apiParams.brands === '') delete apiParams.brands;
                     if (apiParams.product_groups === '') delete apiParams.product_groups;
 
-                    // 使用新的缓存路由端点
+                    // Use new cached route endpoint
                     const queryParams = new URLSearchParams();
 
-                    // 添加所有有效参数
+                    // Addall valid parameters
                     Object.entries(apiParams)
                         .filter(([_, value]) => value !== undefined && value !== null)
                         .forEach(([key, value]) => {
@@ -600,33 +600,33 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                     const queryString = queryParams.toString();
                     const url = `/api/products/list${queryString ? `?${queryString}` : ''}`;
 
-                    // 发起请求
+                    // Make request
                     const response = await fetch(url);
 
-                    // 检查响应头中的缓存状态
+                    // Check cache status in response headers
                     if (response.ok) {
                         const responseData = await response.json();
 
-                        // 处理可能的不同响应格式
+                        // Handle possible different response formats
                         let processedData;
 
                         if (responseData.success && responseData.data && typeof responseData.data === 'object') {
-                            // 嵌套结构 { success: true, data: { items: [...], total: ... } }
+                            // Nested structure { success: true, data: { items: [...], total: ... } }
                             processedData = responseData;
                         } else if (responseData.items) {
-                            // 直接结构 { items: [...], total: ... }
+                            // Direct structure { items: [...], total: ... }
                             processedData = {
                                 success: true,
                                 data: responseData
                             };
                         } else if (responseData.data && responseData.data.items) {
-                            // 嵌套结构 { data: { items: [...], total: ... } }
+                            // Nested structure { data: { items: [...], total: ... } }
                             processedData = {
                                 success: true,
                                 data: responseData.data
                             };
                         } else {
-                            // 未知结构，使用空结果
+                            // Unknown structure, use empty result
                             processedData = {
                                 success: true,
                                 data: {
@@ -640,7 +640,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
 
                         setDirectData(processedData);
 
-                        // 获取并更新缓存状态
+                        // Get and update cache status
                         const isCached = response.headers.get('X-Cache-Source') === 'cache-hit';
                         const responseTime = parseInt(response.headers.get('X-Response-Time') || '0');
                         const expires = response.headers.get('X-Cache-Expires') || '';
@@ -652,7 +652,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                         });
                     }
                 } catch {
-                    // 错误处理
+                    // Error handling
                     setCacheStatus(null);
                 } finally {
                     setIsDirectLoading(false);
@@ -662,16 +662,16 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
 
         fetchDirectlyIfNeeded();
 
-        // 每当searchParams变化时，重置directData，确保会获取新数据
+        // Reset directData whenever searchParams changes to ensure new data is fetched
         setDirectData(null);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isError, data, isLoading, searchParams]);
 
-    // 添加页面加载完成事件
+    // Add page load complete event
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const handleLoad = () => {
-                // 页面完全加载后，额外进行一次数据刷新
+                // After page fully loads, perform an extra data refresh
                 if (mutate) {
                     setTimeout(() => mutate(), 100);
                 }
@@ -683,19 +683,19 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }
     }, [mutate]);
 
-    // 将API产品数据适配为组件所需的格式
+    // Adapt API product data to format needed by component
     const adaptedProducts = useMemo(() => {
-        // 优先使用SWR数据，如果没有则使用直接获取的数据
+        // Prefer SWR data, fall back to directly fetched data
         let sourceData;
 
-        // 处理SWR数据
+        // Handle SWR data
         if (data) {
             const typedData = data as ProductsApiResponse;
 
             sourceData = typedData.items;
         }
 
-        // 如果没有SWR数据，使用直接获取的数据
+        // If no SWR data, use directly fetched data
         if (!sourceData && directData) {
             const typedDirectData = directData as ProductsApiResponse;
 
@@ -713,7 +713,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         return adaptProducts(sourceData);
     }, [data, directData]);
 
-    // 获取总商品数量，支持不同的数据结构
+    // Get total product count, support different data structures
     const getTotalProducts = () => {
         if (data) {
             const typedData = data as ProductsApiResponse;
@@ -738,36 +738,36 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         return 0;
     };
 
-    // 处理分类点击
+    // Handle category click
     const handleCategoryClick = useCallback((category: string) => {
-        // 先更新内部状态
+        // Update internal status first
         setSearchParams(prev => ({
             ...prev,
             product_groups: category || '',
             page: 1
         }));
 
-        // 构建新的URL路径
+        // Build new URL path
         const newPath = category
             ? `/product/category/${encodeURIComponent(category)}`
             : '/product';
 
-        // 直接操作URL，使用最简单的方法
+        // Manipulate URL directly using simplest method
         if (typeof window !== 'undefined') {
             try {
-                // 方法1：直接替换URL，强制更新
+                // Method 1: Replace URL directly, force update
                 window.history.replaceState(
                     { as: newPath, url: newPath },
                     '',
                     newPath
                 );
 
-                // 方法2：延迟执行router.replace，确保它是最后一个执行的导航
+                // Method 2: Delay router.replace to ensure it is the last navigation executed
                 setTimeout(() => {
                     router.replace(newPath, { scroll: false });
                 }, 50);
             } catch {
-                // 如果出错，使用最直接的方法
+                // If error, use most direct approach
                 window.location.href = newPath;
             }
         }
@@ -777,7 +777,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }
     }, [router, setSearchParams, catalogRef]);
 
-    // 处理分页
+    // Handle pagination
     const handlePageChange = useCallback((page: number) => {
         setSearchParams(prev => ({ ...prev, page }));
 
@@ -789,22 +789,22 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }
     }, [setSearchParams, catalogRef]);
 
-    // 处理筛选条件变更
+    // Handle filter condition change
     const handleFilterChange = useCallback((filters: FilterParams) => {
-        // 移除不支持的参数，但保留api_provider
+        // remove unsupported parameters but keep api_provider
         const { min_commission: _min_commission, min_rating: _min_rating, ...validFilters } = filters;
 
-        // 创建新的筛选器对象，确保类型兼容
+        // create new filter object, ensuring type compatibility
         const newFilters: Partial<typeof searchParams> = {};
 
-        // 手动处理每个属性，确保类型兼容
+        // Manually handle each attribute to ensure type compatibility
         if (validFilters.min_price !== undefined) newFilters.min_price = validFilters.min_price;
         if (validFilters.max_price !== undefined) newFilters.max_price = validFilters.max_price;
         if (validFilters.min_discount !== undefined) newFilters.min_discount = validFilters.min_discount;
         if (validFilters.is_prime_only !== undefined) newFilters.is_prime_only = validFilters.is_prime_only;
         if (validFilters.api_provider !== undefined) newFilters.api_provider = validFilters.api_provider;
 
-        // 确保品牌参数为字符串类型
+        // Ensure brand parameter is string type
         if (validFilters.brands) {
             newFilters.brands = Array.isArray(validFilters.brands)
                 ? validFilters.brands.join(',')
@@ -818,9 +818,9 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }));
     }, []);
 
-    // 关闭抽屉函数
+    // Close drawer function
     const closeDrawer = useCallback(() => {
-        // 应用当前抽屉中的筛选条件
+        // Apply filter conditions in current drawer
         if (drawerFilters) {
             handleFilterChange(drawerFilters);
         }
@@ -837,18 +837,18 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         }
     }, [drawerFilters, handleFilterChange]);
 
-    // 渲染单个商品
+    // Render individual product
     const renderProduct = (product: ComponentProduct) => {
-        // 处理折扣和优惠券逻辑
+        // Handle discount and coupon logic
         const hasCoupon = product.couponType && product.couponValue;
         const hasDiscount = product.discount > 0;
         const discountLabel = hasDiscount ? `-${Math.round(product.discount)}%` : '';
         let couponLabel = '';
 
-        // 直接使用API适配后的originalPrice，不再需要复杂计算
+        // Use API-adapted originalPrice directly, no complex calculation needed
         const calculatedOriginalPrice = product.originalPrice;
 
-        // 处理优惠券标签
+        // Handle coupon badge
         if (hasCoupon) {
             if (product.couponType === 'percentage') {
                 couponLabel = `-${product.couponValue}%`;
@@ -857,10 +857,10 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             }
         }
 
-        // 判断是否有任何形式的折扣
+        // Check if there is any form of discount
         const hasAnyDiscount = hasDiscount || hasCoupon;
 
-        // 计算折扣百分比用于标签颜色样式
+        // Calculate discount percentage for badge color styles
         let discountBadgeClass = 'bg-primary-badge';
 
         if (hasDiscount) {
@@ -879,7 +879,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                 transition={{ duration: 0.3 }}
                 className="relative group h-full"
             >
-                {/* 收藏按钮 */}
+                {/* Favorite button */}
                 <div
                     className="absolute top-3 right-3 z-20"
                     onClick={(e) => e.stopPropagation()}
@@ -914,7 +914,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                             </div>
                         )}
 
-                        {/* 图片容器固定比例 */}
+                        {/* Image container fixed aspect ratio */}
                         <div className="relative w-full aspect-[1/1] bg-white dark:bg-gray-800 pt-0.5 pb-0">
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
@@ -932,16 +932,16 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                             </motion.div>
                         </div>
 
-                        {/* 内容区域 */}
+                        {/* Content area */}
                         <div className="pl-3 pr-3 flex-grow flex flex-col">
-                            {/* 品牌信息和StoreIdentifier放在同一行 */}
+                            {/* Brand info and StoreIdentifier on same line */}
                             <div className="flex items-center justify-between mb-1.5">
                                 {product.brand ? (
                                     <span className="text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded inline-block">
                                         {product.brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                                     </span>
                                 ) : (
-                                    <div /> /* 占位空元素，确保右对齐 */
+                                    <div /> /* Placeholder empty element to ensure right alignment */
                                 )}
                                 <StoreIdentifier
                                     url={product.cj_url || product.url || ''}
@@ -954,7 +954,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                                 {product.title.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                             </h3>
 
-                            {/* 价格和折扣 */}
+                            {/* Price and discount */}
                             <div className="flex items-center justify-between mt-1 mb-2">
                                 <div className="flex items-baseline min-w-0 overflow-hidden mr-2">
                                     <span className="text-lg font-semibold text-primary dark:text-primary-light whitespace-nowrap">
@@ -994,7 +994,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         );
     };
 
-    // 渲染产品列表内容
+    // Render product list content
     const renderProductList = (products: ComponentProduct[]) => (
         <AnimatePresence mode="wait">
             <motion.div
@@ -1049,7 +1049,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
 
     const skeletonIds = useMemo(() => Array.from({ length: 15 }, (_, index) => `skeleton-${index}`), []);
 
-    // 渲染骨架屏
+    // Render skeleton screen
     const renderSkeletons = () => (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {skeletonIds.map((id) => (
@@ -1058,48 +1058,48 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
         </div>
     );
 
-    // 添加事件监听器来处理筛选器内部按钮点击
+    // Addevent listener to handle button clicks inside the filter
     useEffect(() => {
         const handleFilterButtonClick = (event: MouseEvent) => {
-            // 检查点击的元素是否是按钮
+            // Check if clicked element is a button
             const target = event.target as HTMLElement;
 
-            // 查找最近的按钮元素
+            // Find nearest button element
             const button = target.closest('button');
 
             if (!button) return;
 
-            // 判断点击的是否是"Apply Filters"按钮
+            // Check if the clicked element is the "Apply Filters" button
             const isApplyButton = button.textContent?.trim() === 'Apply Filters';
 
-            // 检查按钮是否在移动端或平板端筛选器内
+            // Check if button is inside mobile/tablet filter
             const isMobileFilter = !!button.closest('#mobile-filter');
             const isTabletFilter = !!button.closest('#tablet-filter');
 
-            // 如果是在移动端或平板端筛选器内点击了"Apply Filters"按钮，则关闭抽屉
+            // If "Apply Filters" button clicked inside mobile/tablet filter, close drawer
             if (isApplyButton && (isMobileFilter || isTabletFilter)) {
-                // 给一点延时，确保筛选条件已更新
+                // Add a short delay to ensure filter conditions have been updated
                 setTimeout(closeDrawer, 100);
             }
         };
 
-        // 添加事件监听器
+        // Addevent listener
         document.addEventListener('click', handleFilterButtonClick);
 
-        // 清理函数
+        // Cleanup function
         return () => {
             document.removeEventListener('click', handleFilterButtonClick);
         };
-    }, [closeDrawer]);// 添加closeDrawer依赖
+    }, [closeDrawer]);// Add closeDrawer dependency
 
     return (
         <div className="min-h-screen pb-20">
             <LiquidFilter />
 
-            {/* 返回顶部按钮 */}
+            {/* Back to top button */}
             <ScrollToTopButton />
 
-            {/* 英雄区块与动画SVG插图 - 优化移动端显示 */}
+            {/* Hero section with animated SVG illustration — optimized for mobile */}
             <section className="relative h-[30vh] md:h-[35vh] min-h-[300px] md:min-h-[400px] w-[100vw] left-[calc(-50vw+50%)] right-0 overflow-hidden bg-gradient-to-br from-[#1B5479] to-[#287EB7]">
                 <motion.div
                     className="absolute inset-0 bg-[url('/images/dot-pattern.svg')] opacity-10"
@@ -1141,7 +1141,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                 </div>
             </section>
 
-            {/* 分类导航 - 设备响应式设计 */}
+            {/* Category navigation - responsive design */}
             <motion.header
                 className="sticky top-0 z-[60] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-sm"
                 style={{
@@ -1153,9 +1153,9 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
             >
                 <div className="w-full relative bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
                     <div className="container mx-auto relative">
-                        {/* 移动端和平板端导航 - 左右滑动 */}
+                        {/* Mobile and tablet navigation — swipe left/right */}
                         <div className="md:hidden">
-                            {/* 左右滑动箭头 */}
+                            {/* Left/right swipe arrows */}
                             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 flex items-center h-full">
                                 <button
                                     className="h-full px-2 flex items-center justify-center bg-gradient-to-r from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent"
@@ -1190,7 +1190,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                                 </button>
                             </div>
 
-                            {/* 滚动区域 */}
+                            {/* Scroll area */}
                             <div className="overflow-x-auto scrollbar-hide px-8 py-2 categories-scroll-container">
                                 <ProductCategoryNav
                                     selectedCategory={searchParams.product_groups || ''}
@@ -1199,7 +1199,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                                 />
                             </div>
 
-                            {/* 滚动指示器 */}
+                            {/* Scroll indicator */}
                             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-0.5 flex items-center justify-center space-x-1 mb-1">
                                 <div className="w-6 h-0.5 bg-green-500 rounded-full" />
                                 <div className="w-2 h-0.5 bg-gray-300 dark:bg-gray-700 rounded-full" />
@@ -1207,7 +1207,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                             </div>
                         </div>
 
-                        {/* 桌面端导航 - 展开收起 */}
+                        {/* Desktop navigation — expand/collapse */}
                         <div className="hidden md:block px-4 py-2">
                             <ProductCategoryNav
                                 selectedCategory={searchParams.product_groups || ''}
@@ -1219,10 +1219,10 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                 </div>
             </motion.header>
 
-            {/* 商品列表区域 - 响应式布局 */}
+            {/* Product list area - responsive layout */}
             <section ref={catalogRef} className="max-w-[1800px] mx-auto overflow-visible">
                 <div ref={mainContentRef} className="flex relative">
-                    {/* 桌面端左侧筛选器 */}
+                    {/* Desktop left-side filter */}
                     <div className="hidden lg:block w-[280px] flex-shrink-0">
                         <div
                             ref={sidebarRef}
@@ -1244,9 +1244,9 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                         </div>
                     </div>
 
-                    {/* 右侧商品列表区域 */}
+                    {/* Right-side product list area */}
                     <main className="flex-1 min-h-screen w-full px-4 py-6 md:py-12" ref={mainContentRef}>
-                        {/* 移动端筛选器按钮 */}
+                        {/* Mobile filter button */}
                         <div className="lg:hidden mb-4">
                             <button
                                 className="w-full py-3 px-4 sm:py-4 sm:rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-xl shadow-md flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -1289,11 +1289,11 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                             {(products) => (
                                 <>
                                     {renderProductList(products)}
-                                    {/* 分页区域作为滚动边界 */}
+                                    {/* Pagination area as scroll boundary */}
                                     <div ref={paginationRef} className="mt-8">
-                                        {/* 分页组件 */}
+                                        {/* Pagination component */}
                                         <div className="flex justify-center space-x-2">
-                                            {/* ... 分页按钮 ... */}
+                                            {/* ... pagination buttons ... */}
                                         </div>
                                     </div>
                                 </>
@@ -1302,7 +1302,7 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                     </main>
                 </div>
             </section>
-            {/* 遮罩层 */}
+            {/* Overlay */}
             <div
                 id="drawer-overlay"
                 className="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 z-[998]"
@@ -1336,12 +1336,12 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                 tabIndex={0}
                 aria-label="Close filter drawer"
             />
-            {/* 移动端筛选器抽屉 */}
+            {/* Mobile filter drawer */}
             <div
                 id="mobile-filter-drawer"
                 className="fixed bottom-0 inset-x-0 z-[999] bg-white dark:bg-gray-800 rounded-t-2xl shadow-lg transform translate-y-full transition-transform duration-300 max-h-[90vh] overflow-y-auto"
             >
-                {/* 抽屉头部 */}
+                {/* Drawer header */}
                 <div className="sticky top-0 bg-white dark:bg-gray-800 px-4 py-3 border-b dark:border-gray-700 flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h3>
                     <button
@@ -1364,14 +1364,14 @@ function ProductsContent({ categoryFromSlug }: { categoryFromSlug?: string } = {
                         </svg>
                     </button>
                 </div>
-                {/* 抽屉内容 */}
+                {/* Drawer content */}
                 <div className="p-4">
                     <ProductFilter
                         onFilter={(newFilters) => {
                             setDrawerFilters(newFilters as DrawerFilters);
                             handleFilterChange(newFilters as DrawerFilters);
 
-                            // 关闭抽屉
+                            // close drawer
                             const drawerElem = document.getElementById('mobile-filter-drawer');
                             const overlayElem = document.getElementById('drawer-overlay');
 

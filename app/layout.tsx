@@ -16,7 +16,7 @@ const geist = Geist({
 
 });
 
-// 从环境变量获取验证ID
+// Get verification ID from environment variables
 const BING_WEBMASTER_ID = process.env.NEXT_PUBLIC_BING_WEBMASTER_ID || '';
 const IMPACT_SITE_VERIFICATION = process.env.NEXT_PUBLIC_IMPACT_SITE_VERIFICATION || '';
 
@@ -39,18 +39,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 预加载会话信息
+  // Preload session info
   const session = await auth();
 
   return (
     <html lang="en" suppressHydrationWarning className={geist.className}>
       <head>
-        {/* 注入头部自定义脚本 */}
+        {/* Inject custom scripts in head */}
         <HeadScripts />
       </head>
       <body>
         <GoogleTagManager />
-        {/* 注入body开始处自定义脚本 */}
+        {/* Inject custom scripts at the beginning of body */}
         <BodyStartScripts />
         <ClientLayout session={session}>
           {children}
@@ -59,7 +59,7 @@ export default async function RootLayout({
         </ClientLayout>
         <Analytics />
         <SpeedInsights />
-        {/* 注入body结束处自定义脚本 */}
+        {/* Inject custom scripts at the end of body */}
         <BodyEndScripts />
       </body>
     </html>

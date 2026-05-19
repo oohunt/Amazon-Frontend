@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 
-// 处理HTML文件上传
+// Handle HTML file upload
 export async function POST(request: Request) {
     try {
-        // 使用Web标准的FormData API处理上传的文件
+        // Use standard Web FormData API to handle uploaded files
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 检查文件类型
+        // Check file type
         const fileType = file.type;
 
         if (fileType !== 'text/html' && !fileType.includes('html')) {
@@ -24,10 +24,10 @@ export async function POST(request: Request) {
             );
         }
 
-        // 获取文件内容
+        // Get file content
         const fileContent = await file.text();
 
-        // 检查内容是否为有效的HTML
+        // Check if content is valid HTML
         if (!fileContent.includes('<!DOCTYPE html>') && !fileContent.includes('<html') && !fileContent.includes('<body')) {
             return NextResponse.json(
                 { success: false, message: 'The file content is not a valid HTML' },
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // 返回HTML内容
+        // return HTML content
         return NextResponse.json({
             success: true,
             message: 'HTML file uploaded successfully',

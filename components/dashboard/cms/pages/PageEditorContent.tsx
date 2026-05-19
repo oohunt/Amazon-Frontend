@@ -30,8 +30,8 @@ interface FormData {
 }
 
 /**
- * 内容页面编辑组件
- * 用于创建和编辑内容页面
+ * Content page editor component
+ * For creating and editing content pages
  */
 const PageEditorContent = () => {
     const router = useRouter();
@@ -54,7 +54,7 @@ const PageEditorContent = () => {
     const [categorySearch, setCategorySearch] = useState('');
     const [tagSearch, setTagSearch] = useState('');
 
-    // 页面表单状态
+    // Page form status
     const [formData, setFormData] = useState<FormData>({
         title: '',
         slug: '',
@@ -66,7 +66,7 @@ const PageEditorContent = () => {
         metaKeywords: ''
     });
 
-    // 根据路由参数确定模式
+    // Determine mode based on route parameters
     useEffect(() => {
         if (params?.id) {
             setMode('edit');
@@ -74,18 +74,18 @@ const PageEditorContent = () => {
         }
     }, [params]);
 
-    // 加载页面数据
+    // Load page data
     const loadPage = async (id: string) => {
         setLoadingPage(true);
         setLoadError(null);
         try {
             const response = await cmsApi.getPageById(id);
 
-            // 添加详细日志输出，帮助调试
+            // Adddetailed log output for debugging
 
-            // 检查响应结构，增强健壮性
+            // Check response structure for enhanced robustness
             if (response?.data) {
-                // 允许状态码为200或其他成功状态码(2xx)
+                // Allow status code 200 or other success codes (2xx)
                 const isSuccessStatus = response.data.status >= 200 && response.data.status < 300;
 
                 if (isSuccessStatus && response.data.data) {
@@ -123,7 +123,7 @@ const PageEditorContent = () => {
         }
     };
 
-    // 加载可用的分类和标签
+    // Load available categories and tags
     useEffect(() => {
         const loadCategoriesAndTags = async () => {
             try {
@@ -140,14 +140,14 @@ const PageEditorContent = () => {
                     setAvailableTags(tagsResponse.data.data.tags);
                 }
             } catch {
-                // 静默处理错误，不影响主要功能
+                // Silently handle error, does not affect main functionality
             }
         };
 
         loadCategoriesAndTags();
     }, []);
 
-    // 使用 useCallback 包装 handleSubmit 函数以避免不必要的重新创建
+    // Wrap handleSubmit with useCallback to avoid unnecessary re-creation
     const handleSubmit = useCallback(async (e?: React.FormEvent) => {
         if (e) {
             e.preventDefault();
@@ -202,13 +202,13 @@ const PageEditorContent = () => {
             }
 
             if (response.data?.status === 200) {
-                // 显示成功提示
+                // Show success toast
                 showSuccessToast({
                     title: "Save Successful",
                     description: params.id ? "Page has been updated successfully" : "Page has been created successfully",
                 });
 
-                // 导航回页面列表
+                // Navigate back to page list
                 router.push('/dashboard/cms/pages');
             } else {
                 throw new Error(response.data?.message || 'Failed to save page');
@@ -225,11 +225,11 @@ const PageEditorContent = () => {
         }
     }, [formData, categories, tags, featuredImage, session, params, router]);
 
-    // 使用 useEffect 设置顶部保存按钮，不依赖 handleSubmit
+    // Use useEffect to set up top save button, independent of handleSubmit
     useEffect(() => {
-        // 只在非预览模式和有表单数据时显示保存按钮
+        // Show save button only in non-preview mode when form data exists
         if (!isPreviewActive) {
-            // 创建保存按钮元素
+            // create save button element
             const saveButtonElement = (
                 <button
                     type="button"
@@ -243,20 +243,20 @@ const PageEditorContent = () => {
                 </button>
             );
 
-            // 设置保存按钮
+            // Set up save button
             setSaveButton(saveButtonElement);
         } else {
-            // 预览模式下移除保存按钮
+            // remove save button in preview mode
             setSaveButton(null);
         }
 
-        // 在组件卸载时清除保存按钮
+        // Clear save button when component unmounts
         return () => {
             setSaveButton(null);
         };
     }, [isSubmitting, loadingPage, isPreviewActive, setSaveButton, handleSubmit]);
 
-    // 阻止Enter键提交表单
+    // Prevent Enter key from submitting form
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
             if (e.target.type !== 'textarea') {
@@ -265,7 +265,7 @@ const PageEditorContent = () => {
         }
     };
 
-    // 处理标题变更并自动生成slug
+    // Handle title change and auto-generate slug
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newTitle = e.target.value;
 
@@ -282,7 +282,7 @@ const PageEditorContent = () => {
         }
     };
 
-    // 处理slug变更
+    // Handle slug change
     const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newSlug = e.target.value;
 
@@ -295,7 +295,7 @@ const PageEditorContent = () => {
         setFormData(prev => ({ ...prev, slug: sanitizedSlug }));
     };
 
-    // 处理摘要变更并自动更新元描述
+    // Handle summary change and auto-update meta description
     const handleExcerptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newExcerpt = e.target.value;
 
@@ -306,12 +306,12 @@ const PageEditorContent = () => {
         }
     };
 
-    // 获取编辑器实例
+    // Get editor instance
     const handleEditorReady = (editor: Editor) => {
         editorInstance.current = editor;
     };
 
-    // 处理创建新分类
+    // Handle creating new category
     const handleCreateCategory = async (name: string): Promise<void> => {
         try {
             const response = await cmsApi.createCategory({ name, slug: generateSlug(name) });
@@ -325,11 +325,11 @@ const PageEditorContent = () => {
                 }
             }
         } catch {
-            // 静默处理错误
+            // Silently handle error
         }
     };
 
-    // 处理创建新标签
+    // Handle creating new tag
     const handleCreateTag = async (name: string): Promise<void> => {
         try {
             const response = await cmsApi.createTag({ name, slug: generateSlug(name) });
@@ -343,11 +343,11 @@ const PageEditorContent = () => {
                 }
             }
         } catch {
-            // 静默处理错误
+            // Silently handle error
         }
     };
 
-    // 渲染加载状态
+    // Render loading status
     if (mode === 'edit' && loadingPage) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -357,7 +357,7 @@ const PageEditorContent = () => {
         );
     }
 
-    // 渲染加载错误
+    // Render loading error
     if (mode === 'edit' && loadError) {
         return (
             <div className="text-center py-12">
@@ -374,9 +374,9 @@ const PageEditorContent = () => {
         );
     }
 
-    // 切换预览模式
+    // Toggle preview mode
     const togglePreview = () => {
-        // 如果是新建页面且未保存，则不允许预览
+        // If new page and not saved, preview not allowed
         if (mode === 'create' && !params.id && !formData.slug) {
             showErrorToast({
                 title: "Cannot preview",
@@ -389,7 +389,7 @@ const PageEditorContent = () => {
         setIsPreviewActive(!isPreviewActive);
     };
 
-    // 生成预览链接
+    // Generate preview link
     const generatePreviewLink = () => {
         if (!formData.slug) {
             showErrorToast({
@@ -400,11 +400,11 @@ const PageEditorContent = () => {
             return;
         }
 
-        // 构建预览链接，使用?preview=true参数
+        // Build preview link using ?preview=true parameter
         const baseUrl = window.location.origin;
         const previewUrl = `${baseUrl}/blog/${formData.slug}?preview=true`;
 
-        // 复制链接到剪贴板
+        // copy link to clipboard
         navigator.clipboard.writeText(previewUrl)
             .then(() => {
                 showSuccessToast({
@@ -422,7 +422,7 @@ const PageEditorContent = () => {
         return previewUrl;
     };
 
-    // 渲染页面预览
+    // Render page preview
     const renderPreview = () => {
         if (!formData.content) {
             return (
@@ -434,7 +434,7 @@ const PageEditorContent = () => {
 
         return (
             <div className="rounded-lg shadow bg-white">
-                {/* 添加在新窗口中查看的按钮 - 仅当有slug时显示 */}
+                {/* Add 'view in new window' button — shown only when slug exists */}
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                     <div>
                         {!formData.slug && (
@@ -473,7 +473,7 @@ const PageEditorContent = () => {
         );
     };
 
-    // 底部保存按钮的渲染
+    // Render bottom save button
     const renderSaveButton = () => {
         return (
             <div className="flex justify-end">
@@ -505,7 +505,7 @@ const PageEditorContent = () => {
                     </h1>
                 </div>
                 <div className="flex space-x-2">
-                    {/* 预览链接按钮 - 仅对已有slug的页面显示 */}
+                    {/* Preview link button — shown only for pages with a slug */}
                     {formData.slug && (formData.status === 'draft' || mode === 'create') && (
                         <button
                             type="button"
@@ -545,7 +545,7 @@ const PageEditorContent = () => {
                 <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Left Column: Title and Editor */}
                     <div className="md:col-span-2 space-y-6">
-                        {/* 标题输入 */}
+                        {/* Title input */}
                         <div>
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                                 Title
@@ -561,7 +561,7 @@ const PageEditorContent = () => {
                             />
                         </div>
 
-                        {/* 内容编辑器 */}
+                        {/* Content editor */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Content
@@ -578,7 +578,7 @@ const PageEditorContent = () => {
 
                     {/* Right Column: Sidebar Elements */}
                     <div className="md:col-span-1 space-y-6">
-                        {/* 状态选择 */}
+                        {/* Status selection */}
                         <div>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
                                 Page Status
@@ -595,7 +595,7 @@ const PageEditorContent = () => {
                             </select>
                         </div>
 
-                        {/* URL路径输入 */}
+                        {/* URL path input */}
                         <div>
                             <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-1">
                                 URL Path
@@ -622,7 +622,7 @@ const PageEditorContent = () => {
                             )}
                         </div>
 
-                        {/* 特色图片 */}
+                        {/* Featured image */}
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image</label>
                             <CoverImageUploader
@@ -631,7 +631,7 @@ const PageEditorContent = () => {
                             />
                         </div>
 
-                        {/* 分类选择 */}
+                        {/* Category selection */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Categories</label>
                             <div className="flex flex-wrap gap-2 mb-2">
@@ -681,7 +681,7 @@ const PageEditorContent = () => {
                             </Autocomplete>
                         </div>
 
-                        {/* 标签选择 */}
+                        {/* Tag selection */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Tags</label>
                             <div className="flex flex-wrap gap-2 mb-2">
@@ -731,7 +731,7 @@ const PageEditorContent = () => {
                             </Autocomplete>
                         </div>
 
-                        {/* 摘要输入 */}
+                        {/* Summary input */}
                         <div>
                             <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-1">
                                 Excerpt (for SEO description)
@@ -746,7 +746,7 @@ const PageEditorContent = () => {
                             />
                         </div>
 
-                        {/* SEO 元数据部分 */}
+                        {/* SEO metadata section */}
                         <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
                             <h3 className="text-md font-medium mb-3">SEO Metadata Settings</h3>
                             <div className="space-y-4">
@@ -799,7 +799,7 @@ const PageEditorContent = () => {
                         </div>
                     </div>
 
-                    {/* 底部保存按钮 - 确保在 grid 内部并跨越列 */}
+                    {/* Bottom save button - ensure inside grid and spanning columns */}
                     <div className="md:col-span-3 flex justify-end">
                         {renderSaveButton()}
                     </div>

@@ -22,7 +22,7 @@ const ProductsPageContent = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [renderedRowCount, setRenderedRowCount] = useState(100); // 将初始渲染行数改为100
+    const [renderedRowCount, setRenderedRowCount] = useState(100); // Change initial render row count to 100
     const [error, setError] = useState<string | null>(null);
     const [screenSize, setScreenSize] = useState<'xs' | 'sm' | 'md' | 'lg' | 'xl'>('xl');
     const [sortField, setSortField] = useState<string | null>(null);
@@ -31,13 +31,13 @@ const ProductsPageContent = () => {
     const rowObserverRef = useRef<IntersectionObserver | null>(null);
     const lastRowRef = useRef<HTMLTableRowElement | null>(null);
 
-    // 新增变量用于处理分批加载
-    const [batchLoading, setBatchLoading] = useState(false); // 是否正在加载下一批数据
-    const [_loadedBatches, setLoadedBatches] = useState(1); // 已加载的批次
-    const [allBatchesLoaded, setAllBatchesLoaded] = useState(false); // 是否已加载所有批次
-    const [batchedProducts, setBatchedProducts] = useState<Product[]>([]); // 所有批次合并的产品列表
+    // Add new variables for batch loading
+    const [batchLoading, setBatchLoading] = useState(false); // Whether next batch is loading
+    const [_loadedBatches, setLoadedBatches] = useState(1); // Loaded batches
+    const [allBatchesLoaded, setAllBatchesLoaded] = useState(false); // Whether all batches have been loaded
+    const [batchedProducts, setBatchedProducts] = useState<Product[]>([]); // Combined product list from all batches
 
-    // 新增状态变量
+    // Add new status variable
     const [searchMode, setSearchMode] = useState<'browse' | 'search'>('browse');
     const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
     const [minPrice, setMinPrice] = useState<number | undefined>(undefined);
@@ -48,7 +48,7 @@ const ProductsPageContent = () => {
     const [searchParams, setSearchParams] = useState({
         keyword: '',
         page: 1,
-        page_size: 100, // 固定为100
+        page_size: 100, // Fixed at 100
         sort_by: sortField as 'relevance' | 'price' | 'discount' | 'created' | undefined,
         sort_order: 'desc' as 'asc' | 'desc',
         min_price: undefined as number | undefined,
@@ -60,12 +60,12 @@ const ProductsPageContent = () => {
         api_provider: apiProvider,
     });
 
-    // 创建一个防抖搜索函数
+    // create a debounced search function
     const debouncedSearchRef = useRef(
         debounce((term: string, currentKeyword: string, setParams: React.Dispatch<React.SetStateAction<typeof searchParams>>, setPage: React.Dispatch<React.SetStateAction<number>>, setMode: React.Dispatch<React.SetStateAction<'browse' | 'search'>>) => {
             if (term.trim() && term.trim() !== currentKeyword) {
                 setParams(prev => ({ ...prev, keyword: term.trim(), page: 1 }));
-                setPage(1); // 重置页码
+                setPage(1); // Reset page number
                 setMode('search');
             } else if (!term.trim()) {
                 setMode('browse');
@@ -73,27 +73,27 @@ const ProductsPageContent = () => {
         }, 500)
     );
 
-    // 包装函数以正确传递当前参数
+    // Wrap function to correctly pass current parameters
     const handleSearch = useCallback((term: string) => {
         debouncedSearchRef.current(term, searchParams.keyword, setSearchParams, setCurrentPage, setSearchMode);
     }, [searchParams.keyword]);
 
-    // 使用hooks加载数据
-    // 浏览模式 - 使用原有的useProducts hook，但始终限制每次请求最多100条
+    // Use hooks to load data
+    // Browse mode — use original useProducts hook but always limit to max 100 per request
     const { data: productsData, isLoading: browseLoading, mutate: mutateBrowseData } = useProducts({
         page: currentPage,
-        limit: 100, // 一律设置为100，无论itemsPerPage是多少
+        limit: 100, // Always set to 100 regardless of itemsPerPage
         api_provider: apiProvider,
         sort_by: sortField as 'price' | 'discount' | 'created' | 'all' | undefined,
         sort_order: sortDirection
     });
 
-    // 搜索模式 - 使用新的useProductSearch hook，同样限制每次最多100条
+    // Search mode — use new useProductSearch hook, also limit to max 100 per request
     const { data: searchData, isLoading: searchLoading, mutate: mutateSearchData } = useProductSearch(
         searchMode === 'search' ? { ...searchParams, page_size: 100 } : { keyword: '' }
     );
 
-    // 确定使用哪种数据源
+    // Determine which data source to use
     const loading = searchMode === 'search' ? searchLoading : browseLoading;
     const initialProducts = useMemo(() =>
         searchMode === 'search'
@@ -111,12 +111,12 @@ const ProductsPageContent = () => {
         : (productsData?.total || 0);
     const mutate = searchMode === 'search' ? mutateSearchData : mutateBrowseData;
 
-    // 完全重写loadNextBatch函数，确保在用户选择大量每页项目时正确分批加载
+    // Completely rewrite loadNextBatch function to correctly batch load when user selects large items per page
     const loadNextBatch = useCallback(async () => {
-        // 如果当前正在加载，或者已经加载完所有批次，或者不需要分批加载，则直接返回
+        // If currently loading, all batches loaded, or batch loading not needed, return directly
         if (batchLoading || allBatchesLoaded || itemsPerPage <= 100) return;
 
-        // 如果已经加载的数量达到或超过了每页要显示的数量，也不需要再加载
+        // If loaded count reaches or exceeds display count per page, no need to load more
         if (batchedProducts.length >= itemsPerPage) {
             setAllBatchesLoaded(true);
 
@@ -126,11 +126,11 @@ const ProductsPageContent = () => {
         setBatchLoading(true);
 
         try {
-            // 计算下一个要加载的批次页码
+            // Calculate next batch page number to load
             const nextBatchPage = Math.floor(batchedProducts.length / 100) + 1;
             const maxBatches = Math.ceil(itemsPerPage / 100);
 
-            // 如果已经加载了所有批次，则停止
+            // If all batches already loaded, stop
             if (nextBatchPage > maxBatches) {
                 setAllBatchesLoaded(true);
                 setBatchLoading(false);
@@ -141,19 +141,19 @@ const ProductsPageContent = () => {
 
             let newItems: Product[] = [];
 
-            // 根据当前模式选择正确的API调用
+            // Select correct API call based on current mode
             if (searchMode === 'search') {
-                // 搜索模式下使用searchProducts API
+                // use searchProducts API in search mode
                 const searchBatchParams = {
                     ...searchParams,
                     page: nextBatchPage,
-                    page_size: 100 // 每页固定为100条
+                    page_size: 100 // Fixed 100 per page
                 };
 
                 try {
                     const response = await productsApi.searchProducts(searchBatchParams);
 
-                    // 处理响应数据，确保按正确的类型结构访问数据
+                    // Handle response data, ensure access via correct type structure
                     if (response?.data?.data) {
                         if (Array.isArray(response.data.data.items)) {
                             newItems = response.data.data.items;
@@ -165,10 +165,10 @@ const ProductsPageContent = () => {
                     return;
                 }
             } else {
-                // 浏览模式下使用getProducts API
+                // Use getProducts API in browse mode
                 const browseBatchParams = {
                     page: nextBatchPage,
-                    limit: 100, // 每页固定为100条
+                    limit: 100, // Fixed 100 per page
                     api_provider: apiProvider,
                     sort_by: sortField as 'price' | 'discount' | 'created' | 'all' | undefined,
                     sort_order: sortDirection
@@ -177,7 +177,7 @@ const ProductsPageContent = () => {
                 try {
                     const response = await productsApi.getProducts(browseBatchParams);
 
-                    // 处理响应数据，确保按正确的类型结构访问数据
+                    // Handle response data, ensure access via correct type structure
                     if (response?.data?.data) {
                         if (Array.isArray(response.data.data.items)) {
                             newItems = response.data.data.items;
@@ -190,23 +190,23 @@ const ProductsPageContent = () => {
                 }
             }
 
-            // 合并新数据到已加载的产品列表中
+            // Merge new data into loaded product list
             if (newItems.length > 0) {
 
-                // 更新已加载的商品列表
+                // update loaded product list
                 setBatchedProducts(prev => {
-                    // 确保不会超过用户设置的每页显示数量
+                    // Ensure not exceeding user-set items per page count
                     const combinedItems = [...prev, ...newItems];
 
                     return combinedItems.slice(0, itemsPerPage);
                 });
 
-                // 检查是否已经加载了足够的数据
+                // Check if enough data has been loaded
                 if (batchedProducts.length + newItems.length >= itemsPerPage) {
                     setAllBatchesLoaded(true);
                 }
             } else {
-                // 如果没有获取到新数据，表示已经没有更多数据可加载
+                // If no new data fetched, indicates no more data to load
                 setAllBatchesLoaded(true);
             }
         } catch {
@@ -255,9 +255,9 @@ const ProductsPageContent = () => {
         };
     }, []);
 
-    // 使用 useEffect 从 localStorage 加载数据
+    // Use useEffect to load data from localStorage
     useEffect(() => {
-        // 只在客户端执行
+        // Execute on client side only
         if (typeof window !== 'undefined') {
             const savedValue = localStorage.getItem('itemsPerPage');
 
@@ -267,39 +267,39 @@ const ProductsPageContent = () => {
         }
     }, []);
 
-    // 当 itemsPerPage 变化时保存到 localStorage
+    // Save to localStorage when itemsPerPage changes
     useEffect(() => {
         if (typeof window !== 'undefined') {
             localStorage.setItem('itemsPerPage', itemsPerPage.toString());
 
-            // 更新搜索参数
+            // update search parameters
             setSearchParams(prev => ({
                 ...prev,
-                page_size: 100 // 确保API请求始终使用100作为页大小
+                page_size: 100 // Ensure API requests always use 100 as page size
             }));
 
-            // 重置批次加载状态
+            // reset batch loading status
             setBatchedProducts([]);
             setLoadedBatches(1);
             setAllBatchesLoaded(itemsPerPage <= 100);
         }
     }, [itemsPerPage]);
 
-    // 重写初始化和数据加载的useEffect
-    // 当首次加载完成后，如果需要分批加载，则开始加载第二批数据
+    // Rewrite initialization and data loading useEffect
+    // After first load completes, if batch loading needed, start loading second batch
     useEffect(() => {
-        // 如果是分批加载模式(itemsPerPage > 100)，且初始数据已加载完成(不在加载状态)
+        // If in batch loading mode (itemsPerPage > 100) and initial data loaded (not loading)
         if (itemsPerPage > 100 && !loading && !batchLoading && batchedProducts.length === 0 && initialProducts.length > 0) {
             setBatchedProducts(initialProducts);
 
-            // 如果初始加载的数据量已经达到了要显示的数量，设置allBatchesLoaded为true
+            // If initial load count reaches display count, set allBatchesLoaded to true
             if (initialProducts.length >= itemsPerPage) {
                 setAllBatchesLoaded(true);
             } else {
-                // 否则需要继续加载更多数据
+                // Otherwise need to continue loading more data
                 setAllBatchesLoaded(false);
 
-                // 使用setTimeout避免在渲染周期中触发状态更新
+                // Use setTimeout to avoid triggering status updates during render cycle
                 const timer = setTimeout(() => {
                     loadNextBatch();
                 }, 500);
@@ -330,9 +330,9 @@ const ProductsPageContent = () => {
         }
     };
 
-    // 应用高级搜索
+    // Apply advanced search
     const applyAdvancedSearch = () => {
-        // 如果有搜索词或API来源筛选，则应用筛选
+        // If search term or API source filter exists, apply filters
         if (searchTerm.trim() || apiProvider !== undefined) {
             setSearchParams(prev => ({
                 ...prev,
@@ -343,17 +343,17 @@ const ProductsPageContent = () => {
                 api_provider: apiProvider
             }));
 
-            // 有搜索词，切换到搜索模式
+            // Has search term, switch to search mode
             if (searchTerm.trim()) {
                 setSearchMode('search');
             } else if (searchMode === 'browse') {
-                // 如果没有搜索词但有筛选条件，在浏览模式下刷新数据
+                // If no search term but has filter conditions, refresh data in browse mode
                 if (mutateBrowseData && (minPrice !== undefined || maxPrice !== undefined ||
                     minDiscount !== undefined || isPrimeOnly !== undefined || apiProvider !== undefined)) {
                     mutateBrowseData();
                 }
             } else {
-                // 在搜索模式下刷新数据
+                // Refresh data in search mode
                 if (mutateSearchData) {
                     mutateSearchData();
                 }
@@ -361,7 +361,7 @@ const ProductsPageContent = () => {
         }
     };
 
-    // 清除搜索，返回浏览模式
+    // Clear search, return to browse mode
     const clearSearch = () => {
         setSearchTerm('');
         setSearchMode('browse');
@@ -372,7 +372,7 @@ const ProductsPageContent = () => {
         setApiProvider(undefined);
     };
 
-    // 处理搜索输入变化
+    // Handle search input change
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value;
 
@@ -380,34 +380,34 @@ const ProductsPageContent = () => {
         handleSearch(term);
     };
 
-    // 处理API来源变更
+    // Handle API source change
     const handleApiProviderChange = (provider: string | undefined) => {
         setApiProvider(provider);
 
-        // 更新搜索参数
+        // update search parameters
         setSearchParams(prev => ({
             ...prev,
             api_provider: provider
         }));
 
-        // 如果当前在搜索模式，立即应用筛选；如果在浏览模式，直接刷新数据
+        // If in search mode, immediately apply filter; if in browse mode, refresh data directly
         if (searchMode === 'browse') {
             if (provider !== undefined) {
-                // 选择了特定的API提供商，但保持在浏览模式
-                // 使用useProducts的mutate函数强制刷新数据
+                // Specific API provider selected but remain in browse mode
+                // Force data refresh using useProducts mutate function
                 if (mutateBrowseData) {
                     mutateBrowseData();
                 }
             }
         } else {
-            // 已经在搜索模式下，刷新搜索结果
+            // Already in search mode, refresh search results
             if (mutateSearchData) {
                 mutateSearchData();
             }
         }
     };
 
-    // 更新产品过滤逻辑，仅在浏览模式下使用
+    // update product filter logic, use only in browse mode
     const filteredProducts = searchMode === 'search'
         ? products
         : products.filter(product =>
@@ -416,9 +416,9 @@ const ProductsPageContent = () => {
             product.asin?.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-    // 更新排序逻辑，仅在浏览模式下使用本地排序
+    // update sort logic, use local sort only in browse mode
     const sortedProducts = searchMode === 'search'
-        ? products // 搜索模式下直接使用API返回的排序结果
+        ? products // In search mode, use sort result returned by API directly
         : [...filteredProducts].sort((a, b) => {
             if (!sortField) return 0;
 
@@ -451,16 +451,16 @@ const ProductsPageContent = () => {
             return 0;
         });
 
-    // 修改页码处理函数
+    // Modify page number handler function
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
 
-        // 重置批次加载状态
+        // reset batch loading status
         setBatchedProducts([]);
         setLoadedBatches(1);
-        setAllBatchesLoaded(itemsPerPage <= 100); // 如果页面大小小于等于100，则不需要分批加载
+        setAllBatchesLoaded(itemsPerPage <= 100); // If page size <= 100, batch loading is not needed
 
-        // 在搜索模式下，更新搜索参数以触发API请求
+        // Update search parameters in search modeto trigger API request
         if (searchMode === 'search') {
             setSearchParams(prev => ({
                 ...prev,
@@ -468,46 +468,46 @@ const ProductsPageContent = () => {
             }));
         }
 
-        // 滚动到顶部
+        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 处理每页显示数量变化
+    // Handle per-page count change
     const handleItemsPerPageChange = (newValue: number) => {
-        // 计算当前页在新的分页大小下的位置
+        // Calculate current page position under new pagination size
         const firstItemIndex = (currentPage - 1) * itemsPerPage;
         const newPage = Math.floor(firstItemIndex / newValue) + 1;
 
         setItemsPerPage(newValue);
         setCurrentPage(newPage);
-        setRenderedRowCount(Math.min(100, sortedProducts.length)); // 将重置的渲染行数改为100
+        setRenderedRowCount(Math.min(100, sortedProducts.length)); // Reset render row count to 100
 
-        // 在搜索模式下，更新搜索参数
+        // Update search parameters in search mode
         if (searchMode === 'search') {
             setSearchParams(prev => ({
                 ...prev,
                 page: newPage,
-                page_size: 100 // 确保API请求始终使用100作为页大小
+                page_size: 100 // Ensure API requests always use 100 as page size
             }));
         }
 
-        // 滚动到顶部
+        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 修改排序处理函数
+    // Modify sort handling function
     const handleSort = (field: string) => {
         const newDirection = sortField === field && sortDirection === 'desc' ? 'asc' : 'desc';
 
         setSortField(field);
         setSortDirection(newDirection);
 
-        // 重置批次加载状态
+        // reset batch loading status
         setBatchedProducts([]);
         setLoadedBatches(1);
         setAllBatchesLoaded(itemsPerPage <= 100);
 
-        // 在搜索模式下，更新搜索参数以触发API请求
+        // Update search parameters in search modeto trigger API request
         if (searchMode === 'search') {
             setSearchParams(prev => ({
                 ...prev,
@@ -522,26 +522,26 @@ const ProductsPageContent = () => {
         }
     };
 
-    // 修改渲染行数的设置逻辑
+    // Modify logic for setting rendered row count
     useEffect(() => {
         if (sortedProducts.length > 0) {
-            // 增加初始渲染行数，确保显示更多行
+            // Increase initial render row count to ensure more rows are shown
             if (renderedRowCount === 0 || renderedRowCount < Math.min(100, sortedProducts.length)) {
                 setRenderedRowCount(Math.min(100, sortedProducts.length));
             }
 
-            // 创建 Intersection Observer 实例
+            // create Intersection Observer instance
             const observer = new IntersectionObserver(
                 (entries) => {
                     if (entries[0]?.isIntersecting) {
 
                         if (renderedRowCount < sortedProducts.length) {
-                            // 当最后一行可见时，增加渲染行数
+                            // Increase render row count when last row becomes visible
                             const newRowCount = Math.min(renderedRowCount + 20, sortedProducts.length);
 
                             setRenderedRowCount(newRowCount);
                         } else if (!allBatchesLoaded && itemsPerPage > 100 && batchedProducts.length < itemsPerPage) {
-                            // 如果已经渲染了所有当前加载的产品，但还有更多批次要加载
+                            // If all currently loaded products are rendered but more batches remain
                             loadNextBatch();
                         } else {
                         }
@@ -549,18 +549,18 @@ const ProductsPageContent = () => {
                 },
                 {
                     threshold: 0.1,
-                    rootMargin: '100px'  // 提前100px开始观察，提高用户体验
+                    rootMargin: '100px'  // Start observing 100px early to improve UX
                 }
             );
 
             rowObserverRef.current = observer;
 
-            // 确保观察最后一行，触发加载
+            // Ensure last row is observed to trigger loading
             if (lastRowRef.current) {
                 rowObserverRef.current.observe(lastRowRef.current);
             }
 
-            // 当列表或观察器变化时清理和重新设置
+            // Clean up and re-setup when list or observer changes
             return () => {
                 if (rowObserverRef.current) {
                     rowObserverRef.current.disconnect();
@@ -744,11 +744,11 @@ const ProductsPageContent = () => {
         );
     };
 
-    // 渲染"每页显示"下拉选择组件
+    // Render "items per page" dropdown selector
     const renderItemsPerPageSelect = () => {
         const options = [10, 50, 100, 500, 1000];
 
-        // 为不同屏幕尺寸设计不同样式
+        // Design different styles for different screen sizes
         if (screenSize === 'xs' || screenSize === 'sm') {
             return (
                 <div className="flex items-center space-x-1 text-xs">
@@ -840,7 +840,7 @@ const ProductsPageContent = () => {
         return <div className="p-4 bg-red-50 text-red-600 rounded-lg">You don&apos;t have permission to access this page</div>;
     }
 
-    // 渲染搜索状态信息
+    // Render search status info
     const renderSearchStatus = () => {
         if (searchMode !== 'search' || !searchParams.keyword) return null;
 
@@ -860,7 +860,7 @@ const ProductsPageContent = () => {
         );
     };
 
-    // 渲染高级搜索面板
+    // Render advanced search panel
     const renderAdvancedSearch = () => (
         <div className="mb-4">
             <button
@@ -878,7 +878,7 @@ const ProductsPageContent = () => {
                     exit={{ opacity: 0, height: 0 }}
                     className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
                 >
-                    {/* 价格范围 */}
+                    {/* Price range */}
                     <div>
                         <label className="block text-xs text-gray-600 mb-1">Price Range</label>
                         <div className="flex space-x-2">
@@ -900,7 +900,7 @@ const ProductsPageContent = () => {
                         </div>
                     </div>
 
-                    {/* 最低折扣率 */}
+                    {/* Minimum discount rate */}
                     <div>
                         <label className="block text-xs text-gray-600 mb-1">Minimum Discount (%)</label>
                         <input
@@ -912,7 +912,7 @@ const ProductsPageContent = () => {
                         />
                     </div>
 
-                    {/* 是否只显示Prime商品 */}
+                    {/* Whether to show only Prime products */}
                     <div className="flex items-center">
                         <input
                             id="prime-only"
@@ -926,7 +926,7 @@ const ProductsPageContent = () => {
                         </label>
                     </div>
 
-                    {/* API来源选择 */}
+                    {/* API source selection */}
                     <div>
                         <label className="block text-xs text-gray-600 mb-1">API Source</label>
                         <div className="flex space-x-4">
@@ -960,7 +960,7 @@ const ProductsPageContent = () => {
                         </div>
                     </div>
 
-                    {/* 应用按钮 */}
+                    {/* Apply button */}
                     <div className="col-span-full flex justify-end mt-2">
                         <button
                             onClick={applyAdvancedSearch}
@@ -974,7 +974,7 @@ const ProductsPageContent = () => {
         </div>
     );
 
-    // 渲染API来源快速筛选按钮
+    // Render API source quick filter buttons
     const renderApiProviderFilters = () => (
         <div className="flex flex-wrap gap-2 mb-4">
             <button
@@ -1004,7 +1004,7 @@ const ProductsPageContent = () => {
         </div>
     );
 
-    // 渲染API来源筛选状态指示器
+    // Render API source filter status indicator
     const renderApiProviderStatus = () => {
         if (!apiProvider) return null;
 
@@ -1023,7 +1023,7 @@ const ProductsPageContent = () => {
         );
     };
 
-    // 渲染空状态
+    // Render empty status
     const renderEmptyState = () => (
         <div className="p-6 text-center text-gray-500">
             {searchMode === 'search' ? (
@@ -1063,7 +1063,7 @@ const ProductsPageContent = () => {
         return renderScreenSizeTable();
     };
 
-    // 根据屏幕尺寸渲染对应的表格
+    // Render corresponding table based on screen size
     const renderScreenSizeTable = () => {
         // Card view for XS and SM screens with animations
         if (screenSize === 'xs' || screenSize === 'sm') {
@@ -1664,7 +1664,7 @@ const ProductsPageContent = () => {
                 )}
             </AnimatePresence>
 
-            {/* 搜索栏 */}
+            {/* Search bar */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1692,13 +1692,13 @@ const ProductsPageContent = () => {
                 )}
             </motion.div>
 
-            {/* 高级搜索选项 */}
+            {/* Advanced search options */}
             {renderAdvancedSearch()}
 
-            {/* API来源快速筛选按钮 */}
+            {/* API source quick filter buttons */}
             {renderApiProviderFilters()}
 
-            {/* 搜索结果状态 */}
+            {/* Search result status */}
             <AnimatePresence>
                 {searchMode === 'search' && searchParams.keyword && (
                     <motion.div
@@ -1711,7 +1711,7 @@ const ProductsPageContent = () => {
                 )}
             </AnimatePresence>
 
-            {/* API来源筛选状态指示器 */}
+            {/* API source filter status indicator */}
             <AnimatePresence>
                 {apiProvider && (
                     <motion.div
@@ -1724,7 +1724,7 @@ const ProductsPageContent = () => {
                 )}
             </AnimatePresence>
 
-            {/* 统计卡片 */}
+            {/* Statistics card */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1733,7 +1733,7 @@ const ProductsPageContent = () => {
                 {renderStatsCards()}
             </motion.div>
 
-            {/* 产品列表 */}
+            {/* Product list */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1744,7 +1744,7 @@ const ProductsPageContent = () => {
                     {renderProductsList()}
                 </div>
 
-                {/* 分页控件 */}
+                {/* Pagination control */}
                 {!loading && products.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -1757,7 +1757,7 @@ const ProductsPageContent = () => {
                 )}
             </motion.div>
 
-            {/* 删除确认弹窗 */}
+            {/* Delete confirmation popup */}
             <AnimatePresence>
                 {showDeleteConfirm && (
                     <motion.div

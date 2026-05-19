@@ -30,16 +30,16 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => null);
 
-                    throw new Error(errorData?.error || `获取用户详情失败: ${response.statusText}`);
+                    throw new Error(errorData?.error || `Failed to fetch user details: ${response.statusText}`);
                 }
 
                 const data = await response.json();
 
-                // 直接使用返回的数据，因为API直接返回用户对象
+                // Use the returned data directly, as the API returns the user object directly
                 setUser(data);
                 setSelectedRole(data.role);
             } catch (err) {
-                setError(err instanceof Error ? err.message : '获取用户数据出错');
+                setError(err instanceof Error ? err.message : 'Error fetching user data');
             } finally {
                 setLoading(false);
             }
@@ -57,11 +57,11 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
             });
 
             if (!response.ok) {
-                // 尝试解析JSON响应
+                // Attempt to parse the JSON response
                 const errorData = await response.json().catch(() => null);
 
-                // 提取错误信息
-                let errorMsg = `删除用户失败: ${response.status} ${response.statusText}`;
+                // Extract error message
+                let errorMsg = `Failed to delete user: ${response.status} ${response.statusText}`;
 
                 if (errorData && errorData.error) {
                     errorMsg = errorData.error;
@@ -73,22 +73,22 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                 throw new Error(errorMsg);
             }
 
-            // 添加删除成功吐司提示
+            // Show success toast notification
             showSuccessToast({
                 title: "User Deleted",
                 description: "The user has been successfully deleted.",
             });
 
-            // 删除成功后返回用户列表页
+            // Return to the user list page after successful deletion
             router.push('/dashboard/users');
         } catch (err) {
-            // 添加错误吐司提示
+            // Show error toast notification
             showErrorToast({
                 title: "Error",
                 description: err instanceof Error ? err.message : 'Failed to delete user',
             });
 
-            setError(err instanceof Error ? err.message : '删除用户出错');
+            setError(err instanceof Error ? err.message : 'Error deleting user');
         }
     };
 
@@ -109,25 +109,25 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
             });
 
             if (!response.ok) {
-                throw new Error(`更新用户角色失败: ${response.statusText}`);
+                throw new Error(`Failed to update user role: ${response.statusText}`);
             }
 
-            // 添加角色更新成功吐司提示
+            // AddRoleUpdatesuccess toast notification
             showSuccessToast({
                 title: "Role Updated",
                 description: `User role has been changed to ${selectedRole}.`,
             });
 
-            // 更新本地用户数据
+            // update local user data
             setUser(prev => prev ? { ...prev, role: selectedRole } : null);
             setShowRoleModal(false);
         } catch (err) {
-            // 添加错误吐司提示
+            // Adderror toast notification
             showErrorToast({
                 title: "Error",
                 description: err instanceof Error ? err.message : 'Failed to update user role',
             });
-            setError(err instanceof Error ? err.message : '更新用户角色出错');
+            setError(err instanceof Error ? err.message : 'Error updating user role');
         }
     };
 
@@ -173,7 +173,7 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                 </Link>
             </div>
 
-            {/* 用户基本信息卡片 */}
+            {/* User basic info card */}
             <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
                     <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-semibold overflow-hidden">
@@ -254,7 +254,7 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                     )}
                 </div>
 
-                {/* 用户操作区 */}
+                {/* User action area */}
                 <div className="border-t pt-4 flex flex-col md:flex-row md:justify-end space-y-2 md:space-y-0 md:space-x-2">
                     {canModifyRole && !isSelf && (
                         <button
@@ -276,7 +276,7 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                 </div>
             </div>
 
-            {/* 修改角色模态框 */}
+            {/* Change Role modal */}
             {showRoleModal && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">
@@ -354,7 +354,7 @@ export function UserDetailPageContent({ userId }: { userId: string }) {
                 </div>
             )}
 
-            {/* 删除确认弹窗 */}
+            {/* Delete confirmation popup */}
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">

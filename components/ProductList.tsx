@@ -14,7 +14,7 @@ interface ProductListProps {
     onPageChange: (page: number) => void;
 }
 
-// 动画变量
+// Animation variables
 const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -38,7 +38,7 @@ export default function ProductList({
     onPageChange
 }: ProductListProps) {
     if (!products || products.length === 0) {
-        return null; // 空状态由父组件ApiStateWrapper处理
+        return null; // Empty status handled by parent ApiStateWrapper
     }
 
     return (
@@ -63,7 +63,7 @@ export default function ProductList({
                 </AnimatePresence>
             </motion.div>
 
-            {/* 分页控制 - 移动端优化 */}
+            {/* Pagination control - Mobile optimization */}
             {totalPages > 1 && (
                 <Pagination
                     currentPage={currentPage}

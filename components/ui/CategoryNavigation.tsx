@@ -7,23 +7,23 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { useCategoryStats } from '@/lib/hooks';
 
-// 自定义Category接口
+// Custom Category interface
 interface Category {
     id: string;
     name: string;
     slug: string;
     count: number;
     icon?: React.ReactNode | string;
-    emoji?: string; // 添加emoji属性
+    emoji?: string; // Add emoji attribute
     color?: string;
 }
 
-// 添加组件属性接口，包含useAnchorLinks选项
+// Addcomponent props interface, including useAnchorLinks option
 interface CategoryNavigationProps {
-    useAnchorLinks?: boolean; // 是否使用锚链接
+    useAnchorLinks?: boolean; // Whether to use anchor links
 }
 
-// 产品组到分类的映射 — includes PartnerBoost/MongoDB category names
+// Product group to category mapping — includes PartnerBoost/MongoDB category names
 const productGroupToCategoryMapping: Record<string, { slug: string, name: string }> = {
     // PartnerBoost categories (what we store in MongoDB)
     'Electronics': { slug: 'Electronics', name: 'Electronics' },
@@ -56,7 +56,7 @@ const productGroupToCategoryMapping: Record<string, { slug: string, name: string
     'Automotive Parts and Accessories': { slug: 'Automotive Parts and Accessories', name: 'Automotive' },
 };
 
-// 分类图标映射 - 使用emoji表情替代Lucide图标
+// Category icon mapping — using emoji instead of Lucide icons
 const categoryIcons: Record<string, { emoji: string, color: string }> = {
     electronics: {
         emoji: '📱',
@@ -190,13 +190,13 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
     const [activePointIndex, setActivePointIndex] = useState<number>(0);
     const router = useRouter();
 
-    // 使用ref来跟踪已处理的数据，避免重复处理
+    // Use ref to track processed data, avoid reprocessing
     const processedDataRef = useRef<boolean>(false);
 
-    // 添加存储卡片位置的ref
+    // Addref for storing card position
     const cardPositions = useRef<number[]>([]);
 
-    // 更新当前激活的卡片索引 - 优化性能和精确度
+    // update currently active card index — optimize performance and accuracy
     const updateActiveCardIndex = useCallback(() => {
         if (!scrollContainerRef.current || categories.length === 0) return;
 
@@ -204,10 +204,10 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         const { scrollLeft, clientWidth } = container;
         const scrollCenter = scrollLeft + clientWidth / 2;
 
-        // 获取所有卡片元素
+        // Get all card elements
         const cards = Array.from(container.querySelectorAll('.snap-center'));
 
-        // 找到中心点最接近的卡片
+        // Find card closest to center point
         let closestCardIndex = 0;
         let minDistance = Infinity;
 
@@ -222,27 +222,27 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             }
         });
 
-        // 只有当索引变化时才更新状态，减少不必要的渲染
+        // Update status only when index changes to reduce unnecessary renders
         if (closestCardIndex !== activeCardIndex) {
             setActiveCardIndex(closestCardIndex);
         }
     }, [categories.length, activeCardIndex]);
 
-    // 检查是否需要导航控件（当内容宽度超过容器宽度时）
+    // Check if navigation controls needed (when content width exceeds container width)
     const checkIfNavigationNeeded = useCallback(() => {
         if (!scrollContainerRef.current) return;
 
         const { scrollWidth, clientWidth } = scrollContainerRef.current;
-        const needsNav = scrollWidth > clientWidth + 10; // 添加一点余量
+        const needsNav = scrollWidth > clientWidth + 10; // Add a small margin
 
         setNeedNavigation(needsNav);
 
-        // 检查是否为移动设备
+        // Check if mobile device
         const newIsMobile = window.innerWidth < 768;
 
         setIsMobile(newIsMobile);
 
-        // 如果需要导航，则同时检查箭头状态
+        // If navigation needed, also check arrow status
         if (needsNav) {
             const { scrollLeft } = scrollContainerRef.current;
 
@@ -251,7 +251,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     }, []);
 
-    // 检测滚动容器的滚动位置，更新箭头显示状态
+    // Detect scroll container position, update arrow show status
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current || !needNavigation) return;
 
@@ -261,7 +261,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20);
     }, [needNavigation]);
 
-    // 使用 useCategoryStats 钩子获取分类数据
+    // Use useCategoryStats hook to fetch category data
     const { data: categoryStats, isLoading, isError } = useCategoryStats({
         page: 1,
         page_size: 50,
@@ -269,17 +269,17 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         sort_order: 'desc'
     });
 
-    // 使用useScroll钩子来监听滚动容器的滚动位置
+    // Use useScroll hook to listen for scroll container position
     const { scrollXProgress } = useScroll({
         container: scrollContainerRef,
         layoutEffect: false
     });
 
-    // 添加scrollXProgress的事件监听，用于实时更新方向和激活索引
+    // Add scrollXProgress event listener for real-time direction and active index updates
     useMotionValueEvent(scrollXProgress, "change", (_latest) => {
         if (!scrollContainerRef.current) return;
 
-        // 更新滚动方向
+        // update scroll direction
         const currentScrollPosition = scrollContainerRef.current.scrollLeft;
 
         if (currentScrollPosition > lastScrollPosition.current) {
@@ -289,11 +289,11 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
         lastScrollPosition.current = currentScrollPosition;
 
-        // 实时更新激活索引
+        // Real-time update active index
         updateActiveCardIndex();
     });
 
-    // 将滚动进度映射到圆点指示器的激活进度，优化映射函数
+    // Map scroll progress to dot indicator active progress, optimize mapping function
     const indicatorProgress = useTransform(
         scrollXProgress,
         (progress) => {
@@ -303,10 +303,10 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             const clientWidth = scrollContainerRef.current.clientWidth;
             const maxScroll = scrollWidth - clientWidth;
 
-            // 将进度值(0-1)转换为实际的scrollLeft值
+            // Convert progress value (0-1) to actual scrollLeft value
             const actualScrollLeft = progress * maxScroll;
 
-            // 计算当前激活卡片的索引和进度
+            // Calculate current active card index and progress
             let activeIndex = 0;
             let progressInCard = 0;
 
@@ -314,20 +314,20 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                 const start = cardPositions.current[i];
                 const end = cardPositions.current[i + 1];
 
-                // 扩大判断范围，使过渡更加平滑
+                // Expand judgment range for smoother transitions
                 const cardWidth = end - start;
                 const thresholdStart = start - cardWidth * 0.1;
                 const thresholdEnd = end + cardWidth * 0.1;
 
                 if (actualScrollLeft >= thresholdStart && actualScrollLeft < thresholdEnd) {
                     activeIndex = i;
-                    // 计算卡片内部的精确进度，添加边界处理
+                    // Calculate precise progress within card, add boundary handling
                     progressInCard = Math.max(0, Math.min(1, (actualScrollLeft - start) / (end - start)));
                     break;
                 }
             }
 
-            // 如果已经滚动到最后一张卡片
+            // If already scrolled to the last card
             if (cardPositions.current.length > 0 &&
                 actualScrollLeft >= cardPositions.current[cardPositions.current.length - 1]) {
                 activeIndex = cardPositions.current.length - 1;
@@ -338,10 +338,10 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     );
 
-    // 将indicatorProgress转换为整数索引，用于高亮显示当前激活的圆点
+    // Convert indicatorProgress to integer index for highlighting active dot
     const _currentActiveIndex = useTransform(indicatorProgress, (progress) => Math.round(progress));
 
-    // 使用useMotionValueEvent监听indicatorProgress变化并更新activePointIndex
+    // Use useMotionValueEvent to listen for indicatorProgress changes and update activePointIndex
     useMotionValueEvent(indicatorProgress, "change", (latest) => {
         const roundedIndex = Math.round(latest);
 
@@ -350,7 +350,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     });
 
-    // 改为使用普通函数，而不是在循环中使用React Hooks
+    // Changed to use regular function instead of React Hooks inside loop
     const _calculateDotScale = (progress: number, index: number) => {
         const diff = Math.abs(progress - index);
 
@@ -379,34 +379,34 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         return activeIndex === index ? 'var(--color-primary)' : 'var(--color-gray-300)';
     };
 
-    // 使用useTransform转换indicatorProgress的值
+    // Use useTransform to transform indicatorProgress value
     const _transformedIndicatorProgress = useTransform(indicatorProgress, value => value);
 
-    // 监听窗口尺寸变化
+    // Listen for window size changes
     useEffect(() => {
         const handleResize = () => {
             checkIfNavigationNeeded();
         };
 
-        // 初始检查
+        // Initial check
         handleResize();
 
-        // 添加窗口尺寸变化监听
+        // Addwindow resize listener
         window.addEventListener('resize', handleResize);
 
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [checkIfNavigationNeeded]); // 添加checkIfNavigationNeeded作为依赖项
+    }, [checkIfNavigationNeeded]); // Add checkIfNavigationNeeded as dependency
 
-    // 处理API返回的分类数据 - 重写依赖处理逻辑
+    // Handle API-returned category data — rewrite dependency handling logic
     useEffect(() => {
-        // 当数据加载中或已经处理过且数据没变，就不重复处理
+        // Skip reprocessing if data is loading or already processed and unchanged
         if (isLoading || (processedDataRef.current && !isError)) {
             return;
         }
 
-        // 如果有错误，设置错误状态
+        // If error, set error status
         if (isError) {
             setError('Unable to load categories. Please try again later.');
             processedDataRef.current = true;
@@ -414,31 +414,31 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             return;
         }
 
-        // 数据已加载且未处理过
+        // Data loaded and not yet processed
         if (categoryStats && categoryStats.product_groups && !processedDataRef.current) {
             try {
-                // 转换product_groups数据为分类列表
+                // Convert product_groups data to category list
                 const productGroups = categoryStats.product_groups;
 
-                // 将对象转换为数组，过滤数量大于50的分类，并按照数量排序
+                // Convert object to array, filter categories with count > 50, sort by count
                 const sortedCategories = Object.entries(productGroups)
                     .filter(([_groupName, count]) => count > 50)
                     .sort((a, b) => b[1] - a[1])
-                    .slice(0, 8) // 取前8个
+                    .slice(0, 8) // Take top 8
                     .map(([groupName, count], index) => {
-                        // 使用原始的groupName作为slug，确保与API参数一致
+                        // Use the original groupName as slug to stay consistent with API params
                         const slug = groupName;
 
-                        // 从映射中获取显示名称，如果没有则使用原始分类名称
+                        // Get display name from mapping, fall back to raw category name
                         const displayName = productGroupToCategoryMapping[groupName]?.name || groupName;
 
-                        // 尝试从映射中获取图标和颜色
-                        // 使用转换为小写的原始分类名称作为键来匹配图标
+                        // Try to get icon and color from mapping
+                        // Use lowercase original category name as key to match icons
                         const slugKey = groupName.toLowerCase();
                         const iconInfo = categoryIcons[slugKey] ||
-                            // 尝试使用映射后的名称作为键
+                            // Try to use mapped name as key
                             categoryIcons[productGroupToCategoryMapping[groupName]?.slug.toLowerCase()] ||
-                        // 默认图标
+                        // Default icon
                         {
                             emoji: '🛒',
                             color: 'from-gray-400 to-gray-600'
@@ -447,7 +447,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                         return {
                             id: index.toString(),
                             name: displayName,
-                            slug: slug, // 使用原始分类名称作为slug
+                            slug: slug, // Use original category name as slug
                             count: count,
                             emoji: iconInfo.emoji,
                             color: iconInfo.color
@@ -464,7 +464,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     }, [isLoading, isError, categoryStats]);
 
-    // 添加滚动事件监听
+    // Add scroll event listener
     useEffect(() => {
         const scrollContainer = scrollContainerRef.current;
 
@@ -472,23 +472,23 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             scrollContainer.addEventListener('scroll', handleScroll);
             scrollContainer.addEventListener('scroll', updateActiveCardIndex);
 
-            // 添加触摸事件监听，优化移动端体验
+            // Add touch event listeners to optimize mobile experience
             scrollContainer.addEventListener('touchend', updateActiveCardIndex);
-            // 添加滚动结束事件监听
+            // Add scroll end event listener
             let scrollTimeout: ReturnType<typeof setTimeout>;
             const handleScrollEnd = () => {
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     updateActiveCardIndex();
-                }, 150); // 滚动停止150ms后更新
+                }, 150); // Update 150ms after scrolling stops
             };
 
             scrollContainer.addEventListener('scroll', handleScrollEnd);
 
-            // 初始化检查是否需要导航
+            // initialize navigation check
             checkIfNavigationNeeded();
 
-            // 初始化后延迟更新一次指示器状态
+            // delay once after initialization to update indicator status
             setTimeout(updateActiveCardIndex, 300);
         }
 
@@ -500,26 +500,26 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                 scrollContainer.removeEventListener('scroll', function handleScrollEnd() { });
             }
         };
-    }, [handleScroll, updateActiveCardIndex, checkIfNavigationNeeded]); // 添加checkIfNavigationNeeded作为依赖项
+    }, [handleScroll, updateActiveCardIndex, checkIfNavigationNeeded]); // Add checkIfNavigationNeeded as dependency
 
-    // 当分类数据变化时更新激活卡片索引
+    // Update active card index when category data changes
     useEffect(() => {
         if (categories.length > 0) {
-            // 分类数据加载后更新一次指示器状态
+            // Update indicator status once after category data loads
             setTimeout(updateActiveCardIndex, 300);
         }
-    }, [categories, updateActiveCardIndex]); // 添加updateActiveCardIndex依赖项
+    }, [categories, updateActiveCardIndex]); // Add updateActiveCardIndex dependency
 
-    // 判断一个分类是否被激活
+    // Check if a category is activated
     const isActiveCategory = (slug: string) => {
-        // 检查当前路径
+        // Check current path
         if (pathname === '/') {
-            // 在主页上，检查当前滚动位置是否在对应分类区域
+            // On home page, check if current scroll position is in corresponding category area
             const categoryElement = document.getElementById(`category-${slug}`);
 
             if (categoryElement) {
                 const rect = categoryElement.getBoundingClientRect();
-                // 考虑到顶部导航栏的高度（120px），以及一些容差值
+                // Account for top navbar height (120px) and some tolerance
                 const topOffset = 120;
                 const bottomOffset = window.innerHeight / 2;
 
@@ -528,7 +528,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
 
             return false;
         } else if (pathname.startsWith('/product')) {
-            // 在产品页面上，检查 URL 参数
+            // On product page, check URL parameters
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const productGroups = urlParams.get('product_groups');
@@ -542,22 +542,22 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         return false;
     };
 
-    // 添加滚动监听
+    // Addscroll listener
     useEffect(() => {
         if (useAnchorLinks) {
             const handleScroll = () => {
-                // 强制重新渲染以更新激活状态
+                // Force re-render to update active status
                 setCategories([...categories]);
             };
 
-            // 使用节流函数来限制滚动事件的触发频率
+            // Use throttle function to limit scroll event frequency
             let timeoutId: ReturnType<typeof setTimeout> | null = null;
             const throttledHandleScroll = () => {
                 if (!timeoutId) {
                     timeoutId = setTimeout(() => {
                         handleScroll();
                         timeoutId = null;
-                    }, 100); // 每 100ms 最多触发一次
+                    }, 100); // Trigger at most once every 100ms
                 }
             };
 
@@ -572,13 +572,13 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     }, [categories, useAnchorLinks]);
 
-    // 处理分类点击
+    // Handle category click
     const handleCategoryClick = (slug: string) => {
         setActiveCardIndex(categories.findIndex(c => c.slug === slug));
 
-        // 如果不使用锚点链接，则路由跳转
+        // If not using anchor links, use router navigation
         if (!useAnchorLinks) {
-            // 使用新的URL格式
+            // Use new URL format
             const newPath = `/product/category/${encodeURIComponent(slug)}`;
 
             router.replace(newPath, { scroll: false });
@@ -586,13 +586,13 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             return;
         }
 
-        // 使用锚点链接
+        // Use anchor links
         if (typeof window !== 'undefined') {
-            // 在当前页面中查找目标元素
+            // Find target element in current page
             const targetElement = document.getElementById(`category-${slug}`);
 
             if (targetElement) {
-                // 平滑滚动到目标元素
+                // Smooth scroll to target element
                 targetElement.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
@@ -601,11 +601,11 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     };
 
-    // 滚动到左侧
+    // Scroll to the left
     const scrollLeft = () => {
         if (scrollContainerRef.current) {
             const containerWidth = scrollContainerRef.current.clientWidth;
-            const scrollAmount = containerWidth * 0.8; // 滚动容器宽度的80%
+            const scrollAmount = containerWidth * 0.8; // 80% of scroll container width
             const targetPosition = scrollContainerRef.current.scrollLeft - scrollAmount;
 
             scrollContainerRef.current.scrollTo({
@@ -615,11 +615,11 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     };
 
-    // 滚动到右侧
+    // Scroll to the right
     const scrollRight = () => {
         if (scrollContainerRef.current) {
             const containerWidth = scrollContainerRef.current.clientWidth;
-            const scrollAmount = containerWidth * 0.8; // 滚动容器宽度的80%
+            const scrollAmount = containerWidth * 0.8; // 80% of scroll container width
             const maxScroll = scrollContainerRef.current.scrollWidth - containerWidth;
             const targetPosition = scrollContainerRef.current.scrollLeft + scrollAmount;
 
@@ -630,7 +630,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
         }
     };
 
-    // 滚动到指定卡片
+    // Scroll to specified card
     const _scrollToCard = (index: number) => {
         if (!scrollContainerRef.current || !categories[index]) return;
 
@@ -639,35 +639,35 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
 
         if (cards[index]) {
             const card = cards[index] as HTMLElement;
-            // 计算目标滚动位置，使卡片居中显示
+            // Calculate target scroll position to center card
             const cardWidth = card.offsetWidth;
             const containerWidth = container.clientWidth;
             const scrollPosition = card.offsetLeft - (containerWidth / 2 - cardWidth / 2);
 
-            // 滚动到目标位置
+            // Scroll to target position
             container.scrollTo({
                 left: scrollPosition,
                 behavior: 'smooth'
             });
 
-            // 更新激活索引
+            // update active index
             setActiveCardIndex(index);
         }
     };
 
-    // 添加触摸事件处理，优化移动端体验
+    // Addtouch event handling, optimize mobile experience
     useEffect(() => {
         const container = scrollContainerRef.current;
 
         if (!container) return;
 
         const handleTouchStart = () => {
-            // 记录滚动起始位置
+            // Record scroll start position
             lastScrollPosition.current = container.scrollLeft;
         };
 
         const handleTouchEnd = () => {
-            // 触摸结束时更新激活索引
+            // Update active index on touch end
             updateActiveCardIndex();
         };
 
@@ -678,9 +678,9 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             container.removeEventListener('touchstart', handleTouchStart);
             container.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [updateActiveCardIndex]); // 添加依赖项
+    }, [updateActiveCardIndex]); // Add dependency
 
-    // 计算每个卡片的位置
+    // Calculate position of each card
     useEffect(() => {
         if (!scrollContainerRef.current || categories.length === 0) return;
 
@@ -696,11 +696,11 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
 
         cardPositions.current = positions;
 
-        // 初始更新一次激活的卡片索引
+        // Update active card index once on initialization
         updateActiveCardIndex();
-    }, [categories, updateActiveCardIndex]); // 添加updateActiveCardIndex依赖项
+    }, [categories, updateActiveCardIndex]); // Add updateActiveCardIndex dependency
 
-    // 检查是否在侧边栏中
+    // Check if inside sidebar
     const _isSidebar = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false;
 
     useEffect(() => {
@@ -712,10 +712,10 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
             }
         };
 
-        // 初始检查
+        // Initial check
         checkIsSidebar();
 
-        // 添加窗口尺寸变化监听
+        // Addwindow resize listener
         window.addEventListener('resize', checkIsSidebar);
 
         return () => {
@@ -730,7 +730,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                 <div className="overflow-hidden">
                     <div className="flex lg:flex-col space-x-4 lg:space-x-0 lg:space-y-3 py-2">
                         {Array.from({ length: 8 }).map((_, i) => {
-                            // 生成唯一标识符，避免使用索引作为key
+                            // Generate unique identifier, avoid using index as key
                             const uniqueId = `skeleton-${i}-${Math.random().toString(36).substring(2, 9)}`;
 
                             return (
@@ -848,7 +848,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                             <Link
                                 href="/product"
                                 className="block cursor-pointer w-full text-left"
-                                aria-label="查看所有分类"
+                                aria-label="View all categories"
                             >
                                 <motion.div
                                     className={`
@@ -956,7 +956,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                                             handleCategoryClick(category.slug);
                                         }
                                     }}
-                                    aria-label={`查看${category.name}分类`}
+                                    aria-label={`View ${category.name} category`}
                                 >
                                     <motion.div
                                         className={`
@@ -988,7 +988,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                                                 transition: { duration: 0.2 }
                                             }}
                                         >
-                                            {/* 显示emoji图标 */}
+                                            {/* Show emoji icon */}
                                             <span className="text-xl lg:text-lg">
                                                 {category.emoji || categoryIcons[category.slug.toLowerCase()]?.emoji || '🛒'}
                                             </span>
@@ -1064,7 +1064,7 @@ export function CategoryNavigation({ useAnchorLinks = false }: CategoryNavigatio
                                                 transition: { duration: 0.2 }
                                             }}
                                         >
-                                            {/* 显示emoji图标 */}
+                                            {/* Show emoji icon */}
                                             <span className="text-xl lg:text-lg">
                                                 {category.emoji || categoryIcons[category.slug.toLowerCase()]?.emoji || '🛒'}
                                             </span>

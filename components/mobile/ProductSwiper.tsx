@@ -9,7 +9,7 @@ import { StoreIdentifier } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types/api';
 
-// 导入Swiper样式
+// import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -20,7 +20,7 @@ interface ProductSwiperProps {
 }
 
 export function ProductSwiper({ products }: ProductSwiperProps) {
-    // 渲染单个商品卡片的函数
+    // Function to render individual product card
     const renderProductCard = (product: Product, index: number) => {
         try {
             // Get main offer information
@@ -47,7 +47,7 @@ export function ProductSwiper({ products }: ProductSwiperProps) {
                     key={productId}
                     className="relative w-full"
                 >
-                    {/* 收藏按钮 */}
+                    {/* Favorite button */}
                     <div
                         className="absolute top-3 right-3 z-20"
                         onClick={(e) => e.stopPropagation()}
@@ -158,7 +158,7 @@ export function ProductSwiper({ products }: ProductSwiperProps) {
         }
     };
 
-    // 移除 variant 相关的配置,使用统一的配置
+    // remove variant-related config, use unified configuration
     const swiperProps = {
         modules: [Pagination],
         slidesPerView: 1,

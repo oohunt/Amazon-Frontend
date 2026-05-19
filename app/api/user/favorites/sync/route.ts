@@ -1,6 +1,6 @@
 /**
- * 同步收藏列表API
- * POST: 同步本地收藏到服务器
+ * Favorites sync API
+ * POST: Sync local favorites to server
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
@@ -11,25 +11,25 @@ import {
 } from '@/lib/server/favorites';
 
 /**
- * 处理POST请求，同步本地收藏到服务器
+ * Handle POST request — sync local favorites to server
  */
 export async function POST(request: NextRequest) {
     try {
-        // 获取并验证客户端ID
+        // Get and validate client ID
         const clientId = request.headers.get('x-client-id');
 
         if (!clientId || !validateClientId(clientId)) {
             return NextResponse.json(
                 {
                     code: 401,
-                    message: '未提供有效的客户端ID',
+                    message: 'No valid client ID provided',
                     data: null
                 },
                 { status: 401 }
             );
         }
 
-        // 获取请求体中的商品ID数组
+        // Get product ID array from request body
         const body = await request.json();
         const { productIds } = body;
 
@@ -37,20 +37,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 {
                     code: 400,
-                    message: '无效的商品ID数组',
+                    message: 'Invalid product ID array',
                     data: null
                 },
                 { status: 400 }
             );
         }
 
-        // 同步收藏列表
+        // Sync favorites list
         const _updatedIds = syncClientFavorites(clientId, productIds);
 
         return NextResponse.json(
             {
                 code: 200,
-                message: '同步收藏列表成功',
+                message: 'Favorites synced successfully',
                 data: null
             },
             { status: 200 }
@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 code: 500,
-                message: '服务器内部错误',
+                message: 'Internal server error',
                 data: null
             },
             { status: 500 }
         );
     }
-} 
+}

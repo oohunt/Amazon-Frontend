@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import clientPromise from '@/lib/mongodb';
 
-// 通过slug获取标签
+// Get tag by slug
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
 
-        // 首先等待params解析完成
+        // First wait for params to resolve
         const resolvedParams = await params;
         const slug = resolvedParams.slug;
 
@@ -23,13 +23,13 @@ export async function GET(
             );
         }
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_tags');
 
-        // 查询标签
+        // Query tag
         const tag = await collection.findOne({ slug });
 
 
@@ -43,7 +43,7 @@ export async function GET(
             );
         }
 
-        // 转换格式
+        // Convert format
         const formattedTag = {
             ...tag,
             _id: tag._id.toString(),

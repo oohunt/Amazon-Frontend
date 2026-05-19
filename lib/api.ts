@@ -47,9 +47,9 @@ const createApiClient = (config?: AxiosRequestConfig) => {
 
 const api = createApiClient();
 
-// 修改cmsApiClient配置，添加动态baseURL决定
+// Update cmsApiClient config to add dynamic baseURL resolution
 const cmsApiClient = axios.create({
-    baseURL: isServer() ? SERVER_API_URL : '/api', // 根据环境使用正确的baseURL
+    baseURL: isServer() ? SERVER_API_URL : '/api', // Use correct baseURL based on environment
     timeout: DEFAULT_TIMEOUT,
     headers: {
         'Content-Type': 'application/json',
@@ -61,14 +61,14 @@ const cmsApiClient = axios.create({
     withCredentials: false,
 });
 
-// 添加请求拦截器确保使用本地URL
+// Add request interceptor to ensure local URL is used
 api.interceptors.request.use(
     (config) => {
-        // 在服务器端运行时，除非请求URL包含特定路径
+        // When running on the server side, unless the request URL contains a specific path
         if (isServer() && !config.url?.includes('/products/query')) {
             config.baseURL = API_BASE_URL;
         } else if (isServer()) {
-            // 对于products/query请求，使用SERVER_API_URL
+            // For products/query requests, use SERVER_API_URL
             config.baseURL = SERVER_API_URL;
         }
 
@@ -79,10 +79,10 @@ api.interceptors.request.use(
     }
 );
 
-// 为cmsApiClient添加同样的拦截器
+// Add the same interceptor to cmsApiClient
 cmsApiClient.interceptors.request.use(
     (config) => {
-        // 在服务器端运行时，强制使用本地URL
+        // When running on the server side, force use of local URL
         if (isServer()) {
             config.baseURL = API_BASE_URL;
         }
@@ -94,7 +94,7 @@ cmsApiClient.interceptors.request.use(
     }
 );
 
-// 响应拦截器
+// Response interceptor
 api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
@@ -107,13 +107,13 @@ api.interceptors.response.use(
 // API endpoints
 export const productsApi = {
     /**
-     * 通过ASIN查询商品详情
-     * 使用POST请求，支持更丰富的查询选项
-     * @param params - 查询参数
-     * @param params.asins - 商品ASIN码数组
-     * @param params.include_metadata - 是否包含原始元数据
-     * @param params.include_browse_nodes - 筛选特定的浏览节点ID数组
-     * @returns API响应对象，包含商品数据
+     * Query product details by ASIN
+     * Uses POST request, supports richer query options
+     * @param params - Query parameters
+     * @param params.asins - Array of product ASINs
+     * @param params.include_metadata - Whether to include raw metadata
+     * @param params.include_browse_nodes - Filter by specific browse node ID array
+     * @returns API response object containing product data
      */
     queryProduct: (params: {
         asins: string[];
@@ -128,12 +128,12 @@ export const productsApi = {
     },
 
     /**
-     * 批量查询商品详情
-     * @param params - 查询参数
-     * @param params.asins - 商品ASIN数组，最多50个
-     * @param params.include_metadata - 是否包含原始元数据
-     * @param params.include_browse_nodes - 筛选特定的浏览节点ID数组
-     * @returns API响应对象，包含商品数据数组
+     * Batch query product details
+     * @param params - Query parameters
+     * @param params.asins - Array of product ASINs, maximum 50
+     * @param params.include_metadata - Whether to include raw metadata
+     * @param params.include_browse_nodes - Filter by specific browse node ID array
+     * @returns API response object containing product data array
      */
     queryProducts: (params: {
         asins: string[];
@@ -151,7 +151,7 @@ export const productsApi = {
         return api.post<ApiResponse<Product[]>>('/products/query', params);
     },
 
-    // 商品相关
+    // Product-related
     getProducts: async (params?: {
         product_type?: 'discount' | 'coupon' | 'all';
         page?: number;
@@ -167,38 +167,38 @@ export const productsApi = {
         api_provider?: string;
     }) => {
         try {
-            // 将前端参数映射到API参数
+            // Map frontend params to API params
             const apiParams: Record<string, unknown> = { ...params };
 
-            // 重命名一些参数以匹配API预期
+            // Rename some params to match API expectations
             if (params?.limit) apiParams.page_size = params.limit;
             if (params?.sort_by) apiParams.sort_by = params.sort_by;
             if (params?.sort_order) apiParams.sort_order = params.sort_order;
 
-            // 移除空的分类和品牌参数
+            // Remove empty category and brand params
             if (params?.brands === '') delete apiParams.brands;
             if (params?.product_groups === '') delete apiParams.product_groups;
 
-            // 移除不需要的参数
+            // Remove unnecessary params
             delete apiParams.limit;
 
-            // 构建查询参数
+            // Build query params
             const queryParams = new URLSearchParams();
 
-            // 添加所有查询参数
+            // Add all query params
             Object.entries(apiParams).forEach(([key, value]) => {
                 if (value !== undefined && value !== null) {
                     queryParams.append(key, String(value));
                 }
             });
 
-            // 获取完整URL
+            // Get full URL
             const queryString = queryParams.toString();
             // Server-side needs absolute URL; client-side uses relative /api path
             const baseUrl = isServer() ? SERVER_ORIGIN : '';
             const url = `${baseUrl}/api/products/list${queryString ? `?${queryString}` : ''}`;
 
-            // 使用fetch API发起请求，利用Next.js的自动缓存
+            // Use fetch API to make the request, leveraging Next.js automatic caching
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -211,7 +211,7 @@ export const productsApi = {
                 data: data
             };
         } catch {
-            // 错误处理
+            // Error handling
             return {
                 data: {
                     items: [],
@@ -265,7 +265,7 @@ export const productsApi = {
         days?: number;
     }) => api.get<ApiResponse<PriceHistory[]>>(`/products/${productId}/price-history`, { params }),
 
-    // CJ平台相关
+    // CJ platform-related
     searchCJProducts: (params: {
         keyword: string;
         page?: number;
@@ -284,21 +284,21 @@ export const productsApi = {
     }>>(`/cj/products/${pid}/shipping`, { params }),
 
     /**
-     * 搜索产品
-     * @param params 搜索参数
-     * @param params.keyword 搜索关键词，必填
-     * @param params.page 页码，从1开始
-     * @param params.page_size 每页返回的产品数量，范围：1-100
-     * @param params.sort_by 排序字段："relevance"、"price"、"discount"或"created"
-     * @param params.sort_order 排序方向："asc"或"desc"
-     * @param params.min_price 最低价格过滤
-     * @param params.max_price 最高价格过滤
-     * @param params.min_discount 最低折扣率过滤，范围：0-100
-     * @param params.is_prime_only 是否只显示Prime商品
-     * @param params.product_groups 商品分类过滤，多个分类用逗号分隔
-     * @param params.brands 品牌过滤，多个品牌用逗号分隔
-     * @param params.api_provider 数据来源过滤："pa-api"或"cj-api"
-     * @returns API响应对象，包含搜索结果数据
+     * Search products
+     * @param params Search parameters
+     * @param params.keyword Search keyword, required
+     * @param params.page Page number, starting from 1
+     * @param params.page_size Number of products per page, range: 1-100
+     * @param params.sort_by Sort field: "relevance", "price", "discount", or "created"
+     * @param params.sort_order Sort direction: "asc" or "desc"
+     * @param params.min_price Minimum price filter
+     * @param params.max_price Maximum price filter
+     * @param params.min_discount Minimum discount rate filter, range: 0-100
+     * @param params.is_prime_only Whether to show only Prime products
+     * @param params.product_groups Product category filter, multiple categories separated by commas
+     * @param params.brands Brand filter, multiple brands separated by commas
+     * @param params.api_provider Data source filter: "pa-api" or "cj-api"
+     * @returns API response object containing search result data
      */
     searchProducts: (params: {
         keyword: string;
@@ -315,62 +315,62 @@ export const productsApi = {
         api_provider?: string;
     }) => {
         if (!params.keyword) {
-            throw new Error('关键词是必填的搜索参数');
+            throw new Error('Keyword is a required search parameter');
         }
 
-        // 首先尝试解码关键词，确保它是原始未编码状态
+        // First try to decode the keyword to ensure it is in its original unencoded state
         let cleanKeyword = params.keyword;
 
         try {
-            // 尝试解码，看是否是编码过的
+            // Try to decode to see if it is already encoded
             while (cleanKeyword.includes('%')) {
                 const decoded = decodeURIComponent(cleanKeyword);
 
                 if (decoded === cleanKeyword) {
-                    break; // 已经不能再解码了
+                    break; // Cannot decode further
                 }
                 cleanKeyword = decoded;
             }
         } catch {
-            // 解码失败，保持原样
+            // Decoding failed, keep as-is
             cleanKeyword = params.keyword;
         }
 
-        // 创建干净的参数对象，使用解码后的关键词并添加默认排序
+        // Create a clean params object using the decoded keyword and add default sort order
         const cleanParams = {
             ...params,
             keyword: cleanKeyword,
-            sort_order: params.sort_order || 'desc' // 设置默认排序为desc
+            sort_order: params.sort_order || 'desc' // Set default sort order to desc
         };
 
-        // 不要在这里进行编码，让axios自动处理
-        // axios会自动对URL参数进行编码
+        // Do not encode here, let axios handle it automatically
+        // axios will automatically encode URL parameters
         return api.get<ApiResponse<ListResponse<Product>>>('/search/products', { params: cleanParams });
     },
 
     /**
-     * 手动添加商品到数据库
-     * @param productData - 符合 ProductInfo 结构的数据
-     * @returns API响应对象，包含创建的商品信息
+     * Manually add a product to the database
+     * @param productData - Data conforming to the ProductInfo structure
+     * @returns API response object containing the created product information
      */
     manualAddProduct: (productData: ProductInfo) => {
-        // 使用api实例发送请求，让请求通过Next.js API路由
+        // Use api instance to send request, routing through Next.js API routes
         return api.post<ApiResponse<ProductInfo>>('/products/manual', productData);
     },
 
     /**
-     * 更新已存在的商品信息
-     * @param asin - 商品的ASIN码
-     * @param productData - 符合 ProductInfo 结构的更新数据
-     * @returns API响应对象，包含更新后的商品信息
+     * Update an existing product's information
+     * @param asin - The product's ASIN code
+     * @param productData - Update data conforming to the ProductInfo structure
+     * @returns API response object containing the updated product information
      */
     updateProduct: (asin: string, productData: ProductInfo) => {
-        // 确保ASIN格式正确
+        // Ensure ASIN format is correct
         if (!asin || asin.length !== 10 || !/^[A-Z0-9]{10}$/i.test(asin)) {
             throw new Error('Invalid ASIN format. ASIN must be 10 alphanumeric characters.');
         }
-        
-        // 使用api实例发送请求，让请求通过Next.js API路由
+
+        // Use api instance to send request, routing through Next.js API routes
         return api.put<ApiResponse<ProductInfo>>(`/products/${asin.toUpperCase()}`, productData);
     },
 };
@@ -380,14 +380,14 @@ export const userApi = {
     addFavorite: (productId: string) => api.post<ApiResponse<void>>(`/user/favorites/${productId}`),
     removeFavorite: (productId: string) => api.delete<ApiResponse<void>>(`/user/favorites/${productId}`),
 
-    // 用户偏好设置
+    // User preferences
     getPreferences: () => api.get<ApiResponse<Record<string, unknown>>>('/user/preferences'),
     updatePreferences: (preferences: Record<string, unknown>) => api.put<ApiResponse<void>>('/user/preferences', preferences),
 };
 
 export const systemApi = {
     /**
-     * 获取系统健康状态和统计数据
+     * Get system health status and statistics
      */
     getHealthStatus: () => api.get<ApiResponse<{
         status: string;
@@ -403,7 +403,7 @@ export const systemApi = {
     }>>('/health'),
 
     /**
-     * 获取用户统计数据
+     * Get user statistics
      */
     getUserStats: () => api.get<ApiResponse<{
         total_users: number;
@@ -413,7 +413,7 @@ export const systemApi = {
     }>>('/stats/users'),
 
     /**
-     * 获取收藏统计数据
+     * Get favorites statistics
      */
     getFavoriteStats: () => api.get<ApiResponse<{
         total_favorites: number;
@@ -423,9 +423,9 @@ export const systemApi = {
     }>>('/stats/favorites'),
 };
 
-// CMS相关API
+// CMS-related API
 export const cmsApi = {
-    // 内容页面相关
+    // Content page-related
     getPages: (params?: {
         page?: number;
         limit?: number;
@@ -452,7 +452,7 @@ export const cmsApi = {
     deletePage: (id: string) =>
         cmsApiClient.delete<ApiResponse<void>>(`/cms/pages/${id}`),
 
-    // 内容分类相关
+    // Content category-related
     getCategories: (params?: {
         page?: number;
         limit?: number;
@@ -477,7 +477,7 @@ export const cmsApi = {
     deleteCategory: (id: string) =>
         cmsApiClient.delete<ApiResponse<void>>(`/cms/categories/${id}`),
 
-    // 内容标签相关
+    // Content tag-related
     getTags: (params?: {
         page?: number;
         limit?: number;
@@ -501,7 +501,7 @@ export const cmsApi = {
     deleteTag: (id: string) =>
         cmsApiClient.delete<ApiResponse<void>>(`/cms/tags/${id}`),
 
-    // 产品选择相关
+    // Product selection-related
     getProductsForSelection: (params?: {
         page?: number;
         limit?: number;
@@ -511,7 +511,7 @@ export const cmsApi = {
         sortOrder?: 'asc' | 'desc';
     }) => cmsApiClient.get<ApiResponse<ProductSelectionResponse>>('/cms/products', { params }),
 
-    // 新增：使用search/products端点的产品选择函数，替代上面的函数
+    // New: product selection function using the search/products endpoint, replacing the one above
     getProductsForSearch: (params?: {
         page?: number;
         limit?: number;
@@ -520,10 +520,10 @@ export const cmsApi = {
         sortBy?: string;
         sortOrder?: 'asc' | 'desc';
     }) => {
-        // 创建sortBy到sort_by的映射函数
+        // Create a mapping function from sortBy to sort_by
         const mapSortBy = (sortBy?: string): 'relevance' | 'price' | 'discount' | 'created' | undefined => {
             if (!sortBy) return undefined;
-            // 映射常见的排序字段
+            // Map common sort fields
             switch (sortBy.toLowerCase()) {
                 case 'title': return 'relevance';
                 case 'price': return 'price';
@@ -533,14 +533,14 @@ export const cmsApi = {
             }
         };
 
-        // 将参数映射到searchProducts所需格式
+        // Map params to the format required by searchProducts
         return productsApi.searchProducts({
             keyword: params?.search || '',
             page: params?.page,
             page_size: params?.limit,
             sort_by: mapSortBy(params?.sortBy),
             sort_order: params?.sortOrder,
-            // 如果有category参数，则转换为product_groups
+            // If a category param is present, convert it to product_groups
             ...(params?.category && { product_groups: params.category })
         });
     },

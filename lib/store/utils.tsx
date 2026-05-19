@@ -9,13 +9,13 @@ export interface StoreInfo {
 }
 
 /**
- * 根据产品URL或API提供商判断商店来源
- * @param url 产品URL
- * @param apiProvider API提供商 (可选)
- * @returns 商店信息，包括名称、颜色和图标
+ * Determine store source from product URL or API provider
+ * @param url Product URL
+ * @param apiProvider API provider (optional)
+ * @returns Store info including name, color and icon
  */
 export const getStoreFromUrl = (url: string, apiProvider?: string): StoreInfo => {
-    // 优先根据 apiProvider 判断
+    // Prefer determining based on apiProvider
     if (apiProvider === 'amazon' || apiProvider === 'pa-api') {
         return {
             name: 'Amazon',
@@ -50,7 +50,7 @@ export const getStoreFromUrl = (url: string, apiProvider?: string): StoreInfo =>
         };
     }
 
-    // 从URL中提取域名作为商店名称
+    // Extract domain from URL as store name
     try {
         const domain = new URL(url).hostname.replace('www.', '');
 

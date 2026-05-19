@@ -7,24 +7,24 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { ProductCategoryNav } from '@/components/product/ProductCategoryNav';
 import { useCategoryStats } from '@/lib/hooks';
 
-// 按字母分组分类
+// Group categories by first letter
 const groupCategoriesByAlphabet = (categories: Array<{ name: string, count: number }>) => {
     const groups: Record<string, Array<{ name: string, count: number }>> = {};
 
-    // 对分类按首字母分组
+    // Group categories by their first letter
     categories.forEach(category => {
-        // 获取首字母并转为大写
+        // Get the first letter and convert to uppercase
         const firstLetter = category.name.charAt(0).toUpperCase();
 
-        // 如果该字母组不存在，则创建
+        // Create the group if it doesn't exist
         if (!groups[firstLetter]) {
             groups[firstLetter] = [];
         }
-        // 将分类添加到对应字母组
+        // Add the category to the corresponding letter group
         groups[firstLetter].push(category);
     });
 
-    // 按字母顺序排序
+    // Sort alphabetically
     return Object.entries(groups)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([letter, categories]) => ({
@@ -33,7 +33,7 @@ const groupCategoriesByAlphabet = (categories: Array<{ name: string, count: numb
         }));
 };
 
-// 字母索引组件
+// Alphabet index component
 const AlphabetIndex = ({
     groups,
     onSelectLetter,
@@ -66,7 +66,7 @@ const AlphabetIndex = ({
     );
 };
 
-// 分类组组件
+// Category groups component
 const CategoryGroups = ({
     groups,
     selectedCategory,
@@ -110,7 +110,7 @@ const CategoryGroups = ({
     );
 };
 
-// 主要内容组件
+// Main content component
 function CategoriesContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -121,16 +121,16 @@ function CategoriesContent() {
     const { data, isLoading } = useCategoryStats({
         sort_by: 'count',
         sort_order: 'desc',
-        page_size: 100 // 获取更多分类
+        page_size: 100 // Fetch more categories
     });
 
-    // 处理分类选择
+    // Handle category selection
     const handleCategorySelect = useCallback((category: string) => {
-        // 设置导航状态
+        // Set navigation state
         setIsNavigating(true);
 
-        // 获取存储的原始路径（使用 try-catch 防止服务器端错误）
-        let prevPath = '/product'; // 默认导航到商品页面
+        // Get the stored previous path (use try-catch to prevent server-side errors)
+        let prevPath = '/product'; // Default navigation target
 
         try {
             const storedPath = sessionStorage.getItem('prevPath');
@@ -139,31 +139,31 @@ function CategoriesContent() {
                 prevPath = storedPath;
             }
         } catch {
-            // 读取sessionStorage错误处理
+            // Handle sessionStorage read errors
         }
 
-        // 检查是否是产品页面路径
+        // Check if the path is a product page path
         const _isProductPage = prevPath.startsWith('/product');
 
-        // 使用新的URL格式导航到分类页面，保持categoryId参数名一致
+        // Navigate to the category page using the new URL format, keeping the categoryId parameter name consistent
         const finalUrl = `/product/category/${encodeURIComponent(category)}`;
 
-        // 添加时间戳到URL，防止缓存问题
+        // Add timestamp to URL to prevent caching issues
         const urlWithTimestamp = `${finalUrl}?_ts=${Date.now()}`;
 
-        // 延迟50ms后导航，确保页面状态完成更新
+        // Delay navigation by 50ms to ensure the page state update is complete
         setTimeout(() => {
-            // 立即导航
+            // Navigate immediately
             router.push(urlWithTimestamp);
 
-            // 清除导航状态
+            // Clear navigation state
             setTimeout(() => {
                 setIsNavigating(false);
             }, 500);
         }, 50);
     }, [router]);
 
-    // 处理字母选择
+    // Handle letter selection
     const handleLetterSelect = useCallback((letter: string) => {
         const element = document.getElementById(`group-${letter}`);
 
@@ -173,27 +173,27 @@ function CategoriesContent() {
         }
     }, []);
 
-    // 存储之前的路径
+    // Store the previous path
     useEffect(() => {
-        // 获取当前完整URL
+        // Get the current full URL
         const currentFullUrl = window.location.href;
         const currentPath = window.location.pathname;
 
-        // 检查是否已经有存储的路径
+        // Check if a path is already stored
         const existingPath = sessionStorage.getItem('prevPath');
 
-        // 如果当前不在分类页面，或者没有存储过路径，则存储当前路径
+        // Store the current path if not on the categories page, or if no path has been stored
         if (currentPath !== '/categories' || !existingPath) {
             sessionStorage.setItem('prevPath', currentFullUrl);
         }
 
-        // 如果直接访问了分类页面且没有存储过路径，设置默认路径为产品页面
+        // If directly visiting the categories page with no stored path, set default to products page
         if (currentPath === '/categories' && !existingPath) {
             sessionStorage.setItem('prevPath', '/product');
         }
     }, []);
 
-    // 处理滚动监测当前字母组
+    // Handle scroll to detect the active letter group
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -210,7 +210,7 @@ function CategoriesContent() {
             { threshold: 0.5 }
         );
 
-        // 观察所有字母组
+        // Observe all letter groups
         const letterGroups = document.querySelectorAll('[id^="group-"]');
 
         letterGroups.forEach(group => observer.observe(group));
@@ -218,7 +218,7 @@ function CategoriesContent() {
         return () => observer.disconnect();
     }, [data]);
 
-    // 从API数据中提取分类列表
+    // Extract category list from API data
     const categories = data
         ? Object.entries(data.product_groups || {})
             .map(([name, count]) => ({
@@ -228,12 +228,12 @@ function CategoriesContent() {
             .sort((a, b) => b.count - a.count)
         : [];
 
-    // 按字母分组
+    // Group by letter
     const groupedCategories = groupCategoriesByAlphabet(categories);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            {/* 导航加载覆盖层 */}
+            {/* Navigation loading overlay */}
             {isNavigating && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl flex flex-col items-center justify-center">
@@ -243,7 +243,7 @@ function CategoriesContent() {
                 </div>
             )}
 
-            {/* 页面头部 */}
+            {/* Page header */}
             <header className="sticky top-0 z-20 bg-white dark:bg-gray-800 shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center">
                     <button
@@ -257,7 +257,7 @@ function CategoriesContent() {
                     <h1 className="text-xl font-bold">Categories</h1>
                 </div>
 
-                {/* 添加分类导航 */}
+                {/* Add category navigation */}
                 <div className="hidden sm:block container mx-auto">
                     <ProductCategoryNav
                         selectedCategory={selectedCategory}
@@ -265,7 +265,7 @@ function CategoriesContent() {
                     />
                 </div>
 
-                {/* 字母索引 */}
+                {/* Alphabet index */}
                 {!isLoading && groupedCategories.length > 0 && (
                     <AlphabetIndex
                         groups={groupedCategories}
@@ -275,7 +275,7 @@ function CategoriesContent() {
                 )}
             </header>
 
-            {/* 页面内容 */}
+            {/* Page content */}
             <main className="container mx-auto px-4 pb-20">
                 {isLoading ? (
                     <div className="py-8 flex justify-center">
@@ -293,7 +293,7 @@ function CategoriesContent() {
     );
 }
 
-// 导出包含Suspense的组件
+// Export component wrapped in Suspense
 export default function CategoriesClientContent() {
     return (
         <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">

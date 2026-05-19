@@ -3,17 +3,17 @@
 import NextImage, { type ImageProps } from 'next/image';
 import React, { useState } from 'react';
 
-// 定义 SafeImage 组件接收的 Props，扩展自 next/image 的 ImageProps
+// Define Props received by SafeImage component, extending from next/image's ImageProps
 interface SafeImageProps extends ImageProps {
-    // 可以添加自定义的 props，比如占位符样式或组件
+    // Custom props can be added here, such as placeholder style or component
     placeholderClassName?: string;
 }
 
 /**
- * SafeImage 组件
- * @description 一个封装了 next/image 的客户端组件，用于处理图片加载错误 (onError)。
- * 当图片加载失败时，会渲染一个占位符。
- * @param {SafeImageProps} props - 组件属性，继承自 next/image 的 ImageProps。
+ * SafeImage component
+ * @description A client component wrapping next/image to handle image load errors (onError).
+ * When an image fails to load, a placeholder is rendered.
+ * @param {SafeImageProps} props - Component props, inheriting from next/image's ImageProps.
  */
 export function SafeImage({ placeholderClassName = 'bg-gray-200 animate-pulse', ...props }: SafeImageProps) {
     const [hasError, setHasError] = useState(false);
@@ -23,8 +23,8 @@ export function SafeImage({ placeholderClassName = 'bg-gray-200 animate-pulse', 
     };
 
     if (hasError) {
-        // 渲染占位符
-        // 尝试保留原始 Image 的布局相关 className
+        // Render placeholder
+        // Try to preserve layout-related classNames from the original Image
         const layoutClasses = props.className?.split(' ').filter(cls =>
             cls.includes('w-') ||
             cls.includes('h-') ||
@@ -35,12 +35,12 @@ export function SafeImage({ placeholderClassName = 'bg-gray-200 animate-pulse', 
             cls === 'fill'
         ).join(' ') || '';
 
-        // 使用传递的 props.width 和 props.height（如果提供了）来设置样式
+        // Use passed props.width and props.height (if provided) to set styles
         const style: React.CSSProperties = {};
 
         if (props.width) style.width = `${props.width}px`;
         if (props.height) style.height = `${props.height}px`;
-        // 如果是 fill，占位符也需要绝对定位
+        // If fill, placeholder also needs absolute positioning
         if (props.fill) {
             style.position = 'absolute';
             style.top = '0';
@@ -56,11 +56,11 @@ export function SafeImage({ placeholderClassName = 'bg-gray-200 animate-pulse', 
                 className={`${placeholderClassName} ${layoutClasses} ${props.className?.replace(layoutClasses, '').trim()}`}
                 style={style}
                 role="img"
-                aria-label={typeof props.alt === 'string' ? `加载失败: ${props.alt}` : '图片加载失败'}
+                aria-label={typeof props.alt === 'string' ? `Failed to load: ${props.alt}` : 'Image failed to load'}
             />
         );
     }
 
-    // 正常渲染 NextImage
+    // Render NextImage normally
     return <NextImage {...props} onError={handleError} />;
 } 

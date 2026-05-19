@@ -18,7 +18,7 @@ interface SkeletonProps {
     className?: string;
 }
 
-// 现代化加载旋转器
+// Modern loading spinner
 export const ModernLoadingSpinner: React.FC<ModernLoadingSpinnerProps> = ({
     size = 'md',
     variant = 'spinner',
@@ -31,7 +31,7 @@ export const ModernLoadingSpinner: React.FC<ModernLoadingSpinnerProps> = ({
         lg: 'w-8 h-8',
     };
 
-    // 旋转动画
+    // Rotation animation
     const spinnerVariant = (
         <motion.div
             className={`${sizeClasses[size]} border-2 border-gray-200 border-t-gray-600 rounded-full ${className}`}
@@ -40,7 +40,7 @@ export const ModernLoadingSpinner: React.FC<ModernLoadingSpinnerProps> = ({
         />
     );
 
-    // 点状加载动画
+    // Dot loading animation
     const dotsVariant = (
         <div className={`flex space-x-1 ${className}`}>
             {[0, 1, 2].map((i) => (
@@ -62,7 +62,7 @@ export const ModernLoadingSpinner: React.FC<ModernLoadingSpinnerProps> = ({
         </div>
     );
 
-    // 脉冲动画
+    // Pulse animation
     const pulseVariant = (
         <motion.div
             className={`${sizeClasses[size]} bg-gray-600 rounded-full ${className}`}
@@ -100,7 +100,7 @@ export const ModernLoadingSpinner: React.FC<ModernLoadingSpinnerProps> = ({
     );
 };
 
-// 骨架屏组件
+// Skeleton screen component
 export const ModernSkeleton: React.FC<SkeletonProps> = ({
     variant = 'text',
     lines = 1,
@@ -111,7 +111,7 @@ export const ModernSkeleton: React.FC<SkeletonProps> = ({
     if (variant === 'table') {
         return (
             <div className={`space-y-3 ${className}`}>
-                {/* 表头骨架 */}
+                {/* Table header skeleton */}
                 <div className="flex space-x-4">
                     {[1, 2, 3, 4].map((i) => (
                         <motion.div
@@ -123,7 +123,7 @@ export const ModernSkeleton: React.FC<SkeletonProps> = ({
                         />
                     ))}
                 </div>
-                {/* 表格行骨架 */}
+                {/* Table row skeleton */}
                 {['row-1', 'row-2', 'row-3', 'row-4', 'row-5'].map((rowKey, i) => (
                     <div key={rowKey} className="flex space-x-4">
                         {['col-1', 'col-2', 'col-3', 'col-4'].map((colKey, j) => (
@@ -164,7 +164,7 @@ export const ModernSkeleton: React.FC<SkeletonProps> = ({
         );
     }
 
-    // 文本骨架
+    // Text skeleton
     const textKeys = Array.from({ length: lines }, (_, ) => `text-${Date.now()}-${Math.random()}`);
 
     return (
@@ -183,13 +183,13 @@ export const ModernSkeleton: React.FC<SkeletonProps> = ({
     );
 };
 
-// 用户表格加载骨架
+// User table loading skeleton
 export const UserTableSkeleton: React.FC = () => {
     const userRowKeys = ['user-1', 'user-2', 'user-3', 'user-4', 'user-5', 'user-6', 'user-7'];
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-            {/* 表头 */}
+            {/* Table header */}
             <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex space-x-6">
                     <motion.div
@@ -222,7 +222,7 @@ export const UserTableSkeleton: React.FC = () => {
                 </div>
             </div>
 
-            {/* 表格行 */}
+            {/* Table row */}
             <div className="divide-y divide-gray-50">
                 {userRowKeys.map((key, i) => (
                     <motion.div
@@ -233,7 +233,7 @@ export const UserTableSkeleton: React.FC = () => {
                         transition={{ delay: i * 0.1 + 0.2 }}
                     >
                         <div className="flex items-center space-x-4">
-                            {/* 头像 */}
+                            {/* Avatar */}
                             <motion.div
                                 className="bg-gray-200 rounded-full w-10 h-10"
                                 variants={skeletonVariants}
@@ -242,7 +242,7 @@ export const UserTableSkeleton: React.FC = () => {
                                 transition={{ delay: i * 0.05 }}
                             />
 
-                            {/* 用户信息 */}
+                            {/* User info */}
                             <div className="flex-1 space-y-2">
                                 <motion.div
                                     className="bg-gray-200 rounded h-4 w-32"
@@ -260,7 +260,7 @@ export const UserTableSkeleton: React.FC = () => {
                                 />
                             </div>
 
-                            {/* 角色标签 */}
+                            {/* Role badge */}
                             <motion.div
                                 className="bg-gray-200 rounded-full h-6 w-16"
                                 variants={skeletonVariants}
@@ -269,7 +269,7 @@ export const UserTableSkeleton: React.FC = () => {
                                 transition={{ delay: i * 0.05 + 0.3 }}
                             />
 
-                            {/* 状态 */}
+                            {/* Status */}
                             <motion.div
                                 className="bg-gray-200 rounded-full h-6 w-16"
                                 variants={skeletonVariants}
@@ -278,7 +278,7 @@ export const UserTableSkeleton: React.FC = () => {
                                 transition={{ delay: i * 0.05 + 0.4 }}
                             />
 
-                            {/* 操作按钮 */}
+                            {/* Action buttons */}
                             <div className="flex space-x-2">
                                 <motion.div
                                     className="bg-gray-200 rounded h-8 w-16"
@@ -303,7 +303,7 @@ export const UserTableSkeleton: React.FC = () => {
     );
 };
 
-// 用户卡片加载骨架（移动端）
+// User card loading skeleton (mobile)
 export const UserCardSkeleton: React.FC = () => {
     const cardKeys = ['card-1', 'card-2', 'card-3', 'card-4', 'card-5'];
 
@@ -318,7 +318,7 @@ export const UserCardSkeleton: React.FC = () => {
                     transition={{ delay: i * 0.1 }}
                 >
                     <div className="flex items-center space-x-3 mb-3">
-                        {/* 头像 */}
+                        {/* Avatar */}
                         <motion.div
                             className="bg-gray-200 rounded-full w-10 h-10"
                             variants={skeletonVariants}
@@ -327,7 +327,7 @@ export const UserCardSkeleton: React.FC = () => {
                             transition={{ delay: i * 0.05 }}
                         />
 
-                        {/* 用户信息 */}
+                        {/* User info */}
                         <div className="flex-1 space-y-2">
                             <motion.div
                                 className="bg-gray-200 rounded h-4 w-24"
@@ -345,7 +345,7 @@ export const UserCardSkeleton: React.FC = () => {
                             />
                         </div>
 
-                        {/* 状态标签 */}
+                        {/* Status badge */}
                         <motion.div
                             className="bg-gray-200 rounded-full h-6 w-16"
                             variants={skeletonVariants}
@@ -355,7 +355,7 @@ export const UserCardSkeleton: React.FC = () => {
                         />
                     </div>
 
-                    {/* 详细信息 */}
+                    {/* Details */}
                     <div className="grid grid-cols-2 gap-2 mb-3">
                         <motion.div
                             className="bg-gray-200 rounded h-3 w-full"
@@ -373,7 +373,7 @@ export const UserCardSkeleton: React.FC = () => {
                         />
                     </div>
 
-                    {/* 操作按钮 */}
+                    {/* Action buttons */}
                     <div className="flex justify-end space-x-2 pt-3 border-t border-gray-100">
                         <motion.div
                             className="bg-gray-200 rounded h-8 w-16"

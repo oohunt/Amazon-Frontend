@@ -37,7 +37,7 @@ interface FormattedPage {
     isDraft?: boolean;
 }
 
-// 通过slug获取内容页面，支持预览草稿
+// Get content page by slug, with support for draft preview
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
@@ -47,65 +47,65 @@ export async function GET(
         const resolvedParams = await params;
         const slug = resolvedParams.slug;
 
-        // 检查是否是预览模式
+        // Check if preview mode is active
         const isPreview = request.nextUrl.searchParams.has('preview');
 
-        // 获取数据库连接
+        // Get database connection
         const dbName = process.env.MONGODB_DB || 'oohunt';
         const client = await clientPromise;
         const db = client.db(dbName);
         const collection = db.collection('cms_pages');
 
-        // 构建查询条件，如果是预览模式，则不限制状态
+        // Build query — do not restrict by status in preview mode
         const query: { slug: string; status?: string } = { slug: slug };
 
-        // 非预览模式下，只获取已发布的页面
+        // In non-preview mode, only retrieve published pages
         if (!isPreview) {
             query.status = 'published';
         }
 
-        // 查询页面
+        // Query the page
         const page = await collection.findOne(query);
 
         if (!page) {
             return NextResponse.json(
                 {
                     status: false,
-                    message: '未找到页面或页面未发布'
+                    message: 'Page not found or not published'
                 },
                 { status: 404 }
             );
         }
 
-        // 如果是预览且页面是草稿状态，添加预览标记
+        // If previewing a draft page, add a draft marker
         const isDraft = page.status === 'draft';
 
-        // 转换格式
+        // Format data
         const formattedPage = {
             ...page,
             _id: page._id.toString(),
             createdAt: page.createdAt instanceof Date ? page.createdAt.toISOString() : page.createdAt,
             updatedAt: page.updatedAt instanceof Date ? page.updatedAt.toISOString() : page.updatedAt,
             publishedAt: page.publishedAt instanceof Date ? page.publishedAt.toISOString() : page.publishedAt,
-            isDraft: isDraft && isPreview // 添加草稿标记
+            isDraft: isDraft && isPreview // Add draft marker
         };
 
-        // 如果页面包含产品ID，获取产品信息
+        // If the page contains product IDs, fetch the product information
         if (page.productIds && page.productIds.length > 0) {
             const productsCollection = db.collection('products');
 
-            // 将字符串ID转换为ObjectId
+            // Convert string IDs to ObjectId
             const objectIds = page.productIds.map((id: string) => {
                 return new ObjectId(id);
             });
 
-            // 从products集合中获取相关产品信息
+            // Fetch related product information from the products collection
             const products = await productsCollection.find({
                 _id: { $in: objectIds },
                 status: 'published'
             }).toArray();
 
-            // 添加产品信息到返回数据中
+            // Add product information to the response data
             const productInfoArray: ProductInfo[] = products.map(product => ({
                 id: product._id.toString(),
                 title: product.title,
@@ -115,7 +115,7 @@ export async function GET(
                 url: `/product/${product.slug || product._id}`
             }));
 
-            // 使用类型断言
+            // Use type assertion
             (formattedPage as FormattedPage).products = productInfoArray;
         }
 
@@ -128,8 +128,8 @@ export async function GET(
         return NextResponse.json(
             {
                 status: false,
-                message: '获取页面失败，请稍后再试',
-                error: error instanceof Error ? error.message : '未知错误'
+                message: 'Failed to get page, please try again later',
+                error: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }
         );

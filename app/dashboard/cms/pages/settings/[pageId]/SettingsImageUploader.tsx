@@ -11,8 +11,8 @@ interface SettingsImageUploaderProps {
 }
 
 /**
- * 设置页面图片上传组件
- * 用于CMS页面设置中的图片上传
+ * Settings page image upload component
+ * Used for image uploads in CMS page settings
  */
 export default function SettingsImageUploader({
     onImageUploaded,
@@ -23,9 +23,9 @@ export default function SettingsImageUploader({
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 处理文件上传
+    // Handle file upload
     const handleFileUpload = useCallback(async (file: File) => {
-        // 验证文件类型
+        // Validate file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
         if (!validTypes.includes(file.type)) {
@@ -34,7 +34,7 @@ export default function SettingsImageUploader({
             return;
         }
 
-        // 验证文件大小 (5MB)
+        // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             setError('Image size must be less than 5MB');
 
@@ -60,7 +60,7 @@ export default function SettingsImageUploader({
                 throw new Error(data.error || 'Upload failed');
             }
 
-            // 通知父组件
+            // Notify parent component
             onImageUploaded(data.url);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred during upload');
@@ -69,7 +69,7 @@ export default function SettingsImageUploader({
         }
     }, [onImageUploaded]);
 
-    // 处理拖拽事件
+    // Handle drag events
     const handleDragEnter = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -100,7 +100,7 @@ export default function SettingsImageUploader({
         }
     }, [handleFileUpload]);
 
-    // 处理文件选择
+    // Handle file selection
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
 

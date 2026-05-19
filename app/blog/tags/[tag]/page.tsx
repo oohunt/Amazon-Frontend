@@ -5,10 +5,10 @@ import { notFound } from 'next/navigation';
 import { SafeImage } from '@/components/common/SafeImage';
 import type { ContentTag, ContentPage as PageData } from '@/types/cms';
 
-// 获取特定标签的信息
+// Fetch data for a specific tag
 async function getTagData(slug: string): Promise<ContentTag | null> {
     try {
-        // 使用服务器端直接API调用代替客户端API库
+        // Use server-side direct API calls instead of the client-side API library
         const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/tags/slug/${slug}`, {
@@ -36,10 +36,10 @@ async function getTagData(slug: string): Promise<ContentTag | null> {
     }
 }
 
-// 获取特定标签下的所有文章
+// Fetch all posts under a specific tag
 async function getTagPosts(tagId: string): Promise<PageData[]> {
     try {
-        // 使用服务器端直接API调用代替客户端API库
+        // Use server-side direct API calls instead of the client-side API library
         const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004';
 
         const res = await fetch(`${apiBaseUrl}/api/cms/pages?tag=${tagId}&status=published&sortBy=publishedAt&sortOrder=desc&limit=50`, {
@@ -54,11 +54,11 @@ async function getTagPosts(tagId: string): Promise<PageData[]> {
         const json = await res.json();
 
         if (json.status && json.data?.pages) {
-            // 确保返回的数据结构与 PageData 兼容
+            // Ensure the returned data structure is compatible with PageData
             return json.data.pages.map((page: Record<string, unknown>) => ({
                 ...page,
-                // 如果API没有直接返回 categories/tags 字段，可能需要处理
-                // 使用 unknown[] 代替 any[]
+                // Handle cases where the API doesn't directly return categories/tags fields
+                // Use unknown[] instead of any[]
                 categories: (page.categories as unknown[]) || [],
                 tags: (page.tags as unknown[]) || []
             })) as PageData[];
@@ -70,11 +70,11 @@ async function getTagPosts(tagId: string): Promise<PageData[]> {
     }
 }
 
-// 生成页面元数据
+// Generate page metadata
 export async function generateMetadata(
     { params }: { params: Promise<{ tag: string }> }
 ): Promise<Metadata> {
-    // 确保先await参数
+    // Always await params first
     const resolvedParams = await params;
     const tag = await getTagData(resolvedParams.tag);
 
@@ -90,9 +90,9 @@ export async function generateMetadata(
     };
 }
 
-// 添加日期格式化函数 (与 /blog/page.tsx 相同)
+// Date formatting function (same as /blog/page.tsx)
 function _formatDate(dateString: string): string {
-    if (!dateString) return ''; // 添加保护，防止无效日期
+    if (!dateString) return ''; // Guard against invalid dates
 
     return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -101,9 +101,9 @@ function _formatDate(dateString: string): string {
     });
 }
 
-// 标签文章列表页面组件
+// Tag posts list page component
 export default async function TagPage({ params }: { params: Promise<{ tag: string }> }) {
-    // 确保先await参数
+    // Always await params first
     const resolvedParams = await params;
     const tag = await getTagData(resolvedParams.tag);
 
@@ -139,7 +139,7 @@ export default async function TagPage({ params }: { params: Promise<{ tag: strin
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {posts.map((page) => {
-                            // 确保优先使用featuredImage字段作为封面图片
+                            // Prefer the featuredImage field as the cover image
                             const imageUrl = page.featuredImage || page.seoData?.ogImage;
 
                             return (

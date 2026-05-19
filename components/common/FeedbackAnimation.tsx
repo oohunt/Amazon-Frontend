@@ -12,8 +12,8 @@ interface FeedbackAnimationProps {
 }
 
 /**
- * 操作反馈动画组件
- * 用于显示操作结果的动态反馈
+ * Action feedback animation component
+ * Dynamic feedback for displaying operation results
  */
 const FeedbackAnimation: React.FC<FeedbackAnimationProps> = ({
     type,
@@ -21,14 +21,14 @@ const FeedbackAnimation: React.FC<FeedbackAnimationProps> = ({
     className = '',
     message,
 }) => {
-    // 根据尺寸确定样式
+    // Determine styles based on size
     const sizeClasses = {
         sm: 'h-4 w-4',
         md: 'h-6 w-6',
         lg: 'h-8 w-8',
     };
 
-    // 根据类型确定图标和样式
+    // Determine icon and styles based on type
     const getIcon = () => {
         switch (type) {
             case 'success':

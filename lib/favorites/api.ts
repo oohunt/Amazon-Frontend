@@ -1,17 +1,17 @@
 /**
- * 收藏功能API模块
+ * Favorites feature API module
  */
 
 import type { Product } from '@/types/api';
 
-// 收藏项接口
+// Favorite item interface
 interface FavoriteItem {
     userId: string;
     productId: string;
     updatedAt?: Date;
 }
 
-// 模拟API响应类型
+// Mock API response type
 export type ApiResponseWrapper<T> = {
     data: {
         code: number;
@@ -21,12 +21,12 @@ export type ApiResponseWrapper<T> = {
 };
 
 /**
- * 收藏API封装
+ * Favorites API wrapper
  */
 export const favoritesApi = {
     /**
-     * 获取收藏列表
-     * @returns 收藏商品列表的Promise
+     * Get favorites list
+     * @returns Promise of favorited product list
      */
     getFavorites: async (): Promise<ApiResponseWrapper<Product[]>> => {
         try {
@@ -34,10 +34,10 @@ export const favoritesApi = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || '获取收藏列表失败');
+                throw new Error(data.error || 'Failed to get favorites list');
             }
 
-            // 将收藏记录转换为商品对象
+            // Convert favorite records to product objects
             const products = data.favorites.map((fav: FavoriteItem) => ({
                 id: fav.productId,
                 asin: fav.productId,
@@ -47,7 +47,7 @@ export const favoritesApi = {
             return {
                 data: {
                     code: 200,
-                    message: '获取收藏列表成功',
+                    message: 'Favorites list retrieved successfully',
                     data: products
                 }
             };
@@ -55,7 +55,7 @@ export const favoritesApi = {
             return {
                 data: {
                     code: 500,
-                    message: error instanceof Error ? error.message : '获取收藏列表失败',
+                    message: error instanceof Error ? error.message : 'Failed to get favorites list',
                     data: []
                 }
             };
@@ -63,9 +63,9 @@ export const favoritesApi = {
     },
 
     /**
-     * 添加收藏
-     * @param productId 商品ID
-     * @returns 添加结果的Promise
+     * Add to favorites
+     * @param productId Product ID
+     * @returns Promise of add result
      */
     addFavorite: async (productId: string): Promise<ApiResponseWrapper<undefined>> => {
         try {
@@ -80,13 +80,13 @@ export const favoritesApi = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || '添加收藏失败');
+                throw new Error(data.error || 'Failed to add favorite');
             }
 
             return {
                 data: {
                     code: 200,
-                    message: '添加收藏成功',
+                    message: 'Favorite added successfully',
                     data: undefined
                 }
             };
@@ -94,7 +94,7 @@ export const favoritesApi = {
             return {
                 data: {
                     code: 500,
-                    message: error instanceof Error ? error.message : '添加收藏失败',
+                    message: error instanceof Error ? error.message : 'Failed to add favorite',
                     data: undefined
                 }
             };
@@ -102,9 +102,9 @@ export const favoritesApi = {
     },
 
     /**
-     * 移除收藏
-     * @param productId 商品ID
-     * @returns 移除结果的Promise
+     * Remove from favorites
+     * @param productId Product ID
+     * @returns Promise of remove result
      */
     removeFavorite: async (productId: string): Promise<ApiResponseWrapper<undefined>> => {
         try {
@@ -119,13 +119,13 @@ export const favoritesApi = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || '移除收藏失败');
+                throw new Error(data.error || 'Failed to remove favorite');
             }
 
             return {
                 data: {
                     code: 200,
-                    message: '移除收藏成功',
+                    message: 'Favorite removed successfully',
                     data: undefined
                 }
             };
@@ -133,7 +133,7 @@ export const favoritesApi = {
             return {
                 data: {
                     code: 500,
-                    message: error instanceof Error ? error.message : '移除收藏失败',
+                    message: error instanceof Error ? error.message : 'Failed to remove favorite',
                     data: undefined
                 }
             };
@@ -141,9 +141,9 @@ export const favoritesApi = {
     },
 
     /**
-     * 批量同步收藏
-     * @param productIds 商品ID数组
-     * @returns 同步结果的Promise
+     * Batch sync favorites
+     * @param productIds Array of product IDs
+     * @returns Promise of sync result
      */
     syncFavorites: async (productIds: string[]): Promise<ApiResponseWrapper<undefined>> => {
         try {
@@ -151,13 +151,13 @@ export const favoritesApi = {
                 return {
                     data: {
                         code: 200,
-                        message: '无需同步',
+                        message: 'Nothing to sync',
                         data: undefined
                     }
                 };
             }
 
-            // 批量处理，每批最多20个
+            // Process in batches of up to 20 items each
             const batchSize = 20;
             const batches = [];
 
@@ -167,7 +167,7 @@ export const favoritesApi = {
                 batches.push(batch);
             }
 
-            // 使用Promise.allSettled处理每个批次
+            // Use Promise.allSettled to process each batch
             const results = await Promise.allSettled(
                 batches.map(async (batchIds) => {
                     const retryLimit = 3;
@@ -184,7 +184,7 @@ export const favoritesApi = {
                             const data = await response.json();
 
                             if (!response.ok) {
-                                throw new Error(data.error || '批量同步失败');
+                                throw new Error(data.error || 'Batch sync failed');
                             }
 
                             return data;
@@ -193,24 +193,24 @@ export const favoritesApi = {
                             if (attempt === retryLimit) {
                                 throw error;
                             }
-                            // 指数退避重试
+                            // Exponential backoff retry
                             await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
                         }
                     }
                 })
             );
 
-            // 检查是否所有批次都成功
+            // Check if all batches succeeded
             const failures = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
 
             if (failures.length > 0) {
-                throw new Error(`部分批次同步失败: ${failures.map(f => f.reason.message).join(', ')}`);
+                throw new Error(`Some batches failed to sync: ${failures.map(f => f.reason.message).join(', ')}`);
             }
 
             return {
                 data: {
                     code: 200,
-                    message: '同步收藏列表成功',
+                    message: 'Favorites list synced successfully',
                     data: undefined
                 }
             };
@@ -218,7 +218,7 @@ export const favoritesApi = {
             return {
                 data: {
                     code: 500,
-                    message: error instanceof Error ? error.message : '同步收藏列表失败',
+                    message: error instanceof Error ? error.message : 'Failed to sync favorites list',
                     data: undefined
                 }
             };

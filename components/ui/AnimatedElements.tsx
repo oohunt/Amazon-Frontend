@@ -13,7 +13,7 @@ import {
     backdropVariants,
 } from '@/lib/animations';
 
-// 动画容器组件
+// Animation container component
 interface AnimatedContainerProps {
     children: React.ReactNode;
     className?: string;
@@ -41,7 +41,7 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
     );
 };
 
-// 动画列表项组件
+// Animated list item component
 interface AnimatedItemProps {
     children: React.ReactNode;
     className?: string;
@@ -70,7 +70,7 @@ export const AnimatedItem: React.FC<AnimatedItemProps> = ({
     );
 };
 
-// 动画卡片组件
+// Animated card component
 interface AnimatedCardProps {
     children: React.ReactNode;
     className?: string;
@@ -101,7 +101,7 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
     );
 };
 
-// 淡入动画组件
+// Fade-in animation component
 interface FadeInProps {
     children: React.ReactNode;
     className?: string;
@@ -128,7 +128,7 @@ export const FadeIn: React.FC<FadeInProps> = ({
     );
 };
 
-// 滑入动画组件
+// Slide-in animation component
 interface SlideInProps {
     children: React.ReactNode;
     className?: string;
@@ -172,7 +172,7 @@ export const SlideIn: React.FC<SlideInProps> = ({
     );
 };
 
-// 缩放动画组件
+// Scale animation component
 interface ScaleInProps {
     children: React.ReactNode;
     className?: string;
@@ -199,7 +199,7 @@ export const ScaleIn: React.FC<ScaleInProps> = ({
     );
 };
 
-// 动画模态框组件
+// Animated modal component
 interface AnimatedModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -217,7 +217,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* 背景遮罩 */}
+                    {/* Background overlay */}
                     <motion.div
                         className="fixed inset-0 bg-black/50 z-40"
                         variants={backdropVariants}
@@ -227,7 +227,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
                         onClick={onClose}
                     />
 
-                    {/* 模态框内容 */}
+                    {/* Modal content */}
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <motion.div
                             className={`bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto ${className}`}
@@ -246,7 +246,7 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
     );
 };
 
-// 弹出提示组件
+// Popup toast component
 interface PopoverProps {
     isOpen: boolean;
     children: React.ReactNode;
@@ -275,7 +275,7 @@ export const AnimatedPopover: React.FC<PopoverProps> = ({
     );
 };
 
-// 加载状态包装器
+// Loading status wrapper
 interface AnimatedLoadingWrapperProps {
     isLoading: boolean;
     children: React.ReactNode;
@@ -317,7 +317,7 @@ export const AnimatedLoadingWrapper: React.FC<AnimatedLoadingWrapperProps> = ({
     );
 };
 
-// 列表动画包装器
+// List animation wrapper
 interface AnimatedListProps {
     children: React.ReactNode[];
     className?: string;
@@ -353,7 +353,7 @@ export const AnimatedList: React.FC<AnimatedListProps> = ({
     );
 };
 
-// 悬停放大组件
+// Hover zoom component
 interface HoverScaleProps {
     children: React.ReactNode;
     className?: string;
@@ -378,7 +378,7 @@ export const HoverScale: React.FC<HoverScaleProps> = ({
     );
 };
 
-// 点击波纹效果组件
+// Click ripple effect component
 interface ClickRippleProps {
     children: React.ReactNode;
     className?: string;

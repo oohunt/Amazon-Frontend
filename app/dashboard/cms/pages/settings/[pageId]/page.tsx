@@ -19,7 +19,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useActionState, type Key, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 
-// 导入cms专用API客户端
+// import CMS-specific API client
 import { cmsApi } from '@/lib/api/cms';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { ContentPage, ContentCategory, ContentTag } from '@/types/cms';
@@ -65,10 +65,10 @@ export default function PageSettingsPage() {
     const [categorySearch, setCategorySearch] = useState('');
     const [tagSearch, setTagSearch] = useState('');
 
-    // 使用useRef来存储当前的action
+    // Use useRef to store the current action
     const actionRef = useRef(updatePageSettingsAction.bind(null, pageId, pageData?.slug));
 
-    // 当pageId或pageData.slug变化时更新actionRef
+    // Update actionRef when pageId or pageData.slug changes
     useEffect(() => {
         actionRef.current = updatePageSettingsAction.bind(null, pageId, pageData?.slug);
     }, [pageId, pageData?.slug]);

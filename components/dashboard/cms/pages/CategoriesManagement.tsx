@@ -9,8 +9,8 @@ import { generateSlug } from '@/lib/utils';
 import type { ContentCategory } from '@/types/cms';
 
 /**
- * 分类管理组件
- * 用于管理内容分类
+ * Category management component
+ * For managing content categories
  */
 const CategoriesManagement = () => {
     // State for categories list

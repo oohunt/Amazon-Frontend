@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { FeaturedDeals } from '@/components/ui/FeaturedDeals';
-import { getProductById } from '@/lib/db/products';
+import { getProductsByAsin } from '@/lib/db/products';
+import { isHaram } from '@/lib/haram-filter';
 import { adaptProducts } from '@/lib/utils';
-import type { Product } from '@/types/api';
+import type { ComponentProduct } from '@/types';
 
 import ProductClient from './ProductClient';
 
@@ -14,26 +15,29 @@ type ProductPageProps = {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-// Function to fetch product data directly from MongoDB
-async function getProduct(id: string): Promise<Product | null> {
-    if (!id) return null;
+/** Fetch all offers for this ASIN, filtered for haram, adapted to ComponentProduct. */
+async function getProductOffers(id: string): Promise<ComponentProduct[]> {
+    if (!id) return [];
     try {
-        return await getProductById(id) as Product | null;
+        const all = await getProductsByAsin(id);
+        const clean = all.filter((p) => !isHaram(p.title || "", p.product_group || ""));
+        return adaptProducts(clean);
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching product:', error);
-        return null;
+        return [];
     }
 }
 
-// 生成页面元数据
+// Generate page metadata
 export async function generateMetadata(
     props: ProductPageProps
 ): Promise<Metadata> {
     const params = await props.params;
     const id = params.id;
 
-    const product = await getProduct(id);
+    const offers = await getProductOffers(id);
+    const product = offers[0] ?? null;
 
     if (!product) {
         return {
@@ -42,7 +46,7 @@ export async function generateMetadata(
         };
     }
 
-    // 将商品标题的首字母大写
+    // Capitalize first letter of product title
     const formattedTitle = product.title.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
 
     return {
@@ -56,8 +60,10 @@ export default async function ProductPage(props: ProductPageProps) {
     const params = await props.params;
     const id = params.id;
 
-    const product = await getProduct(id);
-    const adaptedProduct = product ? adaptProducts([product])[0] : null;
+    const offers = await getProductOffers(id);
+    const adaptedProduct = offers[0] ?? null;
+    // Remaining offers shown in the product info panel
+    const otherOffers = offers.slice(1);
 
     if (!adaptedProduct) {
         return (
@@ -84,7 +90,7 @@ export default async function ProductPage(props: ProductPageProps) {
         <div className="w-full">
             {/* Product details main content */}
             <div className="bg-gray-50 dark:bg-gray-900 py-4 sm:py-6">
-                <ProductClient product={adaptedProduct} />
+                <ProductClient product={adaptedProduct} otherOffers={otherOffers} />
             </div>
 
             {/* Similar products and Today's Best Deals sections */}
