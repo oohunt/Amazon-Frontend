@@ -183,21 +183,21 @@ export async function countProducts(opts: Omit<ProductQueryOptions, "page" | "pa
 
 export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
     const col = await getCollection();
-    // Sample generously, then deduplicate by both ASIN and brand in JS.
-    // This prevents the same brand appearing multiple times on the homepage.
+    // Sample a large pool, then keep only ONE product per brand.
+    // This prevents the same brand flooding the homepage hero / featured sections.
     const raw = await col.aggregate([
         { $match: { discount: { $nin: ["", "0", null] } } },
-        { $sample: { size: limit * 8 } },
+        { $sample: { size: Math.min(500, limit * 20) } },
     ]).toArray();
 
-    const seenTitles = new Set<string>();
+    const seenBrands = new Set<string>();
     const deduped: typeof raw = [];
 
     for (const doc of raw) {
-        // Deduplicate by title+brand — removes size/color variants with identical names
-        const titleKey = `${(doc.brand_name || "").toLowerCase().trim()}|${(doc.product_name || "").toLowerCase().trim()}`;
-        if (seenTitles.has(titleKey)) continue;
-        seenTitles.add(titleKey);
+        const brandKey = (doc.brand_name || "").toLowerCase().trim();
+        // Allow products with no brand, but deduplicate branded ones
+        if (brandKey && seenBrands.has(brandKey)) continue;
+        if (brandKey) seenBrands.add(brandKey);
         deduped.push(doc);
         if (deduped.length >= limit) break;
     }
