@@ -147,13 +147,16 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pipeline: any[] = [
         { $match: filter },
-        // Group by brand+title — collapses size/color variants into one entry.
+        // Group by brand + first 70 chars of title.
+        // Truncating to 70 chars collapses SKU variants (size/color appended at
+        // the end of long Amazon titles) into a single entry while keeping
+        // genuinely different products from the same brand separate.
         // $group first (no preceding $sort) avoids the Atlas 32 MB memory limit.
         {
             $group: {
                 _id: {
                     brand: { $toLower: { $ifNull: ["$brand_name", ""] } },
-                    title: { $toLower: { $ifNull: ["$product_name", ""] } },
+                    title: { $substr: [{ $toLower: { $ifNull: ["$product_name", ""] } }, 0, 70] },
                 },
                 doc: { $first: "$$ROOT" },
             },
