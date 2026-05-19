@@ -198,8 +198,8 @@ export const productsApi = {
             const baseUrl = isServer() ? SERVER_ORIGIN : '';
             const url = `${baseUrl}/api/products/list${queryString ? `?${queryString}` : ''}`;
 
-            // Use fetch API to make the request, leveraging Next.js automatic caching
-            const response = await fetch(url);
+            // No-store: products must be fresh every request (randomised results)
+            const response = await fetch(url, { cache: 'no-store' });
 
             if (!response.ok) {
                 throw new Error(`API error: ${response.status}`);

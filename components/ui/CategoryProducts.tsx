@@ -65,7 +65,7 @@ export function CategoryProducts({ title, slug, page_size = 4, className = '', i
             try {
                 setLoading(true);
                 // Use page_size parameter instead of limit
-                const response = await fetch(`/api/products/list?product_groups=${encodeURIComponent(slug)}&page_size=${dynamicLimit}`);
+                const response = await fetch(`/api/products/list?product_groups=${encodeURIComponent(slug)}&page_size=${dynamicLimit}`, { cache: 'no-store' });
 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);

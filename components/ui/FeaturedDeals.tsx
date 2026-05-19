@@ -95,7 +95,7 @@ export function FeaturedDeals({
                         countParams.append('product_groups', productGroups);
                     }
 
-                    const countResponse = await fetch(`/api/products/count?${countParams.toString()}`);
+                    const countResponse = await fetch(`/api/products/count?${countParams.toString()}`, { cache: 'no-store' });
 
                     if (!countResponse.ok) {
                         throw new Error(`API error: ${countResponse.status}`);
@@ -124,7 +124,7 @@ export function FeaturedDeals({
                         params.append('product_groups', productGroups);
                     }
 
-                    const response = await fetch(`/api/products/list?${params.toString()}`);
+                    const response = await fetch(`/api/products/list?${params.toString()}`, { cache: 'no-store' });
 
                     if (!response.ok) {
                         throw new Error(`API error: ${response.status}`);
@@ -252,7 +252,7 @@ export function FeaturedDeals({
                         params.append('product_groups', productGroups);
                     }
 
-                    const response = await fetch(`/api/products/featured?${params.toString()}`);
+                    const response = await fetch(`/api/products/featured?${params.toString()}`, { cache: 'no-store' });
 
                     if (!response.ok) {
                         throw new Error(`API error: ${response.status}`);
