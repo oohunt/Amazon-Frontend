@@ -137,29 +137,39 @@ export async function listProducts(opts: ProductQueryOptions = {}): Promise<{
     const skip = (page - 1) * page_size;
     const filter = buildFilter(opts);
 
-    // Over-fetch generously then deduplicate in JS by title+brand to remove
-    // size/color variants that share the same name but have different ASINs.
-    const fetchLimit = page_size * 6 + skip;
-    const rawDocs = await col
-        .find(filter)
-        .sort({ fetched_at: -1 })
-        .limit(fetchLimit)
-        .toArray();
+    // Deduplicate by title+brand using $group BEFORE $sort.
+    // $group first (no preceding $sort) avoids the Atlas 32 MB memory limit.
+    // The sort runs on the already-small deduplicated set — no memory issue.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pipeline: any[] = [
+        { $match: filter },
+        // Group by brand+title — collapses size/color variants into one entry
+        {
+            $group: {
+                _id: {
+                    brand: { $toLower: { $ifNull: ["$brand_name", ""] } },
+                    title: { $toLower: { $ifNull: ["$product_name", ""] } },
+                },
+                doc: { $first: "$$ROOT" },
+            },
+        },
+        { $replaceRoot: { newRoot: "$doc" } },
+        // Sort the small deduplicated set — safe, no memory issue
+        { $sort: { fetched_at: -1 } },
+        // Single pass for count + paginated slice
+        {
+            $facet: {
+                items: [{ $skip: skip }, { $limit: page_size }],
+                total: [{ $count: "count" }],
+            },
+        },
+    ];
 
-    const seenTitles = new Set<string>();
-    const deduped: typeof rawDocs = [];
-    for (const doc of rawDocs) {
-        // Normalize: lowercase full title + brand — catches identical variants
-        const titleKey = `${(doc.brand_name || "").toLowerCase().trim()}|${(doc.product_name || "").toLowerCase().trim()}`;
-        if (seenTitles.has(titleKey)) continue;
-        seenTitles.add(titleKey);
-        deduped.push(doc);
-    }
+    const [result] = await col.aggregate(pipeline).toArray();
 
-    const total = deduped.length + skip; // approximate; accurate enough for pagination
     return {
-        items: deduped.slice(skip, skip + page_size).map(toProduct),
-        total,
+        items: (result?.items ?? []).map(toProduct),
+        total: result?.total?.[0]?.count ?? 0,
         page,
         page_size,
     };
